@@ -1,17 +1,27 @@
 package com.qlgiay.gui.component;
 
-import com.formdev.flatlaf.FlatClientProperties;
-import com.qlgiay.dto.SanPhamDTO;
-import com.qlgiay.util.IconUtil;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.function.Consumer;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+
+import com.formdev.flatlaf.FlatClientProperties;
+import com.qlgiay.dto.SanPhamDTO;
+import com.qlgiay.util.IconUtil;
 
 public class ProductCard extends JPanel {
 
@@ -68,14 +78,31 @@ public class ProductCard extends JPanel {
         lblSize.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         lblSize.setForeground(new Color(100, 100, 100));
 
-        JLabel lblGia = new JLabel(formatPrice(sp.getDonGia()));
+        JPanel pricePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 4, 0));
+        pricePanel.setOpaque(false);
+
+        JLabel lblGia = new JLabel();
         lblGia.setFont(new Font("Segoe UI", Font.BOLD, 14));
         lblGia.setForeground(new Color(198, 40, 40));
+
+        if (sp.getGiaKhuyenMai() != null && sp.getGiaKhuyenMai().compareTo(BigDecimal.ZERO) > 0
+                && sp.getGiaKhuyenMai().compareTo(sp.getDonGia() == null ? BigDecimal.ZERO : sp.getDonGia()) < 0) {
+            JLabel lblGiaCu = new JLabel("<html><s>" + formatPrice(sp.getDonGia()) + "</s></html>");
+            lblGiaCu.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+            lblGiaCu.setForeground(new Color(120, 120, 120));
+
+            lblGia.setText(formatPrice(sp.getGiaKhuyenMai()));
+            pricePanel.add(lblGiaCu);
+            pricePanel.add(lblGia);
+        } else {
+            lblGia.setText(formatPrice(sp.getDonGia()));
+            pricePanel.add(lblGia);
+        }
 
         info.add(lblTen);
         info.add(lblSize);
         info.add(Box.createVerticalStrut(4));
-        info.add(lblGia);
+        info.add(pricePanel);
 
         add(imagePanel, BorderLayout.CENTER);
         add(info, BorderLayout.SOUTH);

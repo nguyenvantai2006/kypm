@@ -9,7 +9,10 @@ public class SanPhamDTO {
     private String loaiSP;
     private String donViTinh;
     private int soLuong;
+    private BigDecimal giaNhap;
+    private BigDecimal phanTramLoiNhuan;
     private BigDecimal donGia;
+    private BigDecimal giaKhuyenMai;
     private String mauSac;
     private String size;
     private String chatLieu;
@@ -19,6 +22,18 @@ public class SanPhamDTO {
     private String moTa;
     private String hinhAnh;
     private int trangThai;
+
+    public static BigDecimal tinhGiaBan(BigDecimal giaNhap, BigDecimal phanTramLoiNhuan) {
+        if (giaNhap == null || giaNhap.compareTo(BigDecimal.ZERO) <= 0) {
+            return null;
+        }
+        if (phanTramLoiNhuan == null) {
+            return giaNhap;
+        }
+
+        BigDecimal tyLe = phanTramLoiNhuan.divide(BigDecimal.valueOf(100), 10, BigDecimal.ROUND_HALF_UP);
+        return giaNhap.multiply(BigDecimal.ONE.add(tyLe));
+    }
 
     public SanPhamDTO() {}
 
@@ -80,12 +95,36 @@ public class SanPhamDTO {
         this.soLuong = soLuong;
     }
 
+    public BigDecimal getGiaNhap() {
+        return giaNhap;
+    }
+
+    public void setGiaNhap(BigDecimal giaNhap) {
+        this.giaNhap = giaNhap;
+    }
+
+    public BigDecimal getPhanTramLoiNhuan() {
+        return phanTramLoiNhuan;
+    }
+
+    public void setPhanTramLoiNhuan(BigDecimal phanTramLoiNhuan) {
+        this.phanTramLoiNhuan = phanTramLoiNhuan;
+    }
+
     public BigDecimal getDonGia() {
         return donGia;
     }
 
     public void setDonGia(BigDecimal donGia) {
         this.donGia = donGia;
+    }
+
+    public BigDecimal getGiaKhuyenMai() {
+        return giaKhuyenMai;
+    }
+
+    public void setGiaKhuyenMai(BigDecimal giaKhuyenMai) {
+        this.giaKhuyenMai = giaKhuyenMai;
     }
 
     public String getMauSac() {
