@@ -11,6 +11,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.Window;
 import java.awt.event.MouseAdapter;
@@ -93,6 +94,8 @@ public class HoaDonPanel extends JPanel implements IRefreshable {
 
     private JTextField txtSearch;
     private JButton btnCalendar;
+    private JButton btnDoiTra;
+    private JButton btnSuaChua;
     private JComboBox<String> cboClear;
     private JTextField txtSelectedDate;
     private LocalDate selectedStartDate;
@@ -278,38 +281,129 @@ public class HoaDonPanel extends JPanel implements IRefreshable {
         alignTopPanel.add(contentPanel, BorderLayout.NORTH);
         alignTopPanel.add(createDetailTable(), BorderLayout.CENTER);
 
-        JScrollPane scroll = new JScrollPane(alignTopPanel);
-        scroll.setBorder(null);
-        scroll.getVerticalScrollBar().setUnitIncrement(16);
-        scroll.getViewport().setOpaque(false);
-        scroll.setOpaque(false);
-
-        JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
-        pnlButtons.setPreferredSize(new Dimension(0, 40));
+        JPanel pnlButtons = new JPanel(new GridLayout(2, 2, 10, 10));
         pnlButtons.setOpaque(false);
+        pnlButtons.setBorder(new EmptyBorder(10, 0, 0, 0));
 
         JButton btnRefresh = new JButton("Làm mới");
         JButton btnPrint = new JButton("In hóa đơn");
+        btnDoiTra = new JButton("Đổi trả");
+        btnSuaChua = new JButton("Sửa chữa");
 
-        btnRefresh.setIcon(IconUtil.loadPng("/icons/refresh.png", 22));
-        btnPrint.setIcon(IconUtil.loadPng("/icons/print.png", 22));
+        btnRefresh.setIcon(IconUtil.loadPng("/icons/refresh.png", 20));
+        btnPrint.setIcon(IconUtil.loadPng("/icons/print.png", 20));
+        btnDoiTra.setIcon(IconUtil.loadPng("/icons/return.png", 20));
+        btnSuaChua.setIcon(IconUtil.loadPng("/icons/repair.png", 20));
 
-        btnRefresh.setIconTextGap(6);
-        btnPrint.setIconTextGap(6);
+        btnRefresh.setIconTextGap(5);
+        btnPrint.setIconTextGap(5);
+        btnDoiTra.setIconTextGap(5);
+        btnSuaChua.setIconTextGap(5);
 
         styleActionButton(btnRefresh, "default");
         styleActionButton(btnPrint, "success");
+        styleActionButton(btnDoiTra, "warning");
+        styleActionButton(btnSuaChua, "info");
+
+        btnDoiTra.setEnabled(false);
+        btnSuaChua.setEnabled(false);
 
         btnRefresh.addActionListener(e -> refreshData());
         btnPrint.addActionListener(e -> printInvoice());
+        btnDoiTra.addActionListener(e -> openDoiTraDialog());
+        btnSuaChua.addActionListener(e -> openBaoHanhDialog());
 
         pnlButtons.add(btnRefresh);
         pnlButtons.add(btnPrint);
+        pnlButtons.add(btnDoiTra);
+        pnlButtons.add(btnSuaChua);
+
+        JPanel scrollContent = new JPanel(new BorderLayout(0, 10));
+        scrollContent.setOpaque(false);
+        scrollContent.add(alignTopPanel, BorderLayout.CENTER);
+        scrollContent.add(pnlButtons, BorderLayout.SOUTH);
+
+        JScrollPane scroll = new JScrollPane(scrollContent);
+        scroll.setBorder(null);
+        scroll.getVerticalScrollBar().setUnitIncrement(16);
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scroll.getViewport().setOpaque(false);
+        scroll.setOpaque(false);
 
         formWrapper.add(scroll, BorderLayout.CENTER);
-        formWrapper.add(pnlButtons, BorderLayout.SOUTH);
 
         return formWrapper;
+    }
+
+    private void loadSelectedRow() {
+        if (loadingTable)
+            return;
+
+        int viewRow = tableHoaDon.getSelectedRow();
+        boolean hasSelection = viewRow >= 0;
+
+        // Bật tắt 2 nút nghiệp vụ
+        if (btnDoiTra != null)
+            btnDoiTra.setEnabled(hasSelection);
+        if (btnSuaChua != null)
+            btnSuaChua.setEnabled(hasSelection);
+
+        if (!hasSelection)
+            return;
+
+        int modelRow = viewRow;
+        String maHD = String.valueOf(hoaDonModel.getValueAt(modelRow, 0));
+
+        HoaDonDTO hd = hoaDonDAO.findById(maHD);
+        if (hd == null)
+            return;
+
+        txtMaHD.setText(hd.getMaHD());
+        txtNV.setText(hd.getMaNV());
+        txtKH.setText(hd.getMaKH() != null ? hd.getMaKH() : "Khách lẻ");
+        txtVoucher.setText(
+                (hd.getMaVoucher() != null && !hd.getMaVoucher().trim().isEmpty()) ? hd.getMaVoucher() : "Không dùng");
+        txtTongTien.setText(formatPrice(hd.getTongTien()));
+        txtNgay.setText(String.valueOf(hd.getNgayLap()));
+
+        loadDetailTable(maHD);
+    }
+
+    private void openDoiTraDialog() {
+        String maHD = txtMaHD.getText().trim();
+        if (maHD.isEmpty())
+            return;
+        Window parent = SwingUtilities.getWindowAncestor(this);
+        // Mở JDialog Đổi Trả
+        com.qlgiay.gui.dialog.DoiTraDialog dialog = new com.qlgiay.gui.dialog.DoiTraDialog(parent, maHD);
+        dialog.setVisible(true);
+    }
+
+    private void openBaoHanhDialog() {
+        String maHD = txtMaHD.getText().trim();
+        if (maHD.isEmpty())
+            return;
+        Window parent = SwingUtilities.getWindowAncestor(this);
+        // Mở JDialog Bảo Hành (Sửa chữa)
+        com.qlgiay.gui.dialog.BaoHanhDialog dialog = new com.qlgiay.gui.dialog.BaoHanhDialog(parent, maHD);
+        dialog.setVisible(true);
+    }
+
+    private void styleActionButton(JButton button, String type) {
+        String style = switch (type) {
+            case "success" ->
+                "arc:10;focusWidth:0;innerFocusWidth:0;margin:4,8,4,8;background:#E8F5E9;foreground:#2E7D32;hoverBackground:#D7F0DB;pressedBackground:#C2E7C8";
+            case "warning" ->
+                "arc:10;focusWidth:0;innerFocusWidth:0;margin:4,8,4,8;background:#FFF3E0;foreground:#E65100;hoverBackground:#FFE0B2;pressedBackground:#FFCC80";
+            case "info" ->
+                "arc:10;focusWidth:0;innerFocusWidth:0;margin:4,8,4,8;background:#E3F2FD;foreground:#1565C0;hoverBackground:#BBDEFB;pressedBackground:#90CAF9";
+            default ->
+                "arc:10;focusWidth:0;innerFocusWidth:0;margin:4,8,4,8;background:#E8F0FE;foreground:#005A9E;hoverBackground:#DCE8FC;pressedBackground:#C9DCF8";
+        };
+        button.putClientProperty(FlatClientProperties.STYLE, style);
+        button.setFocusable(false);
+        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
     private void initFormComponents() {
@@ -352,6 +446,7 @@ public class HoaDonPanel extends JPanel implements IRefreshable {
 
         JScrollPane sp = new JScrollPane(tableChiTiet);
         sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        sp.setPreferredSize(new Dimension(0, 180));
         sp.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(225, 225, 225)),
                 new EmptyBorder(2, 2, 2, 2)));
@@ -594,42 +689,6 @@ public class HoaDonPanel extends JPanel implements IRefreshable {
         }
     }
 
-    private void loadSelectedRow() {
-        if (loadingTable) {
-            return;
-        }
-
-        int viewRow = tableHoaDon.getSelectedRow();
-        if (viewRow < 0) {
-            return;
-        }
-        if (viewRow >= tableHoaDon.getRowCount()) {
-            return;
-        }
-
-        int modelRow = viewRow;
-        if (modelRow < 0 || modelRow >= hoaDonModel.getRowCount()) {
-            return;
-        }
-
-        String maHD = String.valueOf(hoaDonModel.getValueAt(modelRow, 0));
-
-        HoaDonDTO hd = hoaDonDAO.findById(maHD);
-        if (hd == null) {
-            return;
-        }
-
-        txtMaHD.setText(hd.getMaHD());
-        txtNV.setText(hd.getMaNV());
-        txtKH.setText(hd.getMaKH() != null ? hd.getMaKH() : "Khách lẻ");
-        txtVoucher.setText(
-                (hd.getMaVoucher() != null && !hd.getMaVoucher().trim().isEmpty()) ? hd.getMaVoucher() : "Không dùng");
-        txtTongTien.setText(formatPrice(hd.getTongTien()));
-        txtNgay.setText(String.valueOf(hd.getNgayLap()));
-
-        loadDetailTable(maHD);
-    }
-
     private void loadDetailTable(String maHD) {
         chiTietModel.setRowCount(0);
         List<ChiTietHoaDonDTO> list = chiTietHoaDonDAO.findByMaHD(maHD);
@@ -655,33 +714,6 @@ public class HoaDonPanel extends JPanel implements IRefreshable {
         comboBox.putClientProperty(
                 FlatClientProperties.STYLE,
                 "arc:8;focusWidth:0;innerFocusWidth:0");
-    }
-
-    private void styleActionButton(JButton button, String type) {
-        String style = switch (type) {
-            case "success" ->
-                "arc:10;" +
-                        "focusWidth:0;" +
-                        "innerFocusWidth:0;" +
-                        "margin:4,8,4,8;" +
-                        "background:#E8F5E9;" +
-                        "foreground:#2E7D32;" +
-                        "hoverBackground:#D7F0DB;" +
-                        "pressedBackground:#C2E7C8";
-            default ->
-                "arc:10;" +
-                        "focusWidth:0;" +
-                        "innerFocusWidth:0;" +
-                        "margin:4,8,4,8;" +
-                        "background:#E8F0FE;" +
-                        "foreground:#005A9E;" +
-                        "hoverBackground:#DCE8FC;" +
-                        "pressedBackground:#C9DCF8";
-        };
-
-        button.putClientProperty(FlatClientProperties.STYLE, style);
-        button.setFocusable(false);
-        button.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
     private void styleTable(JTable targetTable, boolean isHoaDonTable) {

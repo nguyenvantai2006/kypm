@@ -285,50 +285,21 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
         txtMaSP = new JTextField();
         txtMaKH = new JTextField();
         txtChiPhiPhatSinh = new JTextField();
-
-        txtNgayNhan.setEnabled(false);
-        txtMaPBH.setEnabled(false);
-        txtMaKH.setEnabled(false);
-
-        txtMaHD.putClientProperty("JTextField.placeholderText", "Nhập mã hóa đơn...");
-        txtNgayTraDuKien.putClientProperty("JTextField.placeholderText", "yyyy-MM-dd");
-        txtMaSP.putClientProperty("JTextField.placeholderText", "Nhập mã sản phẩm...");
-        txtChiPhiPhatSinh.putClientProperty("JTextField.placeholderText", "Nhập chi phí phát sinh...");
-
-        setNumberOnly(txtChiPhiPhatSinh);
-
-        cboTrangThai = new JComboBox<>(new String[] {
-                "Đang bảo hành", "Hoàn thành", "Hủy"
-        });
-        styleComboBox(cboTrangThai);
-
+        cboTrangThai = new JComboBox<>(new String[] { "Đang sửa chữa", "Hoàn thành", "Hủy" });
         txtLoiCanBaoHanh = new JTextArea(3, 20);
         txtLoiCanBaoHanh.setLineWrap(true);
         txtLoiCanBaoHanh.setWrapStyleWord(true);
 
-        txtMaHD.getDocument().addDocumentListener(new DocumentListener() {
-            @Override
-            public void insertUpdate(DocumentEvent e) {
-                fillCustomerByInvoice();
-            }
-
-            @Override
-            public void removeUpdate(DocumentEvent e) {
-                fillCustomerByInvoice();
-            }
-
-            @Override
-            public void changedUpdate(DocumentEvent e) {
-                fillCustomerByInvoice();
-            }
-        });
-
-        txtChiPhiPhatSinh.addFocusListener(new java.awt.event.FocusAdapter() {
-            @Override
-            public void focusLost(java.awt.event.FocusEvent e) {
-                formatChiPhiField();
-            }
-        });
+        // KHÓA TOÀN BỘ READ ONLY
+        txtMaPBH.setEnabled(false);
+        txtNgayNhan.setEnabled(false);
+        txtMaHD.setEnabled(false);
+        txtNgayTraDuKien.setEnabled(false);
+        txtMaSP.setEnabled(false);
+        txtMaKH.setEnabled(false);
+        txtChiPhiPhatSinh.setEnabled(false);
+        cboTrangThai.setEnabled(false);
+        txtLoiCanBaoHanh.setEnabled(false);
     }
 
     private void initFormData() {
