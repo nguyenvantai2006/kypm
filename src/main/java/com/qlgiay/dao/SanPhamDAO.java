@@ -9,8 +9,8 @@ import java.util.List;
 
 public class SanPhamDAO {
     private static final String SELECT_ALL = """
-            SELECT MaSP, TenSP, LoaiSP, DonViTinh, SoLuong, DonGia, MauSac, Size,
-                   ChatLieu, ThuongHieu, NuocSanXuat, NgaySanXuat, MoTa, HinhAnh, TrangThai
+                 SELECT MaSP, TenSP, LoaiSP, DonViTinh, SoLuong, DonGia, MauSac, Size,
+                     ChatLieu, ThuongHieu, NuocSanXuat, NgaySanXuat, MoTa, HinhAnh, MaNCC, TrangThai
             FROM SAN_PHAM
             """;
 
@@ -53,15 +53,19 @@ public class SanPhamDAO {
             SELECT SAN_PHAM.MaSP, SAN_PHAM.TenSP, SAN_PHAM.LoaiSP, SAN_PHAM.DonViTinh,
                    SAN_PHAM.SoLuong, SAN_PHAM.DonGia, SAN_PHAM.MauSac, SAN_PHAM.Size,
                    SAN_PHAM.ChatLieu, SAN_PHAM.ThuongHieu, SAN_PHAM.NuocSanXuat,
-                   SAN_PHAM.NgaySanXuat, SAN_PHAM.MoTa, SAN_PHAM.HinhAnh, SAN_PHAM.TrangThai
+                                     SAN_PHAM.NgaySanXuat, SAN_PHAM.MoTa, SAN_PHAM.HinhAnh, SAN_PHAM.MaNCC, SAN_PHAM.TrangThai
             FROM SAN_PHAM
-                INNER JOIN CHI_TIET_PHIEU_NHAP ct ON ct.MaSP = SAN_PHAM.MaSP
-                INNER JOIN PHIEU_NHAP pn ON pn.MaPN = ct.MaPN
-                WHERE pn.MaNCC = ?
+                        WHERE SAN_PHAM.MaNCC = ?
+                             OR EXISTS (
+                                     SELECT 1
+                                     FROM CHI_TIET_PHIEU_NHAP ct
+                                     INNER JOIN PHIEU_NHAP pn ON pn.MaPN = ct.MaPN
+                                     WHERE ct.MaSP = SAN_PHAM.MaSP AND pn.MaNCC = ?
+                             )
             GROUP BY SAN_PHAM.MaSP, SAN_PHAM.TenSP, SAN_PHAM.LoaiSP, SAN_PHAM.DonViTinh,
                  SAN_PHAM.SoLuong, SAN_PHAM.DonGia, SAN_PHAM.MauSac, SAN_PHAM.Size,
                  SAN_PHAM.ChatLieu, SAN_PHAM.ThuongHieu, SAN_PHAM.NuocSanXuat,
-                 SAN_PHAM.NgaySanXuat, SAN_PHAM.MoTa, SAN_PHAM.HinhAnh, SAN_PHAM.TrangThai
+                                 SAN_PHAM.NgaySanXuat, SAN_PHAM.MoTa, SAN_PHAM.HinhAnh, SAN_PHAM.MaNCC, SAN_PHAM.TrangThai
             ORDER BY SAN_PHAM.TenSP
                 """;
         List<SanPhamDTO> list = new ArrayList<>();
@@ -69,6 +73,7 @@ public class SanPhamDAO {
         try (Connection c = DBConnect.getConnection();
              PreparedStatement ps = c.prepareStatement(sql)) {
             ps.setString(1, maNCC);
+            ps.setString(2, maNCC);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) list.add(mapRow(rs));
             }
@@ -175,9 +180,9 @@ public class SanPhamDAO {
         String sql = """
                 INSERT INTO SAN_PHAM
                 (MaSP, TenSP, LoaiSP, DonViTinh, SoLuong, DonGia, MauSac, Size, ChatLieu,
-                 ThuongHieu, NuocSanXuat, NgaySanXuat, MoTa, HinhAnh, TrangThai)
+                 ThuongHieu, NuocSanXuat, NgaySanXuat, MoTa, HinhAnh, MaNCC, TrangThai)
                 VALUES
-                (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
         try (Connection c = DBConnect.getConnection();
@@ -203,7 +208,8 @@ public class SanPhamDAO {
 
             ps.setString(13, sp.getMoTa());
             ps.setString(14, sp.getHinhAnh());
-            ps.setInt(15, sp.getTrangThai() == 0 ? 1 : sp.getTrangThai());
+            ps.setString(15, sp.getMaNCC());
+            ps.setInt(16, sp.getTrangThai() == 0 ? 1 : sp.getTrangThai());
 
             return ps.executeUpdate() > 0;
 
@@ -217,7 +223,7 @@ public class SanPhamDAO {
         String sql = """
                 UPDATE SAN_PHAM SET
                     TenSP=?, LoaiSP=?, DonViTinh=?, SoLuong=?, DonGia=?, MauSac=?, Size=?, ChatLieu=?,
-                    ThuongHieu=?, NuocSanXuat=?, NgaySanXuat=?, MoTa=?, HinhAnh=?, TrangThai=?
+                    ThuongHieu=?, NuocSanXuat=?, NgaySanXuat=?, MoTa=?, HinhAnh=?, MaNCC=?, TrangThai=?
                 WHERE MaSP=?
                 """;
 
@@ -243,8 +249,9 @@ public class SanPhamDAO {
 
             ps.setString(12, sp.getMoTa());
             ps.setString(13, sp.getHinhAnh());
-            ps.setInt(14, sp.getTrangThai());
-            ps.setString(15, sp.getMaSP());
+            ps.setString(14, sp.getMaNCC());
+            ps.setInt(15, sp.getTrangThai());
+            ps.setString(16, sp.getMaSP());
 
             return ps.executeUpdate() > 0;
 
@@ -345,6 +352,7 @@ public class SanPhamDAO {
 
         sp.setMoTa(rs.getString("MoTa"));
         sp.setHinhAnh(rs.getString("HinhAnh"));
+        sp.setMaNCC(rs.getString("MaNCC"));
         sp.setTrangThai(rs.getInt("TrangThai"));
         return sp;
     }

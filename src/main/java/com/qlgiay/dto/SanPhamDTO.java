@@ -18,6 +18,7 @@ public class SanPhamDTO {
     private LocalDate ngaySanXuat;
     private String moTa;
     private String hinhAnh;
+    private String maNCC;
     private int trangThai;
 
     public SanPhamDTO() {}
@@ -150,6 +151,14 @@ public class SanPhamDTO {
 
     public void setHinhAnh(String hinhAnh) {
         this.hinhAnh = hinhAnh;
+    }
+
+    public String getMaNCC() {
+        return maNCC;
+    }
+
+    public void setMaNCC(String maNCC) {
+        this.maNCC = maNCC;
     }
 
     public int getTrangThai() {

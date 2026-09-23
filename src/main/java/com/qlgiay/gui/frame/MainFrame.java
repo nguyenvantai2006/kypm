@@ -386,6 +386,15 @@ public class MainFrame extends JFrame {
         showView(k);
     }
 
+    public void refreshView(String key) {
+        if (key == null || key.isBlank()) return;
+
+        JPanel panel = viewMap.get(key.trim().toUpperCase());
+        if (panel instanceof IRefreshable refreshable) {
+            refreshable.refreshData();
+        }
+    }
+
     private void showView(String key) {
         JPanel panel = viewMap.get(key);
 

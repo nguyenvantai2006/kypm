@@ -33,6 +33,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -168,8 +169,8 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
 
     private JPanel createTablePanel() {
         String[] cols = {
-                "Mã SP", "Tên sản phẩm", "Loại", "Brand",
-                "Size", "Màu", "SL", "Giá", "Trạng thái"
+            "Mã SP", "Tên sản phẩm", "Loại", "Brand", "Size", "Màu",
+            "SL", "Giá", "Trạng thái", "Mã NCC"
         };
 
         tableModel = new DefaultTableModel(cols, 0) {
@@ -190,6 +191,8 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         table.getColumnModel().getColumn(6).setPreferredWidth(50);
         table.getColumnModel().getColumn(7).setPreferredWidth(90);
         table.getColumnModel().getColumn(8).setPreferredWidth(90);
+        table.getColumnModel().getColumn(9).setPreferredWidth(75);
+        table.getColumnModel().getColumn(9).setPreferredWidth(90);
 
         table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
         table.setAutoCreateRowSorter(true);
@@ -594,7 +597,8 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                         sp.getMauSac(),
                         sp.getSoLuong(),
                         sp.getDonGia() == null ? "" : formatMoney(sp.getDonGia()),
-                        sp.getTrangThai() == 1 ? "Hoạt động" : "Ngừng bán"
+                        sp.getTrangThai() == 1 ? "Hoạt động" : "Ngừng bán",
+                        sp.getMaNCC() == null ? "" : sp.getMaNCC()
                 });
             }
         }
@@ -1328,27 +1332,30 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
     private String copyImageToResources(String sourcePath) {
         try {
             File sourceFile = new File(sourcePath);
-            if (sourcePath.contains("src/main/resources/images/products")) {
-                return sourceFile.getName();
+            String fileName = sourceFile.getName();
+                Path projectRoot = Path.of(
+                    SanPhamPanel.class.getProtectionDomain().getCodeSource().getLocation().toURI())
+                    .getParent().getParent();
+                File sourceResourceFile = projectRoot.resolve(
+                    "src/main/resources/images/products/").resolve(fileName).toFile();
+            File resourceDir = sourceResourceFile.getParentFile();
+            if (!resourceDir.exists()) resourceDir.mkdirs();
+
+            if (!sourceFile.getCanonicalFile().equals(sourceResourceFile.getCanonicalFile())) {
+                Files.copy(sourceFile.toPath(), sourceResourceFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             }
 
-            String destDir = "src/main/resources/images/products/";
-            File dir = new File(destDir);
-            if (!dir.exists()) dir.mkdirs();
-
-            String fileName = sourceFile.getName();
-            File destFile = new File(destDir + fileName);
-
-            Files.copy(
-                    sourceFile.toPath(),
-                    destFile.toPath(),
-                    StandardCopyOption.REPLACE_EXISTING
-            );
+                File runtimeFile = projectRoot.resolve("target/classes/images/products/")
+                    .resolve(fileName).toFile();
+            File runtimeDir = runtimeFile.getParentFile();
+            if (runtimeDir.isDirectory()) {
+                Files.copy(sourceResourceFile.toPath(), runtimeFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
 
             return fileName;
         } catch (Exception e) {
             System.err.println("Lỗi copy ảnh: " + e.getMessage());
-            return sourcePath;
+            return "";
         }
     }
 

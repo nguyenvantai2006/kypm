@@ -622,7 +622,14 @@ public class BanHangPanel extends JPanel implements IRefreshable {
         } else {
             list = sanPhamBUS.searchActive(keyword);
         }
-        productGridPanel.loadProducts(list);
+
+        List<SanPhamDTO> availableProducts = new ArrayList<>();
+        for (SanPhamDTO sp : list) {
+            if (sp.getSoLuong() > 0) {
+                availableProducts.add(sp);
+            }
+        }
+        productGridPanel.loadProducts(availableProducts);
     }
 
     private void addProductToCart(SanPhamDTO sp) {

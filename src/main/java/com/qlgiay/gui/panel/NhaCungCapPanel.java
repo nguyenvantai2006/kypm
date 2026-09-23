@@ -5,6 +5,7 @@ import com.qlgiay.bus.NhaCungCapBUS;
 import com.qlgiay.bus.SanPhamBUS;
 import com.qlgiay.dto.NhaCungCapDTO;
 import com.qlgiay.dto.SanPhamDTO;
+import com.qlgiay.gui.frame.MainFrame;
 import com.qlgiay.util.IconUtil;
 
 import javax.swing.*;
@@ -230,6 +231,10 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
         dialog.setVisible(true);
         if (dialog.saved) {
             loadSupplierProducts(selectedSupplierId);
+            Window window = SwingUtilities.getWindowAncestor(this);
+            if (window instanceof MainFrame mainFrame) {
+                mainFrame.refreshView("SANPHAM");
+            }
             JOptionPane.showMessageDialog(this,
                     "Đã thêm sản phẩm. Sản phẩm sẽ được liên kết với nhà cung cấp khi tạo phiếu nhập.",
                     "Thông báo", JOptionPane.INFORMATION_MESSAGE);
@@ -596,7 +601,6 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
         private final JTextField txtTen = new JTextField();
         private final JTextField txtLoai = new JTextField("Giày Sneaker");
         private final JTextField txtDonVi = new JTextField("Đôi");
-        private final JTextField txtSoLuong = new JTextField("0");
         private final JTextField txtDonGia = new JTextField();
         private final JTextField txtMau = new JTextField();
         private final JTextField txtSize = new JTextField();
@@ -618,7 +622,6 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
             addField(form, "Tên sản phẩm", txtTen);
             addField(form, "Loại sản phẩm", txtLoai);
             addField(form, "Đơn vị", txtDonVi);
-            addField(form, "Số lượng", txtSoLuong);
             addField(form, "Đơn giá", txtDonGia);
             addField(form, "Màu sắc", txtMau);
             addField(form, "Size", txtSize);
@@ -676,7 +679,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                 sp.setTenSP(txtTen.getText().trim());
                 sp.setLoaiSP(txtLoai.getText().trim());
                 sp.setDonViTinh(txtDonVi.getText().trim());
-                sp.setSoLuong(Integer.parseInt(txtSoLuong.getText().trim()));
+                sp.setSoLuong(0);
                 sp.setDonGia(new BigDecimal(txtDonGia.getText().trim()));
                 sp.setMauSac(txtMau.getText().trim());
                 sp.setSize(txtSize.getText().trim());
@@ -685,10 +688,11 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                 sp.setNuocSanXuat(txtNuocSX.getText().trim());
                 sp.setNgaySanXuat(LocalDate.now());
                 sp.setMoTa(txtMoTa.getText().trim());
+                sp.setMaNCC(selectedSupplierId);
                 sp.setHinhAnh(copyImage(txtAnh.getText().trim()));
                 sp.setTrangThai(1);
 
-                if (sp.getMaSP().isEmpty() || sp.getTenSP().isEmpty() || sp.getDonGia().compareTo(BigDecimal.ZERO) < 0 || sp.getSoLuong() < 0) {
+                if (sp.getMaSP().isEmpty() || sp.getTenSP().isEmpty() || sp.getDonGia().compareTo(BigDecimal.ZERO) < 0) {
                     throw new IllegalArgumentException();
                 }
                 if (!sanPhamBUS.addProduct(sp)) {
@@ -705,10 +709,15 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
         private String copyImage(String source) throws IOException {
             if (source.isBlank()) return "";
             Path sourcePath = Path.of(source);
-            Path targetDir = Path.of("src/main/resources/images/products");
+            Path targetDir = Path.of(System.getProperty("user.dir"), "src", "main", "resources", "images", "products");
             Files.createDirectories(targetDir);
-            String fileName = System.currentTimeMillis() + "_" + sourcePath.getFileName();
+            String fileName = System.currentTimeMillis() + "_" + sourcePath.getFileName().toString();
             Files.copy(sourcePath, targetDir.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
+
+            Path runtimeDir = Path.of(System.getProperty("user.dir"), "target", "classes", "images", "products");
+            if (Files.isDirectory(runtimeDir)) {
+                Files.copy(sourcePath, runtimeDir.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
+            }
             return fileName;
         }
     }
