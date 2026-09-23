@@ -5,6 +5,7 @@ import com.qlgiay.dao.QuyenDAO;
 import com.qlgiay.dto.AuthSession;
 import com.qlgiay.dto.NhanVienDTO;
 import com.qlgiay.dto.QuyenDTO;
+import com.qlgiay.util.DemoAuthAccount;
 
 public class AuthBUS {
     private final NhanVienDAO nhanVienDAO = new NhanVienDAO();
@@ -14,7 +15,13 @@ public class AuthBUS {
         if (taiKhoan == null || taiKhoan.isBlank()) return null;
         if (matKhauPlain == null || matKhauPlain.isBlank()) return null;
 
-        NhanVienDTO nv = nhanVienDAO.findByTaiKhoan(taiKhoan.trim());
+        String tk = taiKhoan.trim();
+        if (DemoAuthAccount.TAI_KHOAN.equalsIgnoreCase(tk)
+                && DemoAuthAccount.MAT_KHAU.equals(matKhauPlain)) {
+            return new AuthSession(DemoAuthAccount.createNhanVien(), DemoAuthAccount.createQuyen());
+        }
+
+        NhanVienDTO nv = nhanVienDAO.findByTaiKhoan(tk);
         if (nv == null) return null;
         if (nv.getTrangThai() != 1) return null;
 

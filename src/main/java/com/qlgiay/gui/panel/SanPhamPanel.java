@@ -1,9 +1,64 @@
 package com.qlgiay.gui.panel;
 
-import com.formdev.flatlaf.FlatClientProperties;
-import com.qlgiay.bus.SanPhamBUS;
-import com.qlgiay.dto.SanPhamDTO;
-import com.qlgiay.util.IconUtil;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Desktop;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Insets;
+import java.awt.Window;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.math.BigDecimal;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.SpinnerDateModel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.DataFormat;
@@ -14,32 +69,10 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import com.formdev.flatlaf.FlatClientProperties;
+import com.qlgiay.bus.SanPhamBUS;
+import com.qlgiay.dto.SanPhamDTO;
+import com.qlgiay.util.IconUtil;
 
 public class SanPhamPanel extends JPanel implements IRefreshable {
     private final SanPhamBUS sanPhamBUS = new SanPhamBUS();
@@ -57,7 +90,10 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
     private JComboBox<String> cboLoai;
     private JTextField txtDonVi;
     private JTextField txtSoLuong;
+    private JTextField txtGiaNhap;
+    private JTextField txtLoiNhuan;
     private JTextField txtDonGia;
+    private JTextField txtGiaKhuyenMai;
     private JTextField txtMau;
     private JTextField txtSize;
     private JTextField txtChatLieu;
@@ -236,11 +272,12 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
 
         addGridRow(contentPanel, gbc, row++, field("Mã sản phẩm", txtMa), field("Tên sản phẩm", txtTen));
         addGridRow(contentPanel, gbc, row++, field("Loại sản phẩm", cboLoai), field("Đơn vị", txtDonVi));
-        addGridRow(contentPanel, gbc, row++, field("Số lượng", txtSoLuong), field("Đơn giá", txtDonGia));
-        addGridRow(contentPanel, gbc, row++, field("Màu sắc", txtMau), field("Size", txtSize));
-        addGridRow(contentPanel, gbc, row++, field("Chất liệu", txtChatLieu), field("Thương hiệu", txtThuongHieu));
-        addGridRow(contentPanel, gbc, row++, field("Nước sản xuất", txtNuocSX), field("Ngày sản xuất", spNgaySX));
-        addGridRow(contentPanel, gbc, row++, field("Trạng thái", cboTrangThai), new JLabel());
+        addGridRow(contentPanel, gbc, row++, field("Số lượng", txtSoLuong), field("Giá nhập", txtGiaNhap));
+        addGridRow(contentPanel, gbc, row++, field("% lợi nhuận", txtLoiNhuan), field("Giá bán", txtDonGia));
+        addGridRow(contentPanel, gbc, row++, field("Giá khuyến mãi", txtGiaKhuyenMai), field("Màu sắc", txtMau));
+        addGridRow(contentPanel, gbc, row++, field("Size", txtSize), field("Chất liệu", txtChatLieu));
+        addGridRow(contentPanel, gbc, row++, field("Thương hiệu", txtThuongHieu), field("Nước sản xuất", txtNuocSX));
+        addGridRow(contentPanel, gbc, row++, field("Ngày sản xuất", spNgaySX), field("Trạng thái", cboTrangThai));
 
         gbc.gridx = 0;
         gbc.gridy = row++;
@@ -307,12 +344,18 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         txtTen = new JTextField();
         txtDonVi = new JTextField();
         txtSoLuong = new JTextField();
+        txtGiaNhap = new JTextField();
+        txtLoiNhuan = new JTextField();
         txtDonGia = new JTextField();
+        txtGiaKhuyenMai = new JTextField();
         txtMau = new JTextField();
         txtSize = new JTextField();
         txtChatLieu = new JTextField();
         txtThuongHieu = new JTextField();
         txtNuocSX = new JTextField();
+
+        txtGiaNhap.getDocument().addDocumentListener(createPricingListener());
+        txtLoiNhuan.getDocument().addDocumentListener(createPricingListener());
 
         cboLoai = new JComboBox<>(new String[]{
                 "Giày Sneaker", "Giày Chạy Bộ"
@@ -643,7 +686,10 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         cboLoai.setSelectedItem(sp.getLoaiSP());
         txtDonVi.setText(sp.getDonViTinh());
         txtSoLuong.setText(String.valueOf(sp.getSoLuong()));
-        txtDonGia.setText(sp.getDonGia() == null ? "" : String.valueOf(sp.getDonGia().longValue()));
+        txtGiaNhap.setText(sp.getGiaNhap() == null ? "" : formatInputMoney(sp.getGiaNhap()));
+        txtLoiNhuan.setText(sp.getPhanTramLoiNhuan() == null ? "" : sp.getPhanTramLoiNhuan().stripTrailingZeros().toPlainString());
+        txtDonGia.setText(sp.getDonGia() == null ? "" : formatInputMoney(sp.getDonGia()));
+        txtGiaKhuyenMai.setText(sp.getGiaKhuyenMai() == null ? "" : formatInputMoney(sp.getGiaKhuyenMai()));
         txtMau.setText(sp.getMauSac());
         txtSize.setText(sp.getSize());
         txtChatLieu.setText(sp.getChatLieu());
@@ -691,7 +737,20 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
             sp.setLoaiSP((String) cboLoai.getSelectedItem());
             sp.setDonViTinh(txtDonVi.getText().trim());
             sp.setSoLuong(Integer.parseInt(txtSoLuong.getText().trim()));
-            sp.setDonGia(new BigDecimal(txtDonGia.getText().trim()));
+
+            BigDecimal giaNhap = txtGiaNhap.getText().trim().isEmpty() ? null : new BigDecimal(txtGiaNhap.getText().trim().replace(".", "").replace(",", ""));
+            BigDecimal tyLeLoiNhuan = txtLoiNhuan.getText().trim().isEmpty() ? null : new BigDecimal(txtLoiNhuan.getText().trim());
+            BigDecimal giaBan = txtDonGia.getText().trim().isEmpty() ? null : new BigDecimal(txtDonGia.getText().trim().replace(".", "").replace(",", ""));
+            BigDecimal giaKhuyenMai = txtGiaKhuyenMai.getText().trim().isEmpty() ? null : new BigDecimal(txtGiaKhuyenMai.getText().trim().replace(".", "").replace(",", ""));
+
+            if (giaBan == null && giaNhap != null && tyLeLoiNhuan != null) {
+                giaBan = SanPhamDTO.tinhGiaBan(giaNhap, tyLeLoiNhuan);
+            }
+
+            sp.setGiaNhap(giaNhap);
+            sp.setPhanTramLoiNhuan(tyLeLoiNhuan);
+            sp.setDonGia(giaBan);
+            sp.setGiaKhuyenMai(giaKhuyenMai);
             sp.setMauSac(txtMau.getText().trim());
             sp.setSize(txtSize.getText().trim());
             sp.setChatLieu(txtChatLieu.getText().trim());
@@ -1154,7 +1213,10 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         txtTen.setText("");
         txtDonVi.setText("");
         txtSoLuong.setText("");
+        txtGiaNhap.setText("");
+        txtLoiNhuan.setText("");
         txtDonGia.setText("");
+        txtGiaKhuyenMai.setText("");
         txtMau.setText("");
         txtSize.setText("");
         txtChatLieu.setText("");
@@ -1177,6 +1239,65 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         table.repaint();
 
         txtMa.requestFocus();
+    }
+
+    private DocumentListener createPricingListener() {
+        return new DocumentListener() {
+            @Override public void insertUpdate(DocumentEvent e) { recalcBasePrice(); }
+            @Override public void removeUpdate(DocumentEvent e) { recalcBasePrice(); }
+            @Override public void changedUpdate(DocumentEvent e) { recalcBasePrice(); }
+        };
+    }
+
+    private void recalcBasePrice() {
+        try {
+            String giaNhapText = txtGiaNhap.getText() == null ? "" : txtGiaNhap.getText().trim();
+            String loiNhuanText = txtLoiNhuan.getText() == null ? "" : txtLoiNhuan.getText().trim();
+
+            if (giaNhapText.isEmpty() || loiNhuanText.isEmpty()) {
+                return;
+            }
+
+            BigDecimal giaNhap = parseMoneyText(giaNhapText);
+            BigDecimal loiNhuan = parsePercentText(loiNhuanText);
+
+            if (giaNhap == null || loiNhuan == null || giaNhap.compareTo(BigDecimal.ZERO) <= 0) {
+                return;
+            }
+
+            BigDecimal giaBan = SanPhamDTO.tinhGiaBan(giaNhap, loiNhuan);
+            if (giaBan != null) {
+                txtDonGia.setText(formatInputMoney(giaBan));
+            }
+        } catch (Exception ignored) {
+            // không chặn nhập khi người dùng đang gõ
+        }
+    }
+
+    private BigDecimal parseMoneyText(String text) {
+        if (text == null || text.isBlank()) return null;
+        String normalized = text.replace(".", "").replace(",", "");
+        if (normalized.isBlank()) return null;
+        try {
+            return new BigDecimal(normalized);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private BigDecimal parsePercentText(String text) {
+        if (text == null || text.isBlank()) return null;
+        try {
+            return new BigDecimal(text.trim());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String formatInputMoney(BigDecimal value) {
+        if (value == null) return "";
+        DecimalFormat df = new DecimalFormat("#,##0");
+        return df.format(value);
     }
 
     private void previewImage(String imageRef) {
