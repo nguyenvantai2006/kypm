@@ -6,6 +6,9 @@ import java.sql.SQLException;
 
 public class DBConnect {
 
+    private static final boolean DEMO_MODE =
+            Boolean.parseBoolean(System.getProperty("qlgiay.demo", "true"));
+
     private static final String URL =
             "jdbc:sqlserver://localhost:1433;" +
                     "databaseName=QuanLyCuaHangGiay;" +
@@ -14,6 +17,10 @@ public class DBConnect {
 
     private static final String USER = "sa";
     private static final String PASS = "123";
+
+    public static boolean isDemoMode() {
+        return DEMO_MODE;
+    }
 
     public static Connection getConnection() throws SQLException {
         Connection connection = DriverManager.getConnection(URL, USER, PASS);

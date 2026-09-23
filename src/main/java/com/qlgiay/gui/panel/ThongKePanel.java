@@ -1,11 +1,40 @@
 package com.qlgiay.gui.panel;
 
-import com.formdev.flatlaf.FlatClientProperties;
-import com.qlgiay.bus.ThongKeBUS;
-import com.qlgiay.dto.DoanhThuTheoNgayDTO;
-import com.qlgiay.dto.LoaiSanPhamThongKeDTO;
-import com.qlgiay.dto.TopKhachHangDTO;
-import com.qlgiay.dto.TopSanPhamDTO;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.SpinnerDateModel;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -15,19 +44,15 @@ import org.jfree.chart.plot.PiePlot;
 import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.math.BigDecimal;
-import java.text.DecimalFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Date;
+import com.formdev.flatlaf.FlatClientProperties;
+import com.qlgiay.bus.ThongKeBUS;
+import com.qlgiay.dto.DoanhThuTheoNgayDTO;
+import com.qlgiay.dto.LoaiSanPhamThongKeDTO;
+import com.qlgiay.dto.LoiNhuanTheoKyDTO;
+import com.qlgiay.dto.TopKhachHangDTO;
+import com.qlgiay.dto.TopSanPhamDTO;
+import com.qlgiay.util.DBConnect;
+import com.qlgiay.util.DemoTransactionData;
 
 public class ThongKePanel extends JPanel implements IRefreshable {
     private final ThongKeBUS thongKeBUS = new ThongKeBUS();
@@ -36,8 +61,12 @@ public class ThongKePanel extends JPanel implements IRefreshable {
     private JSpinner spDenNgay;
     private JButton btnThongKe;
     private JButton btnLamMoi;
+    private JComboBox<String> cboThang;
+    private JComboBox<String> cboQuy;
 
+    private JLabel lblTongTienVon;
     private JLabel lblTongDoanhThu;
+    private JLabel lblLoiNhuan;
     private JLabel lblSoHoaDon;
     private JLabel lblTongSanPham;
     private JLabel lblSoKhachMua;
@@ -50,6 +79,11 @@ public class ThongKePanel extends JPanel implements IRefreshable {
 
     private JTable tblTopKhachHang;
     private DefaultTableModel modelTopKhachHang;
+
+    private DefaultTableModel modelLoiNhuanThang;
+    private DefaultTableModel modelLoiNhuanQuy;
+    private List<LoiNhuanTheoKyDTO> loiNhuanTheoThang = new ArrayList<>();
+    private List<LoiNhuanTheoKyDTO> loiNhuanTheoQuy = new ArrayList<>();
 
     private int hoverRowTopSP = -1;
     private int hoverRowTopKH = -1;
@@ -65,7 +99,12 @@ public class ThongKePanel extends JPanel implements IRefreshable {
         main.add(createTopSection(), BorderLayout.NORTH);
         main.add(createCenterSection(), BorderLayout.CENTER);
 
-        add(main, BorderLayout.CENTER);
+        JScrollPane mainScrollPane = new JScrollPane(main);
+        mainScrollPane.setBorder(BorderFactory.createEmptyBorder());
+        mainScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        mainScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        mainScrollPane.getViewport().setOpaque(false);
+        add(mainScrollPane, BorderLayout.CENTER);
 
         loadDefaultFilter();
         refreshData();
@@ -107,6 +146,17 @@ public class ThongKePanel extends JPanel implements IRefreshable {
         left.add(new JLabel("Đến ngày"));
         left.add(spDenNgay);
 
+        cboThang = new JComboBox<>();
+        cboQuy = new JComboBox<>();
+        cboThang.setPreferredSize(new Dimension(110, 32));
+        cboQuy.setPreferredSize(new Dimension(110, 32));
+        cboThang.addActionListener(e -> updateProfitTables());
+        cboQuy.addActionListener(e -> updateProfitTables());
+        left.add(new JLabel("Tháng"));
+        left.add(cboThang);
+        left.add(new JLabel("Quý"));
+        left.add(cboQuy);
+
         JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         right.setOpaque(false);
 
@@ -132,15 +182,19 @@ public class ThongKePanel extends JPanel implements IRefreshable {
     }
 
     private JPanel createSummaryCards() {
-        JPanel p = new JPanel(new GridLayout(1, 4, 10, 0));
+        JPanel p = new JPanel(new GridLayout(2, 4, 10, 10));
         p.setOpaque(false);
 
+        lblTongTienVon = new JLabel("0");
         lblTongDoanhThu = new JLabel("0");
+        lblLoiNhuan = new JLabel("0");
         lblSoHoaDon = new JLabel("0");
         lblTongSanPham = new JLabel("0");
         lblSoKhachMua = new JLabel("0");
 
+        p.add(createSummaryCard("Tiền vốn", lblTongTienVon));
         p.add(createSummaryCard("Tổng doanh thu", lblTongDoanhThu));
+        p.add(createSummaryCard("Lợi nhuận", lblLoiNhuan));
         p.add(createSummaryCard("Số hóa đơn", lblSoHoaDon));
         p.add(createSummaryCard("Sản phẩm đã bán", lblTongSanPham));
         p.add(createSummaryCard("Khách mua hàng", lblSoKhachMua));
@@ -229,12 +283,47 @@ public class ThongKePanel extends JPanel implements IRefreshable {
     private JPanel createBottomTables() {
         JPanel p = new JPanel(new GridLayout(1, 2, 10, 0));
         p.setOpaque(false);
-        p.setPreferredSize(new Dimension(0, 260));
+        p.setLayout(new GridLayout(2, 2, 10, 10));
+        p.setPreferredSize(new Dimension(0, 530));
 
         p.add(createTopSanPhamCard());
         p.add(createTopKhachHangCard());
+        p.add(createProfitTableCard("Lợi nhuận theo tháng", true));
+        p.add(createProfitTableCard("Lợi nhuận theo quý", false));
 
         return p;
+    }
+
+    private JPanel createProfitTableCard(String title, boolean monthly) {
+        JPanel card = new JPanel(new BorderLayout(0, 8));
+        card.putClientProperty(FlatClientProperties.STYLE, "arc:15; background:#FFFFFF");
+        card.setBorder(new EmptyBorder(15, 15, 15, 15));
+
+        JLabel titleLabel = new JLabel(title);
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
+
+        String[] cols = {"Kỳ", "Doanh thu", "Tiền vốn", "Lợi nhuận"};
+        DefaultTableModel model = new DefaultTableModel(cols, 0) {
+            @Override
+            public boolean isCellEditable(int r, int c) {
+                return false;
+            }
+        };
+        JTable table = new JTable(model);
+        table.setAutoCreateRowSorter(true);
+        styleTable(table, false);
+
+        if (monthly) {
+            modelLoiNhuanThang = model;
+        } else {
+            modelLoiNhuanQuy = model;
+        }
+
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(225, 225, 225)));
+        card.add(titleLabel, BorderLayout.NORTH);
+        card.add(scrollPane, BorderLayout.CENTER);
+        return card;
     }
 
     private JPanel createTopSanPhamCard() {
@@ -242,7 +331,7 @@ public class ThongKePanel extends JPanel implements IRefreshable {
         card.putClientProperty(FlatClientProperties.STYLE, "arc:15; background:#FFFFFF");
         card.setBorder(new EmptyBorder(15, 15, 15, 15));
 
-        JLabel title = new JLabel("Top sản phẩm bán chạy");
+        JLabel title = new JLabel("Top 5 sản phẩm bán chạy");
         title.setFont(new Font("Segoe UI", Font.BOLD, 16));
 
         String[] cols = {"Mã SP", "Tên sản phẩm", "SL bán", "Doanh thu"};
@@ -296,6 +385,24 @@ public class ThongKePanel extends JPanel implements IRefreshable {
     }
 
     private void loadDefaultFilter() {
+        if (DBConnect.isDemoMode()) {
+            LocalDate firstDate = null;
+            LocalDate lastDate = null;
+            for (var invoice : DemoTransactionData.invoices()) {
+                firstDate = firstDate == null || invoice.getNgayLap().isBefore(firstDate) ? invoice.getNgayLap() : firstDate;
+                lastDate = lastDate == null || invoice.getNgayLap().isAfter(lastDate) ? invoice.getNgayLap() : lastDate;
+            }
+            for (var receipt : DemoTransactionData.imports()) {
+                firstDate = firstDate == null || receipt.getNgayNhap().isBefore(firstDate) ? receipt.getNgayNhap() : firstDate;
+                lastDate = lastDate == null || receipt.getNgayNhap().isAfter(lastDate) ? receipt.getNgayNhap() : lastDate;
+            }
+            if (firstDate != null && lastDate != null) {
+                spTuNgay.setValue(Date.from(firstDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+                spDenNgay.setValue(Date.from(lastDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+                return;
+            }
+        }
+
         LocalDate now = LocalDate.now();
         LocalDate firstDay = now.withDayOfMonth(1);
 
@@ -332,13 +439,71 @@ public class ThongKePanel extends JPanel implements IRefreshable {
         loadTopKhachHang(tuNgay, denNgay);
         loadBarChart(tuNgay, denNgay);
         loadPieChart(tuNgay, denNgay);
+        loadProfitTables(tuNgay, denNgay);
     }
 
     private void loadSummary(LocalDate tuNgay, LocalDate denNgay) {
-        lblTongDoanhThu.setText(formatMoney(thongKeBUS.getTongDoanhThu(tuNgay, denNgay)));
+        BigDecimal doanhThu = thongKeBUS.getTongDoanhThu(tuNgay, denNgay);
+        BigDecimal tienVon = thongKeBUS.getTongTienVon(tuNgay, denNgay);
+        lblTongTienVon.setText(formatMoney(tienVon));
+        lblTongDoanhThu.setText(formatMoney(doanhThu));
+        lblLoiNhuan.setText(formatMoney(doanhThu.subtract(tienVon)));
         lblSoHoaDon.setText(String.valueOf(thongKeBUS.getSoHoaDon(tuNgay, denNgay)));
         lblTongSanPham.setText(String.valueOf(thongKeBUS.getTongSanPhamBan(tuNgay, denNgay)));
         lblSoKhachMua.setText(String.valueOf(thongKeBUS.getSoKhachMua(tuNgay, denNgay)));
+    }
+
+    private void loadProfitTables(LocalDate tuNgay, LocalDate denNgay) {
+        loiNhuanTheoThang = thongKeBUS.getLoiNhuanTheoThang(tuNgay, denNgay);
+        loiNhuanTheoQuy = thongKeBUS.getLoiNhuanTheoQuy(tuNgay, denNgay);
+
+        cboThang.removeAllItems();
+        cboThang.addItem("Tất cả");
+        for (LoiNhuanTheoKyDTO item : loiNhuanTheoThang) {
+            cboThang.addItem(formatThang(item));
+        }
+
+        cboQuy.removeAllItems();
+        cboQuy.addItem("Tất cả");
+        for (LoiNhuanTheoKyDTO item : loiNhuanTheoQuy) {
+            cboQuy.addItem(formatQuy(item));
+        }
+
+        updateProfitTables();
+    }
+
+    private void updateProfitTables() {
+        if (modelLoiNhuanThang == null || modelLoiNhuanQuy == null) {
+            return;
+        }
+        fillProfitTable(modelLoiNhuanThang, loiNhuanTheoThang, cboThang, true);
+        fillProfitTable(modelLoiNhuanQuy, loiNhuanTheoQuy, cboQuy, false);
+    }
+
+    private void fillProfitTable(DefaultTableModel model, List<LoiNhuanTheoKyDTO> data,
+                                 JComboBox<String> comboBox, boolean monthly) {
+        model.setRowCount(0);
+        String selected = comboBox.getSelectedItem() == null ? "Tất cả" : comboBox.getSelectedItem().toString();
+        for (LoiNhuanTheoKyDTO item : data) {
+            String period = monthly ? formatThang(item) : formatQuy(item);
+            if (!"Tất cả".equals(selected) && !selected.equals(period)) {
+                continue;
+            }
+            model.addRow(new Object[]{
+                    period,
+                    formatMoney(item.getDoanhThu()),
+                    formatMoney(item.getTienVon()),
+                    formatMoney(item.getLoiNhuan())
+            });
+        }
+    }
+
+    private String formatThang(LoiNhuanTheoKyDTO item) {
+        return String.format("%04d-%02d", item.getNam(), item.getKy());
+    }
+
+    private String formatQuy(LoiNhuanTheoKyDTO item) {
+        return String.format("%04d - Quý %d", item.getNam(), item.getKy());
     }
 
     private void loadTopSanPham(LocalDate tuNgay, LocalDate denNgay) {

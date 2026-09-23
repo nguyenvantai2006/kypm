@@ -1,6 +1,71 @@
 package com.qlgiay.gui.panel;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Desktop;
+import java.awt.Dialog;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Window;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.Normalizer;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.WindowConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+
+import org.apache.commons.text.similarity.LevenshteinDistance;
+
 import com.formdev.flatlaf.FlatClientProperties;
+import com.github.lgooddatepicker.components.DatePicker;
+import com.github.lgooddatepicker.components.DatePickerSettings;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
 import com.qlgiay.bus.KhachHangBUS;
 import com.qlgiay.bus.NhanVienBUS;
 import com.qlgiay.dao.ChiTietHoaDonDAO;
@@ -11,51 +76,9 @@ import com.qlgiay.dto.HoaDonDTO;
 import com.qlgiay.dto.KhachHangDTO;
 import com.qlgiay.dto.NhanVienDTO;
 import com.qlgiay.dto.SanPhamDTO;
+import com.qlgiay.util.DBConnect;
+import com.qlgiay.util.DemoTransactionData;
 import com.qlgiay.util.IconUtil;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.Element;
-import com.itextpdf.text.PageSize;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.Phrase;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfWriter;
-import com.github.lgooddatepicker.components.DatePicker;
-import com.github.lgooddatepicker.components.DatePickerSettings;
-import org.apache.commons.text.similarity.LevenshteinDistance;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.Dialog;
-import java.awt.Window;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.math.BigDecimal;
-import java.text.Normalizer;
-import java.text.DecimalFormat;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class HoaDonPanel extends JPanel implements IRefreshable {
     private final HoaDonDAO hoaDonDAO = new HoaDonDAO();
@@ -526,7 +549,9 @@ public class HoaDonPanel extends JPanel implements IRefreshable {
             txtVoucher.setText("");
             txtTongTien.setText("");
 
-            List<HoaDonDTO> list = hoaDonDAO.findAll();
+                List<HoaDonDTO> list = DBConnect.isDemoMode()
+                    ? DemoTransactionData.invoices()
+                    : hoaDonDAO.findAll();
             Map<String, NhanVienDTO> employees = new HashMap<>();
             Map<String, KhachHangDTO> customers = new HashMap<>();
 
@@ -592,7 +617,9 @@ public class HoaDonPanel extends JPanel implements IRefreshable {
 
         String maHD = String.valueOf(hoaDonModel.getValueAt(modelRow, 0));
 
-        HoaDonDTO hd = hoaDonDAO.findById(maHD);
+        HoaDonDTO hd = DBConnect.isDemoMode()
+            ? DemoTransactionData.findInvoice(maHD)
+            : hoaDonDAO.findById(maHD);
         if (hd == null) {
             return;
         }
@@ -610,7 +637,9 @@ public class HoaDonPanel extends JPanel implements IRefreshable {
 
     private void loadDetailTable(String maHD) {
         chiTietModel.setRowCount(0);
-        List<ChiTietHoaDonDTO> list = chiTietHoaDonDAO.findByMaHD(maHD);
+        List<ChiTietHoaDonDTO> list = DBConnect.isDemoMode()
+            ? DemoTransactionData.invoiceDetails(maHD)
+            : chiTietHoaDonDAO.findByMaHD(maHD);
 
         if (list != null) {
             for (ChiTietHoaDonDTO ct : list) {
@@ -837,12 +866,16 @@ public class HoaDonPanel extends JPanel implements IRefreshable {
         String maHD = String.valueOf(hoaDonModel.getValueAt(modelRow, 0));
 
         try {
-            HoaDonDTO hd = hoaDonDAO.findById(maHD);
+                HoaDonDTO hd = DBConnect.isDemoMode()
+                    ? DemoTransactionData.findInvoice(maHD)
+                    : hoaDonDAO.findById(maHD);
             if (hd == null) {
                 return;
             }
 
-            List<ChiTietHoaDonDTO> items = chiTietHoaDonDAO.findByMaHD(maHD);
+                List<ChiTietHoaDonDTO> items = DBConnect.isDemoMode()
+                    ? DemoTransactionData.invoiceDetails(maHD)
+                    : chiTietHoaDonDAO.findByMaHD(maHD);
 
             String path = "HoaDon_" + hd.getMaHD() + ".pdf";
             Document document = new Document(PageSize.A5);

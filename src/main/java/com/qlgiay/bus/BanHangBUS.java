@@ -1,17 +1,21 @@
 package com.qlgiay.bus;
 
-import com.qlgiay.dao.*;
-import com.qlgiay.dto.ChiTietHoaDonDTO;
-import com.qlgiay.dto.HoaDonDTO;
-import com.qlgiay.dto.VoucherDTO;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
+import com.qlgiay.dao.ChiTietHoaDonDAO;
+import com.qlgiay.dao.HoaDonDAO;
+import com.qlgiay.dao.KhachHangDAO;
+import com.qlgiay.dao.SanPhamDAO;
+import com.qlgiay.dao.VoucherDAO;
+import com.qlgiay.dto.ChiTietHoaDonDTO;
+import com.qlgiay.dto.HoaDonDTO;
+import com.qlgiay.dto.VoucherDTO;
 import com.qlgiay.util.DBConnect;
+import com.qlgiay.util.DemoTransactionData;
 
 public class BanHangBUS {
     private static final BigDecimal DIEM_TO_VND = new BigDecimal("1000");
@@ -28,6 +32,17 @@ public class BanHangBUS {
         if (hd == null || items == null || items.isEmpty()) return false;
         if (hd.getMaNV() == null || hd.getMaNV().trim().isEmpty()) return false;
         if (hd.getMaHD() == null || hd.getMaHD().trim().isEmpty()) return false;
+
+        if (DBConnect.isDemoMode()) {
+            BigDecimal subtotal = calcSubTotal(items);
+            if (subtotal.signum() <= 0) return false;
+            for (ChiTietHoaDonDTO item : items) {
+                if (item == null || item.getMaSP() == null || item.getDonGia() == null || item.getSoLuong() <= 0) return false;
+                item.setMaHD(hd.getMaHD());
+            }
+            hd.setTongTien(subtotal);
+            return DemoTransactionData.addInvoice(hd, items);
+        }
 
         Connection c = null;
         try {

@@ -1,11 +1,14 @@
 package com.qlgiay.main;
 
+import java.awt.Color;
+import java.awt.Insets;
+
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.border.EmptyBorder;
+
 import com.formdev.flatlaf.FlatIntelliJLaf;
 import com.qlgiay.gui.frame.LoginFrame;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
 
 public class App {
     public static void main(String[] args) {
