@@ -1,5 +1,51 @@
 package com.qlgiay.gui.panel;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.Window;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
+import java.util.List;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+
 import com.formdev.flatlaf.FlatClientProperties;
 import com.qlgiay.bus.NhaCungCapBUS;
 import com.qlgiay.bus.SanPhamBUS;
@@ -7,24 +53,6 @@ import com.qlgiay.dto.NhaCungCapDTO;
 import com.qlgiay.dto.SanPhamDTO;
 import com.qlgiay.gui.frame.MainFrame;
 import com.qlgiay.util.IconUtil;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.time.LocalDate;
-import java.util.List;
 
 public class NhaCungCapPanel extends JPanel implements IRefreshable {
     private final NhaCungCapBUS nhaCungCapBUS = new NhaCungCapBUS();
@@ -622,7 +650,9 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
             addField(form, "Tên sản phẩm", txtTen);
             addField(form, "Loại sản phẩm", txtLoai);
             addField(form, "Đơn vị", txtDonVi);
-            addField(form, "Đơn giá", txtDonGia);
+            txtDonGia.setEditable(false);
+            txtDonGia.setText("Tự động sau khi nhập hàng");
+            addField(form, "Giá bán", txtDonGia);
             addField(form, "Màu sắc", txtMau);
             addField(form, "Size", txtSize);
             addField(form, "Chất liệu", txtChatLieu);
@@ -680,7 +710,9 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                 sp.setLoaiSP(txtLoai.getText().trim());
                 sp.setDonViTinh(txtDonVi.getText().trim());
                 sp.setSoLuong(0);
-                sp.setDonGia(new BigDecimal(txtDonGia.getText().trim()));
+                sp.setPhanTramLoiNhuan(SanPhamDTO.DEFAULT_PROFIT_PERCENT);
+                sp.setGiaNhap(null);
+                sp.setDonGia(null);
                 sp.setMauSac(txtMau.getText().trim());
                 sp.setSize(txtSize.getText().trim());
                 sp.setChatLieu(txtChatLieu.getText().trim());
@@ -692,7 +724,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                 sp.setHinhAnh(copyImage(txtAnh.getText().trim()));
                 sp.setTrangThai(1);
 
-                if (sp.getMaSP().isEmpty() || sp.getTenSP().isEmpty() || sp.getDonGia().compareTo(BigDecimal.ZERO) < 0) {
+                if (sp.getMaSP().isEmpty() || sp.getTenSP().isEmpty()) {
                     throw new IllegalArgumentException();
                 }
                 if (!sanPhamBUS.addProduct(sp)) {

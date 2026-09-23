@@ -1,9 +1,12 @@
 package com.qlgiay.dto;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 
 public class SanPhamDTO {
+    public static final BigDecimal DEFAULT_PROFIT_PERCENT = BigDecimal.valueOf(20);
+
     private String maSP;
     private String tenSP;
     private String loaiSP;
@@ -28,12 +31,33 @@ public class SanPhamDTO {
         if (giaNhap == null || giaNhap.compareTo(BigDecimal.ZERO) <= 0) {
             return null;
         }
-        if (phanTramLoiNhuan == null) {
-            return giaNhap;
+        BigDecimal loiNhuan = phanTramLoiNhuan == null
+            ? DEFAULT_PROFIT_PERCENT : phanTramLoiNhuan;
+        if (loiNhuan.compareTo(BigDecimal.ZERO) <= 0
+                || loiNhuan.compareTo(BigDecimal.valueOf(100)) > 0) {
+            return null;
         }
 
-        BigDecimal tyLe = phanTramLoiNhuan.divide(BigDecimal.valueOf(100), 10, BigDecimal.ROUND_HALF_UP);
-        return giaNhap.multiply(BigDecimal.ONE.add(tyLe));
+        BigDecimal tyLe = loiNhuan.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP);
+        return giaNhap.multiply(BigDecimal.ONE.add(tyLe)).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    public static BigDecimal tinhGiaBanTheoChinhSachGiaNhap(
+            BigDecimal giaNhapBanDau,
+            BigDecimal giaNhapMoi,
+            BigDecimal giaBanHienTai,
+            BigDecimal phanTramLoiNhuan) {
+        if (giaNhapBanDau == null || giaNhapMoi == null || giaBanHienTai == null) {
+            return giaBanHienTai;
+        }
+        if (giaNhapBanDau.compareTo(BigDecimal.ZERO) <= 0
+                || giaNhapMoi.compareTo(BigDecimal.ZERO) <= 0
+                || giaNhapMoi.compareTo(giaNhapBanDau) <= 0) {
+            return giaBanHienTai;
+        }
+
+        BigDecimal giaBanMoi = tinhGiaBan(giaNhapMoi, phanTramLoiNhuan);
+        return giaBanMoi == null ? giaBanHienTai : giaBanMoi;
     }
 
     public SanPhamDTO() {}

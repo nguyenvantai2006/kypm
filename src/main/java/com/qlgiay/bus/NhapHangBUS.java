@@ -97,6 +97,12 @@ public class NhapHangBUS {
                     c.rollback();
                     return false;
                 }
+
+                ok = sanPhamDAO.updateDerivedSalePrice(c, ct.getMaSP().trim(), ct.getGiaNhap());
+                if (!ok) {
+                    c.rollback();
+                    return false;
+                }
             }
 
             c.commit();

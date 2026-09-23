@@ -14,6 +14,18 @@ public class SanPhamBUS {
     private boolean isValid(SanPhamDTO sp) {
         if (sp == null) return false;
 
+        if (sp.getPhanTramLoiNhuan() == null
+            || sp.getPhanTramLoiNhuan().compareTo(BigDecimal.ZERO) <= 0
+                || sp.getPhanTramLoiNhuan().compareTo(BigDecimal.valueOf(100)) > 0) {
+            return false;
+        }
+        if (sp.getGiaNhap() == null) {
+            sp.setDonGia(null);
+        } else {
+            if (sp.getGiaNhap().compareTo(BigDecimal.ZERO) <= 0) return false;
+            sp.setDonGia(SanPhamDTO.tinhGiaBan(sp.getGiaNhap(), sp.getPhanTramLoiNhuan()));
+        }
+
         if (sp.getMaSP() == null || sp.getMaSP().trim().isEmpty())
             return false;
 
@@ -21,9 +33,6 @@ public class SanPhamBUS {
             return false;
 
         if (sp.getSoLuong() < 0)
-            return false;
-
-        if (sp.getDonGia() == null || sp.getDonGia().compareTo(BigDecimal.ZERO) < 0)
             return false;
 
         return true;
@@ -54,6 +63,7 @@ public class SanPhamBUS {
     }
 
     public boolean addProduct(SanPhamDTO sp) {
+        syncImportPrice(sp);
         if (!isValid(sp))
             return false;
 
@@ -67,6 +77,7 @@ public class SanPhamBUS {
     }
 
     public boolean updateProduct(SanPhamDTO sp) {
+        syncImportPrice(sp);
         if (!isValid(sp))
             return false;
 
@@ -74,6 +85,15 @@ public class SanPhamBUS {
 
         if (DBConnect.isDemoMode()) return DemoProductData.update(sp);
         return sanPhamDAO.update(sp);
+    }
+
+    private void syncImportPrice(SanPhamDTO sp) {
+        if (sp == null || sp.getMaSP() == null || sp.getMaSP().isBlank()) return;
+
+        SanPhamDTO existing = findById(sp.getMaSP().trim());
+        if (existing != null && existing.getGiaNhap() != null) {
+            sp.setGiaNhap(existing.getGiaNhap());
+        }
     }
 
     public boolean deleteProduct(String maSP) {

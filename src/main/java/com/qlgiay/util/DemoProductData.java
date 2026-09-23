@@ -21,6 +21,16 @@ public final class DemoProductData {
                     LocalDate.of(2025, 12, 20), "Mẫu thử công sở", "", 1)
     ));
 
+    static {
+        PRODUCTS.get(0).setGiaNhap(BigDecimal.valueOf(650000));
+        PRODUCTS.get(1).setGiaNhap(BigDecimal.valueOf(1250000));
+        PRODUCTS.get(2).setGiaNhap(BigDecimal.valueOf(1100000));
+        PRODUCTS.forEach(product -> {
+            product.setPhanTramLoiNhuan(BigDecimal.valueOf(20));
+            product.setDonGia(SanPhamDTO.tinhGiaBan(product.getGiaNhap(), product.getPhanTramLoiNhuan()));
+        });
+    }
+
     private DemoProductData() {
     }
 
@@ -66,6 +76,15 @@ public final class DemoProductData {
         return true;
     }
 
+    public static synchronized boolean setImportPrice(String maSP, BigDecimal giaNhap) {
+        SanPhamDTO product = findMutableById(maSP);
+        if (product == null || giaNhap == null || giaNhap.compareTo(BigDecimal.ZERO) <= 0) return false;
+        product.setGiaNhap(giaNhap);
+        product.setPhanTramLoiNhuan(BigDecimal.valueOf(20));
+        product.setDonGia(SanPhamDTO.tinhGiaBan(giaNhap, product.getPhanTramLoiNhuan()));
+        return true;
+    }
+
     public static synchronized List<SanPhamDTO> search(String keyword, boolean activeOnly) {
         String value = keyword == null ? "" : keyword.trim().toLowerCase();
         return PRODUCTS.stream()
@@ -88,9 +107,13 @@ public final class DemoProductData {
     }
 
     private static SanPhamDTO copy(SanPhamDTO source) {
-        return new SanPhamDTO(source.getMaSP(), source.getTenSP(), source.getLoaiSP(), source.getDonViTinh(),
+        SanPhamDTO copy = new SanPhamDTO(source.getMaSP(), source.getTenSP(), source.getLoaiSP(), source.getDonViTinh(),
                 source.getSoLuong(), source.getDonGia(), source.getMauSac(), source.getSize(), source.getChatLieu(),
                 source.getThuongHieu(), source.getNuocSanXuat(), source.getNgaySanXuat(), source.getMoTa(),
                 source.getHinhAnh(), source.getTrangThai());
+        copy.setGiaNhap(source.getGiaNhap());
+        copy.setPhanTramLoiNhuan(source.getPhanTramLoiNhuan());
+        copy.setGiaKhuyenMai(source.getGiaKhuyenMai());
+        return copy;
     }
 }

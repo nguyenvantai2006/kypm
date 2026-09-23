@@ -1,36 +1,17 @@
 package com.qlgiay.gui.panel;
 
-import com.formdev.flatlaf.FlatClientProperties;
-import com.qlgiay.bus.NhaCungCapBUS;
-import com.qlgiay.bus.NhapHangBUS;
-import com.qlgiay.bus.SanPhamBUS;
-import com.qlgiay.dto.AuthSession;
-import com.qlgiay.dto.ChiTietPhieuNhapDTO;
-import com.qlgiay.dto.NhaCungCapDTO;
-import com.qlgiay.dto.PhieuNhapDTO;
-import com.qlgiay.dto.PhieuTraNccDTO;
-import com.qlgiay.dto.ChiTietTraNccDTO;
-import com.qlgiay.dto.SanPhamDTO;
-import com.qlgiay.bus.TraHangNccBUS;
-import com.qlgiay.gui.component.ProductGridPanel;
-import com.qlgiay.util.IconUtil;
-import com.itextpdf.text.Document;
-import com.itextpdf.text.Element;
-import com.itextpdf.text.PageSize;
-import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.Phrase;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
-import com.itextpdf.text.pdf.PdfWriter;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Desktop;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
@@ -43,6 +24,51 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTabbedPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingConstants;
+import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+
+import com.formdev.flatlaf.FlatClientProperties;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Element;
+import com.itextpdf.text.PageSize;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Phrase;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.qlgiay.bus.NhaCungCapBUS;
+import com.qlgiay.bus.NhapHangBUS;
+import com.qlgiay.bus.SanPhamBUS;
+import com.qlgiay.bus.TraHangNccBUS;
+import com.qlgiay.dto.AuthSession;
+import com.qlgiay.dto.ChiTietPhieuNhapDTO;
+import com.qlgiay.dto.ChiTietTraNccDTO;
+import com.qlgiay.dto.NhaCungCapDTO;
+import com.qlgiay.dto.PhieuNhapDTO;
+import com.qlgiay.dto.PhieuTraNccDTO;
+import com.qlgiay.dto.SanPhamDTO;
+import com.qlgiay.gui.component.ProductGridPanel;
+import com.qlgiay.util.IconUtil;
+
 public class NhapHangPanel extends JPanel implements IRefreshable {
     private final AuthSession session;
     private final SanPhamBUS sanPhamBUS = new SanPhamBUS();
@@ -50,7 +76,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
     private final NhapHangBUS nhapHangBUS = new NhapHangBUS();
     private final TraHangNccBUS traHangNccBUS = new TraHangNccBUS();
 
-    private JTabbedPane tabbedPane;
+    private final JTabbedPane tabbedPane;
 
     private JTextField txtSearch;
     private ProductGridPanel productGridPanel;
@@ -813,7 +839,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
                 JOptionPane.QUESTION_MESSAGE,
                 null,
                 null,
-                sp.getDonGia() == null ? "" : formatInputMoney(sp.getDonGia())
+                sp.getGiaNhap() == null ? "" : formatInputMoney(sp.getGiaNhap())
         );
         if (giaNhapText == null) {
             return;

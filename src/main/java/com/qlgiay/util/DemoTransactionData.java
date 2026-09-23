@@ -20,20 +20,20 @@ public final class DemoTransactionData {
     ));
 
     private static final List<PhieuNhapDTO> IMPORTS = new ArrayList<>(List.of(
-            new PhieuNhapDTO("TPN001", "DEMO001", "TNCC001", LocalDate.of(2026, 2, 1), 10, BigDecimal.valueOf(8300000)),
-            new PhieuNhapDTO("TPN002", "DEMO001", "TNCC002", LocalDate.of(2026, 2, 10), 11, BigDecimal.valueOf(9550000)),
-            new PhieuNhapDTO("TPN003", "DEMO001", "TNCC003", LocalDate.of(2026, 2, 20), 9, BigDecimal.valueOf(8250000))
+            new PhieuNhapDTO("TPN001", "DEMO001", "TNCC001", LocalDate.of(2026, 2, 1), 10, BigDecimal.valueOf(8950000)),
+            new PhieuNhapDTO("TPN002", "DEMO001", "TNCC002", LocalDate.of(2026, 2, 10), 11, BigDecimal.valueOf(11050000)),
+            new PhieuNhapDTO("TPN003", "DEMO001", "TNCC003", LocalDate.of(2026, 2, 20), 9, BigDecimal.valueOf(8850000))
     ));
 
     private static final List<List<ChiTietPhieuNhapDTO>> IMPORT_DETAILS = new ArrayList<>(List.of(
-            List.of(new ChiTietPhieuNhapDTO("TPN001", "TSP001", 5, BigDecimal.valueOf(650000)),
-                    new ChiTietPhieuNhapDTO("TPN001", "TSP002", 3, BigDecimal.valueOf(950000)),
+                List.of(new ChiTietPhieuNhapDTO("TPN001", "TSP001", 5, BigDecimal.valueOf(650000)),
+                    new ChiTietPhieuNhapDTO("TPN001", "TSP002", 3, BigDecimal.valueOf(1250000)),
                     new ChiTietPhieuNhapDTO("TPN001", "TSP003", 2, BigDecimal.valueOf(1100000))),
-            List.of(new ChiTietPhieuNhapDTO("TPN002", "TSP001", 4, BigDecimal.valueOf(650000)),
-                    new ChiTietPhieuNhapDTO("TPN002", "TSP002", 5, BigDecimal.valueOf(950000)),
+                List.of(new ChiTietPhieuNhapDTO("TPN002", "TSP001", 4, BigDecimal.valueOf(650000)),
+                    new ChiTietPhieuNhapDTO("TPN002", "TSP002", 5, BigDecimal.valueOf(1250000)),
                     new ChiTietPhieuNhapDTO("TPN002", "TSP003", 2, BigDecimal.valueOf(1100000))),
-            List.of(new ChiTietPhieuNhapDTO("TPN003", "TSP001", 3, BigDecimal.valueOf(650000)),
-                    new ChiTietPhieuNhapDTO("TPN003", "TSP002", 2, BigDecimal.valueOf(950000)),
+                List.of(new ChiTietPhieuNhapDTO("TPN003", "TSP001", 3, BigDecimal.valueOf(650000)),
+                    new ChiTietPhieuNhapDTO("TPN003", "TSP002", 2, BigDecimal.valueOf(1250000)),
                     new ChiTietPhieuNhapDTO("TPN003", "TSP003", 4, BigDecimal.valueOf(1100000)))
     ));
 
@@ -118,7 +118,11 @@ public final class DemoTransactionData {
 
     public static synchronized boolean addImport(PhieuNhapDTO receipt, List<ChiTietPhieuNhapDTO> details) {
         if (IMPORTS.stream().anyMatch(p -> p.getMaPN().equalsIgnoreCase(receipt.getMaPN()))) return false;
-        for (ChiTietPhieuNhapDTO detail : details) if (DemoProductData.findById(detail.getMaSP()) == null || !DemoProductData.changeStock(detail.getMaSP(), detail.getSoLuong())) return false;
+        for (ChiTietPhieuNhapDTO detail : details) {
+            if (DemoProductData.findById(detail.getMaSP()) == null
+                || !DemoProductData.changeStock(detail.getMaSP(), detail.getSoLuong())
+                || !DemoProductData.setImportPrice(detail.getMaSP(), detail.getGiaNhap())) return false;
+        }
         IMPORTS.add(copy(receipt));
         IMPORT_DETAILS.add(details.stream().map(DemoTransactionData::copy).toList());
         return true;

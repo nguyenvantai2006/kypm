@@ -35,6 +35,15 @@ public class DBConnect {
                     ALTER TABLE dbo.SAN_PHAM ADD MaNCC nvarchar(50) NULL;
                 END;
 
+                IF COL_LENGTH('dbo.SAN_PHAM', 'PhanTramLoiNhuan') IS NULL
+                BEGIN
+                    ALTER TABLE dbo.SAN_PHAM ADD PhanTramLoiNhuan decimal(5, 2) NULL;
+                END;
+
+                UPDATE dbo.SAN_PHAM
+                SET PhanTramLoiNhuan = 20
+                WHERE PhanTramLoiNhuan IS NULL OR PhanTramLoiNhuan <= 0;
+
                 IF COL_LENGTH('dbo.SAN_PHAM', 'MaNCC') IS NOT NULL
                    AND NOT EXISTS (
                        SELECT 1 FROM sys.foreign_keys

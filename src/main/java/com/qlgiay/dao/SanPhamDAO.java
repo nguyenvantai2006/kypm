@@ -1,16 +1,27 @@
 package com.qlgiay.dao;
 
-import com.qlgiay.dto.SanPhamDTO;
-import com.qlgiay.util.DBConnect;
-
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.qlgiay.dto.SanPhamDTO;
+import com.qlgiay.util.DBConnect;
 
 public class SanPhamDAO {
     private static final String SELECT_ALL = """
                  SELECT MaSP, TenSP, LoaiSP, DonViTinh, SoLuong, DonGia, MauSac, Size,
-                     ChatLieu, ThuongHieu, NuocSanXuat, NgaySanXuat, MoTa, HinhAnh, MaNCC, TrangThai
+                     ChatLieu, ThuongHieu, NuocSanXuat, NgaySanXuat, MoTa, HinhAnh, MaNCC, TrangThai,
+                     PhanTramLoiNhuan,
+                     (SELECT TOP 1 ct.GiaNhap
+                      FROM CHI_TIET_PHIEU_NHAP ct
+                      INNER JOIN PHIEU_NHAP pn ON pn.MaPN = ct.MaPN
+                      WHERE ct.MaSP = SAN_PHAM.MaSP
+                      ORDER BY pn.NgayNhap DESC, pn.MaPN DESC) AS GiaNhap
             FROM SAN_PHAM
             """;
 
@@ -49,24 +60,15 @@ public class SanPhamDAO {
     }
 
     public List<SanPhamDTO> findBySupplier(String maNCC) {
-        String sql = """
-            SELECT SAN_PHAM.MaSP, SAN_PHAM.TenSP, SAN_PHAM.LoaiSP, SAN_PHAM.DonViTinh,
-                   SAN_PHAM.SoLuong, SAN_PHAM.DonGia, SAN_PHAM.MauSac, SAN_PHAM.Size,
-                   SAN_PHAM.ChatLieu, SAN_PHAM.ThuongHieu, SAN_PHAM.NuocSanXuat,
-                                     SAN_PHAM.NgaySanXuat, SAN_PHAM.MoTa, SAN_PHAM.HinhAnh, SAN_PHAM.MaNCC, SAN_PHAM.TrangThai
-            FROM SAN_PHAM
-                        WHERE SAN_PHAM.MaNCC = ?
-                             OR EXISTS (
-                                     SELECT 1
-                                     FROM CHI_TIET_PHIEU_NHAP ct
-                                     INNER JOIN PHIEU_NHAP pn ON pn.MaPN = ct.MaPN
-                                     WHERE ct.MaSP = SAN_PHAM.MaSP AND pn.MaNCC = ?
-                             )
-            GROUP BY SAN_PHAM.MaSP, SAN_PHAM.TenSP, SAN_PHAM.LoaiSP, SAN_PHAM.DonViTinh,
-                 SAN_PHAM.SoLuong, SAN_PHAM.DonGia, SAN_PHAM.MauSac, SAN_PHAM.Size,
-                 SAN_PHAM.ChatLieu, SAN_PHAM.ThuongHieu, SAN_PHAM.NuocSanXuat,
-                                 SAN_PHAM.NgaySanXuat, SAN_PHAM.MoTa, SAN_PHAM.HinhAnh, SAN_PHAM.MaNCC, SAN_PHAM.TrangThai
-            ORDER BY SAN_PHAM.TenSP
+        String sql = SELECT_ALL + """
+                WHERE SAN_PHAM.MaNCC = ?
+                   OR EXISTS (
+                       SELECT 1
+                       FROM CHI_TIET_PHIEU_NHAP ct
+                       INNER JOIN PHIEU_NHAP pn ON pn.MaPN = ct.MaPN
+                       WHERE ct.MaSP = SAN_PHAM.MaSP AND pn.MaNCC = ?
+                   )
+                ORDER BY SAN_PHAM.TenSP
                 """;
         List<SanPhamDTO> list = new ArrayList<>();
 
@@ -180,9 +182,9 @@ public class SanPhamDAO {
         String sql = """
                 INSERT INTO SAN_PHAM
                 (MaSP, TenSP, LoaiSP, DonViTinh, SoLuong, DonGia, MauSac, Size, ChatLieu,
-                 ThuongHieu, NuocSanXuat, NgaySanXuat, MoTa, HinhAnh, MaNCC, TrangThai)
+                 ThuongHieu, NuocSanXuat, NgaySanXuat, MoTa, HinhAnh, MaNCC, TrangThai, PhanTramLoiNhuan)
                 VALUES
-                (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
         try (Connection c = DBConnect.getConnection();
@@ -210,6 +212,7 @@ public class SanPhamDAO {
             ps.setString(14, sp.getHinhAnh());
             ps.setString(15, sp.getMaNCC());
             ps.setInt(16, sp.getTrangThai() == 0 ? 1 : sp.getTrangThai());
+            ps.setBigDecimal(17, sp.getPhanTramLoiNhuan());
 
             return ps.executeUpdate() > 0;
 
@@ -223,7 +226,8 @@ public class SanPhamDAO {
         String sql = """
                 UPDATE SAN_PHAM SET
                     TenSP=?, LoaiSP=?, DonViTinh=?, SoLuong=?, DonGia=?, MauSac=?, Size=?, ChatLieu=?,
-                    ThuongHieu=?, NuocSanXuat=?, NgaySanXuat=?, MoTa=?, HinhAnh=?, MaNCC=?, TrangThai=?
+                    ThuongHieu=?, NuocSanXuat=?, NgaySanXuat=?, MoTa=?, HinhAnh=?, MaNCC=?, TrangThai=?,
+                    PhanTramLoiNhuan=?
                 WHERE MaSP=?
                 """;
 
@@ -251,7 +255,8 @@ public class SanPhamDAO {
             ps.setString(13, sp.getHinhAnh());
             ps.setString(14, sp.getMaNCC());
             ps.setInt(15, sp.getTrangThai());
-            ps.setString(16, sp.getMaSP());
+            ps.setBigDecimal(16, sp.getPhanTramLoiNhuan());
+            ps.setString(17, sp.getMaSP());
 
             return ps.executeUpdate() > 0;
 
@@ -333,6 +338,23 @@ public class SanPhamDAO {
         }
     }
 
+    public boolean updateDerivedSalePrice(Connection c, String maSP, java.math.BigDecimal giaNhap) {
+        String sql = """
+                UPDATE SAN_PHAM
+                SET DonGia = ROUND(? * (1 + ISNULL(PhanTramLoiNhuan, 20) / 100.0), 2)
+                WHERE MaSP = ?
+                """;
+
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setBigDecimal(1, giaNhap);
+            ps.setString(2, maSP);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     private SanPhamDTO mapRow(ResultSet rs) throws SQLException {
         SanPhamDTO sp = new SanPhamDTO();
         sp.setMaSP(rs.getString("MaSP"));
@@ -340,7 +362,10 @@ public class SanPhamDAO {
         sp.setLoaiSP(rs.getString("LoaiSP"));
         sp.setDonViTinh(rs.getString("DonViTinh"));
         sp.setSoLuong(rs.getInt("SoLuong"));
-        sp.setDonGia(rs.getBigDecimal("DonGia"));
+        sp.setGiaNhap(rs.getBigDecimal("GiaNhap"));
+        java.math.BigDecimal loiNhuan = rs.getBigDecimal("PhanTramLoiNhuan");
+        sp.setPhanTramLoiNhuan(loiNhuan == null ? java.math.BigDecimal.valueOf(20) : loiNhuan);
+        sp.setDonGia(SanPhamDTO.tinhGiaBan(sp.getGiaNhap(), sp.getPhanTramLoiNhuan()));
         sp.setMauSac(rs.getString("MauSac"));
         sp.setSize(rs.getString("Size"));
         sp.setChatLieu(rs.getString("ChatLieu"));

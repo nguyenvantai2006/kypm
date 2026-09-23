@@ -1,20 +1,19 @@
 package com.qlgiay.bus;
 
+import java.math.BigDecimal;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.time.LocalDate;
+import java.util.List;
+
 import com.qlgiay.dao.ChiTietPhieuNhapDAO;
 import com.qlgiay.dao.ChiTietTraNccDAO;
 import com.qlgiay.dao.PhieuTraNccDAO;
 import com.qlgiay.dao.SanPhamDAO;
 import com.qlgiay.dto.ChiTietPhieuNhapDTO;
 import com.qlgiay.dto.ChiTietTraNccDTO;
-import com.qlgiay.dto.PhieuNhapDTO;
 import com.qlgiay.dto.PhieuTraNccDTO;
 import com.qlgiay.util.DBConnect;
-
-import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.time.LocalDate;
-import java.util.List;
 
 public class TraHangNccBUS {
     private final PhieuTraNccDAO phieuTraDAO = new PhieuTraNccDAO();
@@ -58,7 +57,7 @@ public class TraHangNccBUS {
                 return false;
             }
             c.commit(); return true;
-        } catch (SQLException e) { rollback(c); lastError = e.getMessage(); e.printStackTrace(); return false; }
+        } catch (SQLException e) { rollback(c); lastError = e.getMessage(); return false; }
         finally { close(c); }
     }
 
@@ -84,7 +83,7 @@ public class TraHangNccBUS {
             }
             if (!phieuTraDAO.updateStatus(c, maPT, status, nguoiXuLy)) { c.rollback(); return false; }
             c.commit(); return true;
-        } catch (SQLException e) { rollback(c); e.printStackTrace(); return false; }
+        } catch (SQLException e) { rollback(c); lastError = e.getMessage(); return false; }
         finally { close(c); }
     }
 
