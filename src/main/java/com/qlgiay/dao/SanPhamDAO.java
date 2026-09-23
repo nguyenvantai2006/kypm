@@ -321,7 +321,7 @@ public class SanPhamDAO {
     public boolean increaseStock(Connection c, String maSP, int soLuong) {
         String sql = """
                 UPDATE SAN_PHAM
-                SET SoLuong = SoLuong + ?
+                SET SoLuong = ISNULL(SoLuong, 0) + ?, TrangThai = 1
                 WHERE MaSP = ?
                 """;
 
