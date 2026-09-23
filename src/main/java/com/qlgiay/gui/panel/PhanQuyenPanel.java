@@ -44,8 +44,7 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
         JSplitPane split = new JSplitPane(
                 JSplitPane.HORIZONTAL_SPLIT,
                 createLeftPanel(),
-                createFormPanel()
-        );
+                createFormPanel());
         split.setOpaque(false);
         split.setResizeWeight(0.62);
         split.setDividerSize(6);
@@ -139,10 +138,10 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
         });
 
         JScrollPane sp = new JScrollPane(table);
+        sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(225, 225, 225)),
-                new EmptyBorder(2, 2, 2, 2)
-        ));
+                new EmptyBorder(2, 2, 2, 2)));
 
         JPanel panel = new JPanel(new BorderLayout());
         panel.setOpaque(false);
@@ -169,9 +168,12 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
         int row = 0;
 
         addGridRow(contentPanel, gbc, row++, field("Mã quyền", txtMa), field("Tên quyền", txtTen));
-        addGridRow(contentPanel, gbc, row++, buildPermissionPanel("Quản lý bán hàng", chkBanHang), buildPermissionPanel("Quản lý khách hàng", chkKhachHang));
-        addGridRow(contentPanel, gbc, row++, buildPermissionPanel("Quản lý sản phẩm", chkSanPham), buildPermissionPanel("Quản lý nhập hàng", chkNhapHang));
-        addGridRow(contentPanel, gbc, row++, buildPermissionPanel("Quản lý nhân viên", chkNhanVien), buildPermissionPanel("Quản lý thống kê", chkThongKe));
+        addGridRow(contentPanel, gbc, row++, buildPermissionPanel("Quản lý bán hàng", chkBanHang),
+                buildPermissionPanel("Quản lý khách hàng", chkKhachHang));
+        addGridRow(contentPanel, gbc, row++, buildPermissionPanel("Quản lý sản phẩm", chkSanPham),
+                buildPermissionPanel("Quản lý nhập hàng", chkNhapHang));
+        addGridRow(contentPanel, gbc, row++, buildPermissionPanel("Quản lý nhân viên", chkNhanVien),
+                buildPermissionPanel("Quản lý thống kê", chkThongKe));
 
         JPanel alignTopPanel = new JPanel(new BorderLayout());
         alignTopPanel.setOpaque(false);
@@ -296,7 +298,7 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
 
         if (list != null) {
             for (QuyenDTO q : list) {
-                tableModel.addRow(new Object[]{
+                tableModel.addRow(new Object[] {
                         q.getMaQuyen(),
                         q.getTenQuyen(),
                         q.getQlBanHang() == 1,
@@ -358,8 +360,7 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Mã quyền không được để trống!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             txtMa.requestFocus();
             return false;
         }
@@ -369,8 +370,7 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Tên quyền không được để trống!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             txtTen.requestFocus();
             return false;
         }
@@ -390,8 +390,7 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
                             SwingUtilities.getWindowAncestor(this),
                             "Tên quyền này đã tồn tại!",
                             "Cảnh báo",
-                            JOptionPane.WARNING_MESSAGE
-                    );
+                            JOptionPane.WARNING_MESSAGE);
                     txtTen.requestFocus();
                     return false;
                 }
@@ -412,8 +411,7 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Mã quyền này đã tồn tại!",
                     "Lỗi",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -422,8 +420,7 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Thêm quyền thành công!",
                     "Thông báo",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
+                    JOptionPane.INFORMATION_MESSAGE);
             loadTable();
             clear();
         } else {
@@ -431,8 +428,7 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Thêm quyền thất bại!",
                     "Lỗi",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -443,8 +439,7 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Vui lòng chọn quyền cần sửa trên bảng!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -458,8 +453,7 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Cập nhật quyền thành công!",
                     "Thông báo",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
+                    JOptionPane.INFORMATION_MESSAGE);
             loadTable();
             clear();
         } else {
@@ -467,8 +461,7 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Cập nhật quyền thất bại!",
                     "Lỗi",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -479,8 +472,7 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Vui lòng chọn quyền cần xóa!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -493,8 +485,7 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Tuyệt đối không được xóa quyền Quản Trị Hệ Thống!",
                     "Cảnh báo an ninh",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -503,8 +494,7 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
                 "Bạn có chắc chắn muốn xóa quyền [" + ten + "] không?",
                 "Xác nhận xóa",
                 JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE
-        );
+                JOptionPane.WARNING_MESSAGE);
 
         if (confirm == JOptionPane.YES_OPTION) {
             if (quyenBUS.deleteQuyen(ma)) {
@@ -512,8 +502,7 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
                         SwingUtilities.getWindowAncestor(this),
                         "Đã xóa quyền thành công!",
                         "Thông báo",
-                        JOptionPane.INFORMATION_MESSAGE
-                );
+                        JOptionPane.INFORMATION_MESSAGE);
                 loadTable();
                 clear();
             } else {
@@ -521,8 +510,7 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
                         SwingUtilities.getWindowAncestor(this),
                         "Xóa thất bại! Quyền này có thể đang được cấp cho một số nhân viên.",
                         "Lỗi",
-                        JOptionPane.ERROR_MESSAGE
-                );
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -550,32 +538,32 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
     private void styleActionButton(JButton button, String type) {
         String style = switch (type) {
             case "success" ->
-                    "arc:10;" +
-                            "focusWidth:0;" +
-                            "innerFocusWidth:0;" +
-                            "margin:4,6,4,6;" +
-                            "background:#E8F5E9;" +
-                            "foreground:#2E7D32;" +
-                            "hoverBackground:#D7F0DB;" +
-                            "pressedBackground:#C2E7C8";
+                "arc:10;" +
+                        "focusWidth:0;" +
+                        "innerFocusWidth:0;" +
+                        "margin:4,6,4,6;" +
+                        "background:#E8F5E9;" +
+                        "foreground:#2E7D32;" +
+                        "hoverBackground:#D7F0DB;" +
+                        "pressedBackground:#C2E7C8";
             case "danger" ->
-                    "arc:10;" +
-                            "focusWidth:0;" +
-                            "innerFocusWidth:0;" +
-                            "margin:4,6,4,6;" +
-                            "background:#FDECEC;" +
-                            "foreground:#C62828;" +
-                            "hoverBackground:#F9D6D6;" +
-                            "pressedBackground:#F4BDBD";
+                "arc:10;" +
+                        "focusWidth:0;" +
+                        "innerFocusWidth:0;" +
+                        "margin:4,6,4,6;" +
+                        "background:#FDECEC;" +
+                        "foreground:#C62828;" +
+                        "hoverBackground:#F9D6D6;" +
+                        "pressedBackground:#F4BDBD";
             default ->
-                    "arc:10;" +
-                            "focusWidth:0;" +
-                            "innerFocusWidth:0;" +
-                            "margin:4,6,4,6;" +
-                            "background:#E8F0FE;" +
-                            "foreground:#005A9E;" +
-                            "hoverBackground:#DCE8FC;" +
-                            "pressedBackground:#C9DCF8";
+                "arc:10;" +
+                        "focusWidth:0;" +
+                        "innerFocusWidth:0;" +
+                        "margin:4,6,4,6;" +
+                        "background:#E8F0FE;" +
+                        "foreground:#005A9E;" +
+                        "hoverBackground:#DCE8FC;" +
+                        "pressedBackground:#C9DCF8";
         };
 
         button.putClientProperty(FlatClientProperties.STYLE, style);
@@ -604,16 +592,14 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
                     boolean isSelected,
                     boolean hasFocus,
                     int row,
-                    int column
-            ) {
+                    int column) {
                 Component c = super.getTableCellRendererComponent(
                         tbl,
                         value,
                         isSelected,
                         hasFocus,
                         row,
-                        column
-                );
+                        column);
 
                 if (isSelected) {
                     c.setBackground(new Color(232, 240, 254));
@@ -646,8 +632,7 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
                     boolean isSelected,
                     boolean hasFocus,
                     int row,
-                    int column
-            ) {
+                    int column) {
                 JCheckBox cb = new JCheckBox();
                 cb.setHorizontalAlignment(SwingConstants.CENTER);
                 cb.setSelected(Boolean.TRUE.equals(value));

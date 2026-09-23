@@ -77,8 +77,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
         JSplitPane split = new JSplitPane(
                 JSplitPane.HORIZONTAL_SPLIT,
                 createLeftPanel(),
-                createFormPanel()
-        );
+                createFormPanel());
         split.setOpaque(false);
         split.setResizeWeight(0.62);
         split.setDividerSize(6);
@@ -107,7 +106,8 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
 
         txtSearch = new JTextField();
         txtSearch.setPreferredSize(new Dimension(0, 32));
-        txtSearch.putClientProperty("JTextField.placeholderText", "Nhập mã PBH, mã HĐ, mã SP, mã KH hoặc lỗi cần bảo hành...");
+        txtSearch.putClientProperty("JTextField.placeholderText",
+                "Nhập mã PBH, mã HĐ, mã SP, mã KH hoặc lỗi cần bảo hành...");
 
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -126,10 +126,10 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
             }
         });
 
-        cboFilterNgay = new JComboBox<>(new String[]{
+        cboFilterNgay = new JComboBox<>(new String[] {
                 "Tất cả thời gian", "Hôm nay", "Tháng này"
         });
-        cboFilterTrangThai = new JComboBox<>(new String[]{
+        cboFilterTrangThai = new JComboBox<>(new String[] {
                 "Tất cả trạng thái", "Đang bảo hành", "Hoàn thành", "Hủy"
         });
 
@@ -186,10 +186,10 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
         });
 
         JScrollPane sp = new JScrollPane(table);
+        sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(225, 225, 225)),
-                new EmptyBorder(2, 2, 2, 2)
-        ));
+                new EmptyBorder(2, 2, 2, 2)));
 
         JPanel panel = new JPanel(new BorderLayout());
         panel.setOpaque(false);
@@ -218,7 +218,8 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
         addGridRow(contentPanel, gbc, row++, field("Mã phiếu bảo hành", txtMaPBH), field("Ngày nhận", txtNgayNhan));
         addGridRow(contentPanel, gbc, row++, field("Mã hóa đơn", txtMaHD), field("Ngày trả dự kiến", txtNgayTraDuKien));
         addGridRow(contentPanel, gbc, row++, field("Mã sản phẩm", txtMaSP), field("Mã khách hàng", txtMaKH));
-        addGridRow(contentPanel, gbc, row++, field("Chi phí phát sinh", txtChiPhiPhatSinh), field("Trạng thái", cboTrangThai));
+        addGridRow(contentPanel, gbc, row++, field("Chi phí phát sinh", txtChiPhiPhatSinh),
+                field("Trạng thái", cboTrangThai));
 
         gbc.gridx = 0;
         gbc.gridy = row++;
@@ -296,7 +297,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
 
         setNumberOnly(txtChiPhiPhatSinh);
 
-        cboTrangThai = new JComboBox<>(new String[]{
+        cboTrangThai = new JComboBox<>(new String[] {
                 "Đang bảo hành", "Hoàn thành", "Hủy"
         });
         styleComboBox(cboTrangThai);
@@ -399,7 +400,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
                     }
                     if ("Tháng này".equals(filterDate)
                             && (pbh.getNgayNhan().getMonthValue() != today.getMonthValue()
-                            || pbh.getNgayNhan().getYear() != today.getYear())) {
+                                    || pbh.getNgayNhan().getYear() != today.getYear())) {
                         continue;
                     }
                 }
@@ -410,7 +411,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
                     }
                 }
 
-                tableModel.addRow(new Object[]{
+                tableModel.addRow(new Object[] {
                         pbh.getMaPBH(),
                         pbh.getMaHD(),
                         pbh.getMaSP(),
@@ -472,8 +473,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Dữ liệu không hợp lệ. Vui lòng kiểm tra ngày và chi phí phát sinh.",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             return null;
         }
     }
@@ -488,8 +488,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Mã phiếu bảo hành không được để trống!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             return false;
         }
 
@@ -498,8 +497,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Mã hóa đơn không được để trống!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             txtMaHD.requestFocus();
             return false;
         }
@@ -510,8 +508,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Không tìm thấy hóa đơn này!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             txtMaHD.requestFocus();
             return false;
         }
@@ -521,8 +518,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Hóa đơn khách lẻ không thể tạo phiếu bảo hành!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             txtMaHD.requestFocus();
             return false;
         }
@@ -532,8 +528,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Mã sản phẩm không được để trống!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             txtMaSP.requestFocus();
             return false;
         }
@@ -544,8 +539,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Không tìm thấy sản phẩm này!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             txtMaSP.requestFocus();
             return false;
         }
@@ -556,8 +550,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
                         SwingUtilities.getWindowAncestor(this),
                         "Mã khách hàng không được để trống!",
                         "Cảnh báo",
-                        JOptionPane.WARNING_MESSAGE
-                );
+                        JOptionPane.WARNING_MESSAGE);
                 txtMaHD.requestFocus();
                 return false;
             }
@@ -568,8 +561,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
                         SwingUtilities.getWindowAncestor(this),
                         "Không tìm thấy khách hàng này!",
                         "Cảnh báo",
-                        JOptionPane.WARNING_MESSAGE
-                );
+                        JOptionPane.WARNING_MESSAGE);
                 txtMaHD.requestFocus();
                 return false;
             }
@@ -579,8 +571,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
                         SwingUtilities.getWindowAncestor(this),
                         "Mã khách hàng không khớp với hóa đơn đã nhập!",
                         "Cảnh báo",
-                        JOptionPane.WARNING_MESSAGE
-                );
+                        JOptionPane.WARNING_MESSAGE);
                 txtMaHD.requestFocus();
                 return false;
             }
@@ -602,8 +593,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Sản phẩm này không tồn tại trong hóa đơn đã nhập!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             txtMaSP.requestFocus();
             return false;
         }
@@ -613,8 +603,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Lỗi cần bảo hành không được để trống!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             txtLoiCanBaoHanh.requestFocus();
             return false;
         }
@@ -624,19 +613,18 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Chi phí phát sinh không được âm!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             txtChiPhiPhatSinh.requestFocus();
             return false;
         }
 
-        if (pbh.getNgayNhan() != null && pbh.getNgayTraDuKien() != null && pbh.getNgayTraDuKien().isBefore(pbh.getNgayNhan())) {
+        if (pbh.getNgayNhan() != null && pbh.getNgayTraDuKien() != null
+                && pbh.getNgayTraDuKien().isBefore(pbh.getNgayNhan())) {
             JOptionPane.showMessageDialog(
                     SwingUtilities.getWindowAncestor(this),
                     "Ngày trả dự kiến không được trước ngày nhận!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             txtNgayTraDuKien.requestFocus();
             return false;
         }
@@ -646,8 +634,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Mã phiếu bảo hành này đã tồn tại!",
                     "Lỗi",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
             return false;
         }
 
@@ -656,8 +643,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Không tìm thấy phiếu bảo hành để sửa!",
                     "Lỗi",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
             return false;
         }
 
@@ -673,8 +659,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
         if (baoHanhBUS.create(pbh)) {
             JOptionPane.showMessageDialog(
                     SwingUtilities.getWindowAncestor(this),
-                    "Thêm phiếu bảo hành thành công!"
-            );
+                    "Thêm phiếu bảo hành thành công!");
             loadTable();
             clear();
         } else {
@@ -682,8 +667,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Thêm phiếu bảo hành thất bại!",
                     "Lỗi",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -696,8 +680,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
         if (baoHanhBUS.update(pbh)) {
             JOptionPane.showMessageDialog(
                     SwingUtilities.getWindowAncestor(this),
-                    "Cập nhật phiếu bảo hành thành công!"
-            );
+                    "Cập nhật phiếu bảo hành thành công!");
             loadTable();
             clear();
         } else {
@@ -705,8 +688,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Cập nhật phiếu bảo hành thất bại!",
                     "Lỗi",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -717,8 +699,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Vui lòng chọn hoặc nhập phiếu bảo hành để in!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -728,8 +709,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Không tìm thấy phiếu bảo hành này!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -743,9 +723,12 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
             PdfWriter.getInstance(document, new FileOutputStream(path));
             document.open();
 
-            com.itextpdf.text.Font fontTitle = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA, 16, com.itextpdf.text.Font.BOLD);
-            com.itextpdf.text.Font fontNormal = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA, 12, com.itextpdf.text.Font.NORMAL);
-            com.itextpdf.text.Font fontBold = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA, 12, com.itextpdf.text.Font.BOLD);
+            com.itextpdf.text.Font fontTitle = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA,
+                    16, com.itextpdf.text.Font.BOLD);
+            com.itextpdf.text.Font fontNormal = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA,
+                    12, com.itextpdf.text.Font.NORMAL);
+            com.itextpdf.text.Font fontBold = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA,
+                    12, com.itextpdf.text.Font.BOLD);
 
             Paragraph title = new Paragraph("PHIEU BAO HANH\n\n", fontTitle);
             title.setAlignment(Element.ALIGN_CENTER);
@@ -756,10 +739,18 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
             document.add(new Paragraph("Ma SP: " + safePdfText(pbh.getMaSP()), fontNormal));
             document.add(new Paragraph("Ma KH: " + safePdfText(pbh.getMaKH()), fontNormal));
             document.add(new Paragraph("Ngay nhan: " + pbh.getNgayNhan(), fontNormal));
-            document.add(new Paragraph("Ngay tra du kien: " + (pbh.getNgayTraDuKien() == null ? "" : pbh.getNgayTraDuKien()), fontNormal));
-            document.add(new Paragraph("Trang thai: " + safePdfText(mapTrangThaiIntToText(pbh.getTrangThai())), fontNormal));
-            document.add(new Paragraph("Chi phi phat sinh: " + new DecimalFormat("#,###").format(pbh.getChiPhiPhatSinh() == null ? BigDecimal.ZERO : pbh.getChiPhiPhatSinh()) + " VND", fontBold));
-            document.add(new Paragraph("---------------------------------------------------------------------------------------\n", fontNormal));
+            document.add(new Paragraph(
+                    "Ngay tra du kien: " + (pbh.getNgayTraDuKien() == null ? "" : pbh.getNgayTraDuKien()), fontNormal));
+            document.add(
+                    new Paragraph("Trang thai: " + safePdfText(mapTrangThaiIntToText(pbh.getTrangThai())), fontNormal));
+            document.add(
+                    new Paragraph("Chi phi phat sinh: "
+                            + new DecimalFormat("#,###")
+                                    .format(pbh.getChiPhiPhatSinh() == null ? BigDecimal.ZERO : pbh.getChiPhiPhatSinh())
+                            + " VND", fontBold));
+            document.add(new Paragraph(
+                    "---------------------------------------------------------------------------------------\n",
+                    fontNormal));
             document.add(new Paragraph("Loi can bao hanh:", fontBold));
             document.add(new Paragraph(safePdfText(pbh.getLoiCanBaoHanh()), fontNormal));
 
@@ -774,8 +765,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
             e.printStackTrace();
             JOptionPane.showMessageDialog(
                     SwingUtilities.getWindowAncestor(this),
-                    "Lỗi khi tạo file PDF!"
-            );
+                    "Lỗi khi tạo file PDF!");
         }
     }
 
@@ -834,14 +824,16 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
     private void setNumberOnly(JTextField textField) {
         ((AbstractDocument) textField.getDocument()).setDocumentFilter(new DocumentFilter() {
             @Override
-            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr)
+                    throws BadLocationException {
                 if (string != null && string.matches("\\d+")) {
                     super.insertString(fb, offset, string, attr);
                 }
             }
 
             @Override
-            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+                    throws BadLocationException {
                 if (text == null || text.matches("\\d*")) {
                     super.replace(fb, offset, length, text, attrs);
                 }
@@ -898,46 +890,57 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
         return text
                 .replace("Đ", "D").replace("đ", "d")
                 .replace("á", "a").replace("à", "a").replace("ả", "a").replace("ã", "a").replace("ạ", "a")
-                .replace("ă", "a").replace("ắ", "a").replace("ằ", "a").replace("ẳ", "a").replace("ẵ", "a").replace("ặ", "a")
-                .replace("â", "a").replace("ấ", "a").replace("ầ", "a").replace("ẩ", "a").replace("ẫ", "a").replace("ậ", "a")
+                .replace("ă", "a").replace("ắ", "a").replace("ằ", "a").replace("ẳ", "a").replace("ẵ", "a")
+                .replace("ặ", "a")
+                .replace("â", "a").replace("ấ", "a").replace("ầ", "a").replace("ẩ", "a").replace("ẫ", "a")
+                .replace("ậ", "a")
                 .replace("é", "e").replace("è", "e").replace("ẻ", "e").replace("ẽ", "e").replace("ẹ", "e")
-                .replace("ê", "e").replace("ế", "e").replace("ề", "e").replace("ể", "e").replace("ễ", "e").replace("ệ", "e")
+                .replace("ê", "e").replace("ế", "e").replace("ề", "e").replace("ể", "e").replace("ễ", "e")
+                .replace("ệ", "e")
                 .replace("í", "i").replace("ì", "i").replace("ỉ", "i").replace("ĩ", "i").replace("ị", "i")
                 .replace("ó", "o").replace("ò", "o").replace("ỏ", "o").replace("õ", "o").replace("ọ", "o")
-                .replace("ô", "o").replace("ố", "o").replace("ồ", "o").replace("ổ", "o").replace("ỗ", "o").replace("ộ", "o")
-                .replace("ơ", "o").replace("ớ", "o").replace("ờ", "o").replace("ở", "o").replace("ỡ", "o").replace("ợ", "o")
+                .replace("ô", "o").replace("ố", "o").replace("ồ", "o").replace("ổ", "o").replace("ỗ", "o")
+                .replace("ộ", "o")
+                .replace("ơ", "o").replace("ớ", "o").replace("ờ", "o").replace("ở", "o").replace("ỡ", "o")
+                .replace("ợ", "o")
                 .replace("ú", "u").replace("ù", "u").replace("ủ", "u").replace("ũ", "u").replace("ụ", "u")
-                .replace("ư", "u").replace("ứ", "u").replace("ừ", "u").replace("ử", "u").replace("ữ", "u").replace("ự", "u")
+                .replace("ư", "u").replace("ứ", "u").replace("ừ", "u").replace("ử", "u").replace("ữ", "u")
+                .replace("ự", "u")
                 .replace("ý", "y").replace("ỳ", "y").replace("ỷ", "y").replace("ỹ", "y").replace("ỵ", "y")
                 .replace("Á", "A").replace("À", "A").replace("Ả", "A").replace("Ã", "A").replace("Ạ", "A")
-                .replace("Ă", "A").replace("Ắ", "A").replace("Ằ", "A").replace("Ẳ", "A").replace("Ẵ", "A").replace("Ặ", "A")
-                .replace("Â", "A").replace("Ấ", "A").replace("Ầ", "A").replace("Ẩ", "A").replace("Ẫ", "A").replace("Ậ", "A")
+                .replace("Ă", "A").replace("Ắ", "A").replace("Ằ", "A").replace("Ẳ", "A").replace("Ẵ", "A")
+                .replace("Ặ", "A")
+                .replace("Â", "A").replace("Ấ", "A").replace("Ầ", "A").replace("Ẩ", "A").replace("Ẫ", "A")
+                .replace("Ậ", "A")
                 .replace("É", "E").replace("È", "E").replace("Ẻ", "E").replace("Ẽ", "E").replace("Ẹ", "E")
-                .replace("Ê", "E").replace("Ế", "E").replace("Ề", "E").replace("Ể", "E").replace("Ễ", "E").replace("Ệ", "E")
+                .replace("Ê", "E").replace("Ế", "E").replace("Ề", "E").replace("Ể", "E").replace("Ễ", "E")
+                .replace("Ệ", "E")
                 .replace("Í", "I").replace("Ì", "I").replace("Ỉ", "I").replace("Ĩ", "I").replace("Ị", "I")
                 .replace("Ó", "O").replace("Ò", "O").replace("Ỏ", "O").replace("Õ", "O").replace("Ọ", "O")
-                .replace("Ô", "O").replace("Ố", "O").replace("Ồ", "O").replace("Ổ", "O").replace("Ỗ", "O").replace("Ộ", "O")
-                .replace("Ơ", "O").replace("Ớ", "O").replace("Ờ", "O").replace("Ở", "O").replace("Ỡ", "O").replace("Ợ", "O")
+                .replace("Ô", "O").replace("Ố", "O").replace("Ồ", "O").replace("Ổ", "O").replace("Ỗ", "O")
+                .replace("Ộ", "O")
+                .replace("Ơ", "O").replace("Ớ", "O").replace("Ờ", "O").replace("Ở", "O").replace("Ỡ", "O")
+                .replace("Ợ", "O")
                 .replace("Ú", "U").replace("Ù", "U").replace("Ủ", "U").replace("Ũ", "U").replace("Ụ", "U")
-                .replace("Ư", "U").replace("Ứ", "U").replace("Ừ", "U").replace("Ử", "U").replace("Ữ", "U").replace("Ự", "U")
+                .replace("Ư", "U").replace("Ứ", "U").replace("Ừ", "U").replace("Ử", "U").replace("Ữ", "U")
+                .replace("Ự", "U")
                 .replace("Ý", "Y").replace("Ỳ", "Y").replace("Ỷ", "Y").replace("Ỹ", "Y").replace("Ỵ", "Y");
     }
 
     private void styleComboBox(JComboBox<?> comboBox) {
         comboBox.putClientProperty(
                 FlatClientProperties.STYLE,
-                "arc:8;focusWidth:0;innerFocusWidth:0"
-        );
+                "arc:8;focusWidth:0;innerFocusWidth:0");
     }
 
     private void styleActionButton(JButton button, String type) {
         String style = switch (type) {
             case "success" ->
-                    "arc:10;focusWidth:0;innerFocusWidth:0;margin:4,6,4,6;background:#E8F5E9;foreground:#2E7D32;hoverBackground:#D7F0DB;pressedBackground:#C2E7C8";
+                "arc:10;focusWidth:0;innerFocusWidth:0;margin:4,6,4,6;background:#E8F5E9;foreground:#2E7D32;hoverBackground:#D7F0DB;pressedBackground:#C2E7C8";
             case "danger" ->
-                    "arc:10;focusWidth:0;innerFocusWidth:0;margin:4,6,4,6;background:#FDECEC;foreground:#C62828;hoverBackground:#F9D6D6;pressedBackground:#F4BDBD";
+                "arc:10;focusWidth:0;innerFocusWidth:0;margin:4,6,4,6;background:#FDECEC;foreground:#C62828;hoverBackground:#F9D6D6;pressedBackground:#F4BDBD";
             default ->
-                    "arc:10;focusWidth:0;innerFocusWidth:0;margin:4,6,4,6;background:#E8F0FE;foreground:#005A9E;hoverBackground:#DCE8FC;pressedBackground:#C9DCF8";
+                "arc:10;focusWidth:0;innerFocusWidth:0;margin:4,6,4,6;background:#E8F0FE;foreground:#005A9E;hoverBackground:#DCE8FC;pressedBackground:#C9DCF8";
         };
 
         button.putClientProperty(FlatClientProperties.STYLE, style);
@@ -966,8 +969,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
                     boolean isSelected,
                     boolean hasFocus,
                     int row,
-                    int column
-            ) {
+                    int column) {
                 if (value instanceof BigDecimal) {
                     value = formatMoney((BigDecimal) value);
                 }
@@ -978,8 +980,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
                         isSelected,
                         hasFocus,
                         row,
-                        column
-                );
+                        column);
 
                 if (isSelected) {
                     c.setBackground(new Color(232, 240, 254));

@@ -1,28 +1,30 @@
 package com.qlgiay.bus;
 
 import java.math.BigDecimal;
+import java.text.Normalizer;
 import java.util.List;
+import java.util.Locale;
 
 import com.qlgiay.dao.SanPhamDAO;
 import com.qlgiay.dto.SanPhamDTO;
-import com.qlgiay.util.DBConnect;
-import com.qlgiay.util.DemoProductData;
 
 public class SanPhamBUS {
     private final SanPhamDAO sanPhamDAO = new SanPhamDAO();
 
     private boolean isValid(SanPhamDTO sp) {
-        if (sp == null) return false;
+        if (sp == null)
+            return false;
 
         if (sp.getPhanTramLoiNhuan() == null
-            || sp.getPhanTramLoiNhuan().compareTo(BigDecimal.ZERO) <= 0
+                || sp.getPhanTramLoiNhuan().compareTo(BigDecimal.ZERO) <= 0
                 || sp.getPhanTramLoiNhuan().compareTo(BigDecimal.valueOf(100)) > 0) {
             return false;
         }
         if (sp.getGiaNhap() == null) {
             sp.setDonGia(null);
         } else {
-            if (sp.getGiaNhap().compareTo(BigDecimal.ZERO) <= 0) return false;
+            if (sp.getGiaNhap().compareTo(BigDecimal.ZERO) <= 0)
+                return false;
             sp.setDonGia(SanPhamDTO.tinhGiaBan(sp.getGiaNhap(), sp.getPhanTramLoiNhuan()));
         }
 
@@ -39,18 +41,16 @@ public class SanPhamBUS {
     }
 
     public List<SanPhamDTO> getAllActive() {
-        if (DBConnect.isDemoMode()) return DemoProductData.search("", true);
         return sanPhamDAO.findAllActive();
     }
 
     public List<SanPhamDTO> getBySupplier(String maNCC) {
-        if (maNCC == null || maNCC.trim().isEmpty()) return List.of();
-        if (DBConnect.isDemoMode()) return DemoProductData.search("", true);
+        if (maNCC == null || maNCC.trim().isEmpty())
+            return List.of();
         return sanPhamDAO.findBySupplier(maNCC.trim());
     }
 
     public List<SanPhamDTO> getAll() {
-        if (DBConnect.isDemoMode()) return DemoProductData.all();
         return sanPhamDAO.findAll();
     }
 
@@ -58,11 +58,13 @@ public class SanPhamBUS {
         if (maSP == null || maSP.trim().isEmpty())
             return null;
 
-        if (DBConnect.isDemoMode()) return DemoProductData.findById(maSP.trim());
         return sanPhamDAO.findById(maSP.trim());
     }
 
     public boolean addProduct(SanPhamDTO sp) {
+        if (!prepareNewSku(sp))
+            return false;
+
         syncImportPrice(sp);
         if (!isValid(sp))
             return false;
@@ -72,7 +74,6 @@ public class SanPhamBUS {
         if (findById(sp.getMaSP()) != null)
             return false;
 
-        if (DBConnect.isDemoMode()) return DemoProductData.insert(sp);
         return sanPhamDAO.insert(sp);
     }
 
@@ -83,12 +84,50 @@ public class SanPhamBUS {
 
         sp.setMaSP(sp.getMaSP().trim());
 
-        if (DBConnect.isDemoMode()) return DemoProductData.update(sp);
         return sanPhamDAO.update(sp);
     }
 
+    private boolean prepareNewSku(SanPhamDTO sp) {
+        if (sp == null || isBlank(sp.getMaSP()) || isBlank(sp.getSize()) || isBlank(sp.getMauSac()))
+            return false;
+
+        String sku = buildSku(sp.getMaSP(), sp.getSize(), sp.getMauSac());
+        if (sku == null)
+            return false;
+
+        sp.setMaSP(sku);
+        return true;
+    }
+
+    public String buildSku(String maSP, String size, String mauSac) {
+        if (isBlank(maSP) || isBlank(size) || isBlank(mauSac))
+            return null;
+
+        String base = skuToken(maSP.split("-", 2)[0]);
+        String normalizedSize = skuToken(size);
+        String normalizedColor = skuToken(mauSac);
+        if (base.isEmpty() || normalizedSize.isEmpty() || normalizedColor.isEmpty())
+            return null;
+
+        return base + "-" + normalizedSize + "-" + normalizedColor;
+    }
+
+    private String skuToken(String value) {
+        String normalized = Normalizer.normalize(value == null ? "" : value.trim(), Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toUpperCase(Locale.ROOT)
+                .replaceAll("[^A-Z0-9]+", "-")
+                .replaceAll("^-+|-+$", "");
+        return normalized;
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
     private void syncImportPrice(SanPhamDTO sp) {
-        if (sp == null || sp.getMaSP() == null || sp.getMaSP().isBlank()) return;
+        if (sp == null || sp.getMaSP() == null || sp.getMaSP().isBlank())
+            return;
 
         SanPhamDTO existing = findById(sp.getMaSP().trim());
         if (existing != null && existing.getGiaNhap() != null) {
@@ -100,7 +139,6 @@ public class SanPhamBUS {
         if (maSP == null || maSP.trim().isEmpty())
             return false;
 
-        if (DBConnect.isDemoMode()) return DemoProductData.setStatus(maSP.trim(), 0);
         return sanPhamDAO.softDelete(maSP.trim());
     }
 
@@ -108,17 +146,14 @@ public class SanPhamBUS {
         if (maSP == null || maSP.trim().isEmpty())
             return false;
 
-        if (DBConnect.isDemoMode()) return DemoProductData.setStatus(maSP.trim(), 1);
         return sanPhamDAO.restore(maSP.trim());
     }
 
     public List<SanPhamDTO> search(String keyword) {
-        if (DBConnect.isDemoMode()) return DemoProductData.search(keyword, false);
         return sanPhamDAO.search(keyword);
     }
 
     public List<SanPhamDTO> searchActive(String keyword) {
-        if (DBConnect.isDemoMode()) return DemoProductData.search(keyword, true);
         return sanPhamDAO.searchActive(keyword);
     }
 }

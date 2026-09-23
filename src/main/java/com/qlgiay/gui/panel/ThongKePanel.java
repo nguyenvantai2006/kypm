@@ -51,8 +51,6 @@ import com.qlgiay.dto.LoaiSanPhamThongKeDTO;
 import com.qlgiay.dto.LoiNhuanTheoKyDTO;
 import com.qlgiay.dto.TopKhachHangDTO;
 import com.qlgiay.dto.TopSanPhamDTO;
-import com.qlgiay.util.DBConnect;
-import com.qlgiay.util.DemoTransactionData;
 
 public class ThongKePanel extends JPanel implements IRefreshable {
     private final ThongKeBUS thongKeBUS = new ThongKeBUS();
@@ -302,7 +300,7 @@ public class ThongKePanel extends JPanel implements IRefreshable {
         JLabel titleLabel = new JLabel(title);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
 
-        String[] cols = {"Kỳ", "Doanh thu", "Tiền vốn", "Lợi nhuận"};
+        String[] cols = { "Kỳ", "Doanh thu", "Tiền vốn", "Lợi nhuận" };
         DefaultTableModel model = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int r, int c) {
@@ -320,6 +318,7 @@ public class ThongKePanel extends JPanel implements IRefreshable {
         }
 
         JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(225, 225, 225)));
         card.add(titleLabel, BorderLayout.NORTH);
         card.add(scrollPane, BorderLayout.CENTER);
@@ -334,7 +333,7 @@ public class ThongKePanel extends JPanel implements IRefreshable {
         JLabel title = new JLabel("Top 5 sản phẩm bán chạy");
         title.setFont(new Font("Segoe UI", Font.BOLD, 16));
 
-        String[] cols = {"Mã SP", "Tên sản phẩm", "SL bán", "Doanh thu"};
+        String[] cols = { "Mã SP", "Tên sản phẩm", "SL bán", "Doanh thu" };
         modelTopSanPham = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int r, int c) {
@@ -347,6 +346,7 @@ public class ThongKePanel extends JPanel implements IRefreshable {
         styleTable(tblTopSanPham, true);
 
         JScrollPane sp = new JScrollPane(tblTopSanPham);
+        sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createLineBorder(new Color(225, 225, 225)));
 
         card.add(title, BorderLayout.NORTH);
@@ -363,7 +363,7 @@ public class ThongKePanel extends JPanel implements IRefreshable {
         JLabel title = new JLabel("Top khách hàng");
         title.setFont(new Font("Segoe UI", Font.BOLD, 16));
 
-        String[] cols = {"Mã KH", "Tên khách hàng", "Số HĐ", "Chi tiêu"};
+        String[] cols = { "Mã KH", "Tên khách hàng", "Số HĐ", "Chi tiêu" };
         modelTopKhachHang = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int r, int c) {
@@ -376,6 +376,7 @@ public class ThongKePanel extends JPanel implements IRefreshable {
         styleTable(tblTopKhachHang, false);
 
         JScrollPane sp = new JScrollPane(tblTopKhachHang);
+        sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createLineBorder(new Color(225, 225, 225)));
 
         card.add(title, BorderLayout.NORTH);
@@ -385,24 +386,6 @@ public class ThongKePanel extends JPanel implements IRefreshable {
     }
 
     private void loadDefaultFilter() {
-        if (DBConnect.isDemoMode()) {
-            LocalDate firstDate = null;
-            LocalDate lastDate = null;
-            for (var invoice : DemoTransactionData.invoices()) {
-                firstDate = firstDate == null || invoice.getNgayLap().isBefore(firstDate) ? invoice.getNgayLap() : firstDate;
-                lastDate = lastDate == null || invoice.getNgayLap().isAfter(lastDate) ? invoice.getNgayLap() : lastDate;
-            }
-            for (var receipt : DemoTransactionData.imports()) {
-                firstDate = firstDate == null || receipt.getNgayNhap().isBefore(firstDate) ? receipt.getNgayNhap() : firstDate;
-                lastDate = lastDate == null || receipt.getNgayNhap().isAfter(lastDate) ? receipt.getNgayNhap() : lastDate;
-            }
-            if (firstDate != null && lastDate != null) {
-                spTuNgay.setValue(Date.from(firstDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
-                spDenNgay.setValue(Date.from(lastDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
-                return;
-            }
-        }
-
         LocalDate now = LocalDate.now();
         LocalDate firstDay = now.withDayOfMonth(1);
 
@@ -429,8 +412,7 @@ public class ThongKePanel extends JPanel implements IRefreshable {
                     null,
                     "Từ ngày không được lớn hơn đến ngày!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -481,7 +463,7 @@ public class ThongKePanel extends JPanel implements IRefreshable {
     }
 
     private void fillProfitTable(DefaultTableModel model, List<LoiNhuanTheoKyDTO> data,
-                                 JComboBox<String> comboBox, boolean monthly) {
+            JComboBox<String> comboBox, boolean monthly) {
         model.setRowCount(0);
         String selected = comboBox.getSelectedItem() == null ? "Tất cả" : comboBox.getSelectedItem().toString();
         for (LoiNhuanTheoKyDTO item : data) {
@@ -489,7 +471,7 @@ public class ThongKePanel extends JPanel implements IRefreshable {
             if (!"Tất cả".equals(selected) && !selected.equals(period)) {
                 continue;
             }
-            model.addRow(new Object[]{
+            model.addRow(new Object[] {
                     period,
                     formatMoney(item.getDoanhThu()),
                     formatMoney(item.getTienVon()),
@@ -510,7 +492,7 @@ public class ThongKePanel extends JPanel implements IRefreshable {
         modelTopSanPham.setRowCount(0);
 
         for (TopSanPhamDTO item : thongKeBUS.getTopSanPham(tuNgay, denNgay)) {
-            modelTopSanPham.addRow(new Object[]{
+            modelTopSanPham.addRow(new Object[] {
                     item.getMaSP(),
                     item.getTenSP(),
                     item.getSoLuongBan(),
@@ -523,7 +505,7 @@ public class ThongKePanel extends JPanel implements IRefreshable {
         modelTopKhachHang.setRowCount(0);
 
         for (TopKhachHangDTO item : thongKeBUS.getTopKhachHang(tuNgay, denNgay)) {
-            modelTopKhachHang.addRow(new Object[]{
+            modelTopKhachHang.addRow(new Object[] {
                     item.getMaKH(),
                     item.getTenKH(),
                     item.getSoHoaDon(),
@@ -539,8 +521,7 @@ public class ThongKePanel extends JPanel implements IRefreshable {
             String ngay = String.format(
                     "%02d/%02d",
                     item.getNgay().getDayOfMonth(),
-                    item.getNgay().getMonthValue()
-            );
+                    item.getNgay().getMonthValue());
 
             double doanhThu = item.getDoanhThu() == null ? 0 : item.getDoanhThu().doubleValue();
             dataset.addValue(doanhThu, "Doanh thu", ngay);
@@ -550,8 +531,7 @@ public class ThongKePanel extends JPanel implements IRefreshable {
                 "Doanh thu theo ngày",
                 "Ngày",
                 "Doanh thu",
-                dataset
-        );
+                dataset);
 
         chart.setBackgroundPaint(Color.WHITE);
 
@@ -593,8 +573,7 @@ public class ThongKePanel extends JPanel implements IRefreshable {
                 dataset,
                 true,
                 true,
-                false
-        );
+                false);
 
         chart.setBackgroundPaint(Color.WHITE);
         chart.getTitle().setFont(new Font("Segoe UI", Font.BOLD, 16));
@@ -620,32 +599,32 @@ public class ThongKePanel extends JPanel implements IRefreshable {
     private void styleActionButton(JButton button, String type) {
         String style = switch (type) {
             case "success" ->
-                    "arc:10;" +
-                            "focusWidth:0;" +
-                            "innerFocusWidth:0;" +
-                            "margin:4,6,4,6;" +
-                            "background:#E8F5E9;" +
-                            "foreground:#2E7D32;" +
-                            "hoverBackground:#D7F0DB;" +
-                            "pressedBackground:#C2E7C8";
+                "arc:10;" +
+                        "focusWidth:0;" +
+                        "innerFocusWidth:0;" +
+                        "margin:4,6,4,6;" +
+                        "background:#E8F5E9;" +
+                        "foreground:#2E7D32;" +
+                        "hoverBackground:#D7F0DB;" +
+                        "pressedBackground:#C2E7C8";
             case "danger" ->
-                    "arc:10;" +
-                            "focusWidth:0;" +
-                            "innerFocusWidth:0;" +
-                            "margin:4,6,4,6;" +
-                            "background:#FDECEC;" +
-                            "foreground:#C62828;" +
-                            "hoverBackground:#F9D6D6;" +
-                            "pressedBackground:#F4BDBD";
+                "arc:10;" +
+                        "focusWidth:0;" +
+                        "innerFocusWidth:0;" +
+                        "margin:4,6,4,6;" +
+                        "background:#FDECEC;" +
+                        "foreground:#C62828;" +
+                        "hoverBackground:#F9D6D6;" +
+                        "pressedBackground:#F4BDBD";
             default ->
-                    "arc:10;" +
-                            "focusWidth:0;" +
-                            "innerFocusWidth:0;" +
-                            "margin:4,6,4,6;" +
-                            "background:#E8F0FE;" +
-                            "foreground:#005A9E;" +
-                            "hoverBackground:#DCE8FC;" +
-                            "pressedBackground:#C9DCF8";
+                "arc:10;" +
+                        "focusWidth:0;" +
+                        "innerFocusWidth:0;" +
+                        "margin:4,6,4,6;" +
+                        "background:#E8F0FE;" +
+                        "foreground:#005A9E;" +
+                        "hoverBackground:#DCE8FC;" +
+                        "pressedBackground:#C9DCF8";
         };
 
         button.putClientProperty(FlatClientProperties.STYLE, style);
@@ -674,8 +653,7 @@ public class ThongKePanel extends JPanel implements IRefreshable {
                     boolean isSelected,
                     boolean hasFocus,
                     int row,
-                    int column
-            ) {
+                    int column) {
                 Component c = super.getTableCellRendererComponent(tbl, value, isSelected, hasFocus, row, column);
 
                 int hoverRow = isTopSanPham ? hoverRowTopSP : hoverRowTopKH;

@@ -84,8 +84,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
         JSplitPane split = new JSplitPane(
                 JSplitPane.HORIZONTAL_SPLIT,
                 createLeftPanel(),
-                createRightPanel()
-        );
+                createRightPanel());
         split.setOpaque(false);
         split.setResizeWeight(0.62);
         split.setDividerSize(6);
@@ -127,16 +126,22 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
 
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
             @Override
-            public void insertUpdate(DocumentEvent e) { loadTable(); }
+            public void insertUpdate(DocumentEvent e) {
+                loadTable();
+            }
 
             @Override
-            public void removeUpdate(DocumentEvent e) { loadTable(); }
+            public void removeUpdate(DocumentEvent e) {
+                loadTable();
+            }
 
             @Override
-            public void changedUpdate(DocumentEvent e) { loadTable(); }
+            public void changedUpdate(DocumentEvent e) {
+                loadTable();
+            }
         });
 
-        cboFilterTrangThai = new JComboBox<>(new String[]{
+        cboFilterTrangThai = new JComboBox<>(new String[] {
                 "Tất cả trạng thái", "Hoạt động", "Ngừng hoạt động"
         });
 
@@ -186,10 +191,10 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
         });
 
         JScrollPane sp = new JScrollPane(table);
+        sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(225, 225, 225)),
-                new EmptyBorder(2, 2, 2, 2)
-        ));
+                new EmptyBorder(2, 2, 2, 2)));
 
         JPanel panel = new JPanel(new BorderLayout());
         panel.setOpaque(false);
@@ -217,9 +222,11 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
         top.add(btnAddProduct, BorderLayout.EAST);
 
         productTableModel = new DefaultTableModel(
-                new Object[]{"Mã SP", "Tên sản phẩm", "Loại", "Tồn kho", "Đơn giá"}, 0) {
+                new Object[] { "Mã SP", "Tên sản phẩm", "Loại", "Tồn kho", "Đơn giá" }, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) { return false; }
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
         productTable = new JTable(productTableModel);
         productTable.setRowHeight(30);
@@ -229,10 +236,11 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
         productTable.getColumnModel().getColumn(2).setPreferredWidth(110);
         productTable.getColumnModel().getColumn(3).setPreferredWidth(70);
         productTable.getColumnModel().getColumn(4).setPreferredWidth(100);
-      
 
         panel.add(top, BorderLayout.NORTH);
-        panel.add(new JScrollPane(productTable), BorderLayout.CENTER);
+        JScrollPane productScroll = new JScrollPane(productTable);
+        productScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        panel.add(productScroll, BorderLayout.CENTER);
         return panel;
     }
 
@@ -240,7 +248,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
         selectedSupplierId = maNCC;
         productTableModel.setRowCount(0);
         for (SanPhamDTO sp : sanPhamBUS.getBySupplier(maNCC)) {
-            productTableModel.addRow(new Object[]{
+            productTableModel.addRow(new Object[] {
                     sp.getMaSP(), sp.getTenSP(), sp.getLoaiSP(), sp.getSoLuong(),
                     sp.getDonGia() == null ? "" : sp.getDonGia().toPlainString(),
                     sp.getHinhAnh() == null || sp.getHinhAnh().isBlank() ? "Chưa có" : "Có"
@@ -250,7 +258,8 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
 
     private void addProductForSupplier() {
         if (selectedSupplierId == null) {
-            JOptionPane.showMessageDialog(this, "Vui lòng click chọn nhà cung cấp trước!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Vui lòng click chọn nhà cung cấp trước!", "Cảnh báo",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -355,7 +364,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
         txtDiaChi.setLineWrap(true);
         txtDiaChi.setWrapStyleWord(true);
 
-        cboTrangThai = new JComboBox<>(new String[]{
+        cboTrangThai = new JComboBox<>(new String[] {
                 "Hoạt động", "Ngừng hoạt động"
         });
 
@@ -419,7 +428,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                     continue;
                 }
 
-                tableModel.addRow(new Object[]{
+                tableModel.addRow(new Object[] {
                         ncc.getMaNCC(),
                         ncc.getTenNCC(),
                         ncc.getSdt(),
@@ -464,8 +473,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Vui lòng nhập đầy đủ Mã và Tên nhà cung cấp!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             return null;
         }
 
@@ -474,8 +482,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Số điện thoại phải gồm 10 chữ số và bắt đầu bằng số 0!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             return null;
         }
 
@@ -500,8 +507,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Mã nhà cung cấp này đã tồn tại!",
                     "Lỗi",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -510,8 +516,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Thêm nhà cung cấp thành công!",
                     "Thông báo",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
+                    JOptionPane.INFORMATION_MESSAGE);
             loadTable();
             clear();
         } else {
@@ -519,8 +524,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Thêm nhà cung cấp thất bại!",
                     "Lỗi",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -531,8 +535,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Vui lòng chọn nhà cung cấp cần sửa trên bảng!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -546,8 +549,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Cập nhật nhà cung cấp thành công!",
                     "Thông báo",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
+                    JOptionPane.INFORMATION_MESSAGE);
             loadTable();
             clear();
         } else {
@@ -555,8 +557,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Cập nhật nhà cung cấp thất bại!",
                     "Lỗi",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -567,8 +568,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Vui lòng chọn nhà cung cấp cần xóa!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -581,8 +581,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                 "Bạn có chắc chắn muốn xóa nhà cung cấp [" + ten + "] không?",
                 "Xác nhận xóa",
                 JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE
-        );
+                JOptionPane.WARNING_MESSAGE);
 
         if (confirm == JOptionPane.YES_OPTION) {
             if (nhaCungCapBUS.deleteSupplier(ma)) {
@@ -590,8 +589,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                         SwingUtilities.getWindowAncestor(this),
                         "Đã xóa nhà cung cấp thành công!",
                         "Thông báo",
-                        JOptionPane.INFORMATION_MESSAGE
-                );
+                        JOptionPane.INFORMATION_MESSAGE);
                 loadTable();
                 clear();
             } else {
@@ -599,8 +597,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                         SwingUtilities.getWindowAncestor(this),
                         "Xóa nhà cung cấp thất bại!",
                         "Lỗi",
-                        JOptionPane.ERROR_MESSAGE
-                );
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -728,18 +725,21 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                     throw new IllegalArgumentException();
                 }
                 if (!sanPhamBUS.addProduct(sp)) {
-                    JOptionPane.showMessageDialog(this, "Mã sản phẩm đã tồn tại hoặc dữ liệu không hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Mã sản phẩm đã tồn tại hoặc dữ liệu không hợp lệ!", "Lỗi",
+                            JOptionPane.ERROR_MESSAGE);
                     return;
                 }
                 saved = true;
                 dispose();
             } catch (Exception e) {
-                JOptionPane.showMessageDialog(this, "Vui lòng kiểm tra mã, số lượng và đơn giá!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Vui lòng kiểm tra mã, số lượng và đơn giá!", "Cảnh báo",
+                        JOptionPane.WARNING_MESSAGE);
             }
         }
 
         private String copyImage(String source) throws IOException {
-            if (source.isBlank()) return "";
+            if (source.isBlank())
+                return "";
             Path sourcePath = Path.of(source);
             Path targetDir = Path.of(System.getProperty("user.dir"), "src", "main", "resources", "images", "products");
             Files.createDirectories(targetDir);
@@ -757,32 +757,32 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
     private void styleActionButton(JButton button, String type) {
         String style = switch (type) {
             case "success" ->
-                    "arc:10;" +
-                            "focusWidth:0;" +
-                            "innerFocusWidth:0;" +
-                            "margin:4,6,4,6;" +
-                            "background:#E8F5E9;" +
-                            "foreground:#2E7D32;" +
-                            "hoverBackground:#D7F0DB;" +
-                            "pressedBackground:#C2E7C8";
+                "arc:10;" +
+                        "focusWidth:0;" +
+                        "innerFocusWidth:0;" +
+                        "margin:4,6,4,6;" +
+                        "background:#E8F5E9;" +
+                        "foreground:#2E7D32;" +
+                        "hoverBackground:#D7F0DB;" +
+                        "pressedBackground:#C2E7C8";
             case "danger" ->
-                    "arc:10;" +
-                            "focusWidth:0;" +
-                            "innerFocusWidth:0;" +
-                            "margin:4,6,4,6;" +
-                            "background:#FDECEC;" +
-                            "foreground:#C62828;" +
-                            "hoverBackground:#F9D6D6;" +
-                            "pressedBackground:#F4BDBD";
+                "arc:10;" +
+                        "focusWidth:0;" +
+                        "innerFocusWidth:0;" +
+                        "margin:4,6,4,6;" +
+                        "background:#FDECEC;" +
+                        "foreground:#C62828;" +
+                        "hoverBackground:#F9D6D6;" +
+                        "pressedBackground:#F4BDBD";
             default ->
-                    "arc:10;" +
-                            "focusWidth:0;" +
-                            "innerFocusWidth:0;" +
-                            "margin:4,6,4,6;" +
-                            "background:#E8F0FE;" +
-                            "foreground:#005A9E;" +
-                            "hoverBackground:#DCE8FC;" +
-                            "pressedBackground:#C9DCF8";
+                "arc:10;" +
+                        "focusWidth:0;" +
+                        "innerFocusWidth:0;" +
+                        "margin:4,6,4,6;" +
+                        "background:#E8F0FE;" +
+                        "foreground:#005A9E;" +
+                        "hoverBackground:#DCE8FC;" +
+                        "pressedBackground:#C9DCF8";
         };
 
         button.putClientProperty(FlatClientProperties.STYLE, style);
@@ -795,8 +795,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                 FlatClientProperties.STYLE,
                 "arc:8;" +
                         "focusWidth:0;" +
-                        "innerFocusWidth:0"
-        );
+                        "innerFocusWidth:0");
     }
 
     private void styleTable() {
@@ -820,16 +819,14 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                     boolean isSelected,
                     boolean hasFocus,
                     int row,
-                    int column
-            ) {
+                    int column) {
                 Component c = super.getTableCellRendererComponent(
                         tbl,
                         value,
                         isSelected,
                         hasFocus,
                         row,
-                        column
-                );
+                        column);
 
                 if (isSelected) {
                     c.setBackground(new Color(232, 240, 254));

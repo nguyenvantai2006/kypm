@@ -56,8 +56,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
         JSplitPane split = new JSplitPane(
                 JSplitPane.HORIZONTAL_SPLIT,
                 createLeftPanel(),
-                createFormPanel()
-        );
+                createFormPanel());
         split.setOpaque(false);
         split.setResizeWeight(0.62);
         split.setDividerSize(6);
@@ -88,16 +87,22 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
 
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
             @Override
-            public void insertUpdate(DocumentEvent e) { loadTable(); }
+            public void insertUpdate(DocumentEvent e) {
+                loadTable();
+            }
 
             @Override
-            public void removeUpdate(DocumentEvent e) { loadTable(); }
+            public void removeUpdate(DocumentEvent e) {
+                loadTable();
+            }
 
             @Override
-            public void changedUpdate(DocumentEvent e) { loadTable(); }
+            public void changedUpdate(DocumentEvent e) {
+                loadTable();
+            }
         });
 
-        cboFilterTrangThai = new JComboBox<>(new String[]{
+        cboFilterTrangThai = new JComboBox<>(new String[] {
                 "Tất cả trạng thái", "Hoạt động", "Ngừng hoạt động"
         });
 
@@ -149,10 +154,10 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
         });
 
         JScrollPane sp = new JScrollPane(table);
+        sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(225, 225, 225)),
-                new EmptyBorder(2, 2, 2, 2)
-        ));
+                new EmptyBorder(2, 2, 2, 2)));
 
         JPanel panel = new JPanel(new BorderLayout());
         panel.setOpaque(false);
@@ -248,7 +253,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
         styleComboBox(cboQuyen);
         loadQuyenCombo();
 
-        cboTrangThai = new JComboBox<>(new String[]{
+        cboTrangThai = new JComboBox<>(new String[] {
                 "Hoạt động", "Ngừng hoạt động"
         });
         styleComboBox(cboTrangThai);
@@ -314,7 +319,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                     continue;
                 }
 
-                tableModel.addRow(new Object[]{
+                tableModel.addRow(new Object[] {
                         nv.getMaNV(),
                         nv.getHo(),
                         nv.getTen(),
@@ -403,8 +408,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Dữ liệu không hợp lệ. Vui lòng kiểm tra ô lương.",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             return null;
         }
     }
@@ -415,8 +419,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Mã nhân viên không được để trống!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             txtMa.requestFocus();
             return false;
         }
@@ -426,8 +429,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Họ không được để trống!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             txtHo.requestFocus();
             return false;
         }
@@ -437,8 +439,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Tên không được để trống!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             txtTen.requestFocus();
             return false;
         }
@@ -448,8 +449,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Tài khoản không được để trống!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             txtTaiKhoan.requestFocus();
             return false;
         }
@@ -459,8 +459,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Tài khoản không được chứa khoảng trắng!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             txtTaiKhoan.requestFocus();
             return false;
         }
@@ -471,8 +470,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Vui lòng chọn quyền!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             cboQuyen.requestFocus();
             return false;
         }
@@ -483,8 +481,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                         SwingUtilities.getWindowAncestor(this),
                         "Mật khẩu không được để trống!",
                         "Cảnh báo",
-                        JOptionPane.WARNING_MESSAGE
-                );
+                        JOptionPane.WARNING_MESSAGE);
                 txtMatKhau.requestFocus();
                 return false;
             }
@@ -494,8 +491,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                         SwingUtilities.getWindowAncestor(this),
                         "Mật khẩu phải có ít nhất 6 ký tự!",
                         "Cảnh báo",
-                        JOptionPane.WARNING_MESSAGE
-                );
+                        JOptionPane.WARNING_MESSAGE);
                 txtMatKhau.requestFocus();
                 return false;
             }
@@ -505,8 +501,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                         SwingUtilities.getWindowAncestor(this),
                         "Nếu đổi mật khẩu thì mật khẩu phải có ít nhất 6 ký tự!",
                         "Cảnh báo",
-                        JOptionPane.WARNING_MESSAGE
-                );
+                        JOptionPane.WARNING_MESSAGE);
                 txtMatKhau.requestFocus();
                 return false;
             }
@@ -517,8 +512,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Lương không được âm!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             txtLuong.requestFocus();
             return false;
         }
@@ -541,8 +535,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Mã nhân viên này đã tồn tại!",
                     "Lỗi",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -551,8 +544,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Tài khoản này đã tồn tại!",
                     "Lỗi",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -561,8 +553,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Thêm nhân viên thành công!",
                     "Thông báo",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
+                    JOptionPane.INFORMATION_MESSAGE);
             loadTable();
             clear();
         } else {
@@ -570,8 +561,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Thêm nhân viên thất bại!",
                     "Lỗi",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -582,8 +572,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Vui lòng chọn nhân viên cần sửa trên bảng!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -601,8 +590,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Cập nhật nhân viên thành công!",
                     "Thông báo",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
+                    JOptionPane.INFORMATION_MESSAGE);
             loadTable();
             clear();
         } else {
@@ -610,8 +598,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Cập nhật nhân viên thất bại!",
                     "Lỗi",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -622,8 +609,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                     SwingUtilities.getWindowAncestor(this),
                     "Vui lòng chọn nhân viên cần khóa!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -637,8 +623,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                 "Bạn có chắc chắn muốn khóa nhân viên [" + ho + " " + ten + "] không?",
                 "Xác nhận khóa",
                 JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE
-        );
+                JOptionPane.WARNING_MESSAGE);
 
         if (confirm == JOptionPane.YES_OPTION) {
             if (nhanVienBUS.lockNhanVien(ma)) {
@@ -646,8 +631,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                         SwingUtilities.getWindowAncestor(this),
                         "Đã khóa nhân viên thành công!",
                         "Thông báo",
-                        JOptionPane.INFORMATION_MESSAGE
-                );
+                        JOptionPane.INFORMATION_MESSAGE);
                 loadTable();
                 clear();
             } else {
@@ -655,8 +639,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                         SwingUtilities.getWindowAncestor(this),
                         "Khóa nhân viên thất bại!",
                         "Lỗi",
-                        JOptionPane.ERROR_MESSAGE
-                );
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -688,14 +671,16 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
     private void setNumberOnly(JTextField textField) {
         ((AbstractDocument) textField.getDocument()).setDocumentFilter(new DocumentFilter() {
             @Override
-            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr)
+                    throws BadLocationException {
                 if (string != null && string.matches("\\d+")) {
                     super.insertString(fb, offset, string, attr);
                 }
             }
 
             @Override
-            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
+                    throws BadLocationException {
                 if (text == null || text.matches("\\d*")) {
                     super.replace(fb, offset, length, text, attrs);
                 }
@@ -706,32 +691,32 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
     private void styleActionButton(JButton button, String type) {
         String style = switch (type) {
             case "success" ->
-                    "arc:10;" +
-                            "focusWidth:0;" +
-                            "innerFocusWidth:0;" +
-                            "margin:4,6,4,6;" +
-                            "background:#E8F5E9;" +
-                            "foreground:#2E7D32;" +
-                            "hoverBackground:#D7F0DB;" +
-                            "pressedBackground:#C2E7C8";
+                "arc:10;" +
+                        "focusWidth:0;" +
+                        "innerFocusWidth:0;" +
+                        "margin:4,6,4,6;" +
+                        "background:#E8F5E9;" +
+                        "foreground:#2E7D32;" +
+                        "hoverBackground:#D7F0DB;" +
+                        "pressedBackground:#C2E7C8";
             case "danger" ->
-                    "arc:10;" +
-                            "focusWidth:0;" +
-                            "innerFocusWidth:0;" +
-                            "margin:4,6,4,6;" +
-                            "background:#FDECEC;" +
-                            "foreground:#C62828;" +
-                            "hoverBackground:#F9D6D6;" +
-                            "pressedBackground:#F4BDBD";
+                "arc:10;" +
+                        "focusWidth:0;" +
+                        "innerFocusWidth:0;" +
+                        "margin:4,6,4,6;" +
+                        "background:#FDECEC;" +
+                        "foreground:#C62828;" +
+                        "hoverBackground:#F9D6D6;" +
+                        "pressedBackground:#F4BDBD";
             default ->
-                    "arc:10;" +
-                            "focusWidth:0;" +
-                            "innerFocusWidth:0;" +
-                            "margin:4,6,4,6;" +
-                            "background:#E8F0FE;" +
-                            "foreground:#005A9E;" +
-                            "hoverBackground:#DCE8FC;" +
-                            "pressedBackground:#C9DCF8";
+                "arc:10;" +
+                        "focusWidth:0;" +
+                        "innerFocusWidth:0;" +
+                        "margin:4,6,4,6;" +
+                        "background:#E8F0FE;" +
+                        "foreground:#005A9E;" +
+                        "hoverBackground:#DCE8FC;" +
+                        "pressedBackground:#C9DCF8";
         };
 
         button.putClientProperty(FlatClientProperties.STYLE, style);
@@ -742,8 +727,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
     private void styleComboBox(JComboBox<?> comboBox) {
         comboBox.putClientProperty(
                 FlatClientProperties.STYLE,
-                "arc:8; focusWidth:0; innerFocusWidth:0"
-        );
+                "arc:8; focusWidth:0; innerFocusWidth:0");
     }
 
     private void styleTable() {
@@ -767,16 +751,14 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                     boolean isSelected,
                     boolean hasFocus,
                     int row,
-                    int column
-            ) {
+                    int column) {
                 Component c = super.getTableCellRendererComponent(
                         tbl,
                         value,
                         isSelected,
                         hasFocus,
                         row,
-                        column
-                );
+                        column);
 
                 if (isSelected) {
                     c.setBackground(new Color(232, 240, 254));
@@ -829,7 +811,8 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
     }
 
     private String formatMoney(BigDecimal value) {
-        if (value == null) return "";
+        if (value == null)
+            return "";
         return new DecimalFormat("#,###").format(value) + "đ";
     }
 

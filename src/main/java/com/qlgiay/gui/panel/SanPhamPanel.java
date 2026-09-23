@@ -122,8 +122,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         JSplitPane split = new JSplitPane(
                 JSplitPane.HORIZONTAL_SPLIT,
                 createLeftPanel(),
-                createFormPanel()
-        );
+                createFormPanel());
         split.setOpaque(false);
         split.setResizeWeight(0.62);
         split.setDividerSize(6);
@@ -154,24 +153,30 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
 
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
             @Override
-            public void insertUpdate(DocumentEvent e) { loadTable(); }
+            public void insertUpdate(DocumentEvent e) {
+                loadTable();
+            }
 
             @Override
-            public void removeUpdate(DocumentEvent e) { loadTable(); }
+            public void removeUpdate(DocumentEvent e) {
+                loadTable();
+            }
 
             @Override
-            public void changedUpdate(DocumentEvent e) { loadTable(); }
+            public void changedUpdate(DocumentEvent e) {
+                loadTable();
+            }
         });
 
-        cboFilterLoai = new JComboBox<>(new String[]{
+        cboFilterLoai = new JComboBox<>(new String[] {
                 "Tất cả loại", "Giày Sneaker", "Giày Chạy Bộ"
         });
 
-        cboFilterGia = new JComboBox<>(new String[]{
+        cboFilterGia = new JComboBox<>(new String[] {
                 "Tất cả giá", "Dưới 500.000", "500.000 - 1.000.000", "1.000.000 - 2.000.000", "Trên 2.000.000"
         });
 
-        cboFilterTrangThai = new JComboBox<>(new String[]{
+        cboFilterTrangThai = new JComboBox<>(new String[] {
                 "Tất cả trạng thái", "Hoạt động", "Ngừng bán"
         });
 
@@ -188,16 +193,12 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         cboFilterGia.addActionListener(e -> loadTable());
         cboFilterTrangThai.addActionListener(e -> loadTable());
 
-       
-
-
         JPanel pnlFilters = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
         pnlFilters.setOpaque(false);
         pnlFilters.add(cboFilterLoai);
         pnlFilters.add(cboFilterGia);
         pnlFilters.add(cboFilterTrangThai);
-       
-       
+
         p.add(txtSearch, BorderLayout.CENTER);
         p.add(pnlFilters, BorderLayout.EAST);
 
@@ -206,8 +207,8 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
 
     private JPanel createTablePanel() {
         String[] cols = {
-            "Mã SP", "Tên sản phẩm", "Loại", "Brand", "Size", "Màu",
-            "SL", "Giá", "Trạng thái", "Mã NCC"
+                "Mã SP", "Tên sản phẩm", "Loại", "Brand", "Size", "Màu",
+                "SL", "Giá", "Trạng thái", "Mã NCC"
         };
 
         tableModel = new DefaultTableModel(cols, 0) {
@@ -242,10 +243,10 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         });
 
         JScrollPane sp = new JScrollPane(table);
+        sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(225, 225, 225)),
-                new EmptyBorder(2, 2, 2, 2)
-        ));
+                new EmptyBorder(2, 2, 2, 2)));
 
         JPanel panel = new JPanel(new BorderLayout());
         panel.setOpaque(false);
@@ -275,7 +276,8 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         addGridRow(contentPanel, gbc, row++, field("Loại sản phẩm", cboLoai), field("Đơn vị", txtDonVi));
         addGridRow(contentPanel, gbc, row++, field("Số lượng", txtSoLuong), field("Giá nhập", txtGiaNhap));
         addGridRow(contentPanel, gbc, row++, field("% lợi nhuận", createProfitInput()), field("Giá bán", txtDonGia));
-        addGridRow(contentPanel, gbc, row++, field("Giá khuyến mãi (số tiền giảm)", txtGiaKhuyenMai), field("Màu sắc", txtMau));
+        addGridRow(contentPanel, gbc, row++, field("Giá khuyến mãi (số tiền giảm)", txtGiaKhuyenMai),
+                field("Màu sắc", txtMau));
         addGridRow(contentPanel, gbc, row++, field("Size", txtSize), field("Chất liệu", txtChatLieu));
         addGridRow(contentPanel, gbc, row++, field("Thương hiệu", txtThuongHieu), field("Nước sản xuất", txtNuocSX));
         addGridRow(contentPanel, gbc, row++, field("Ngày sản xuất", spNgaySX), field("Trạng thái", cboTrangThai));
@@ -350,8 +352,8 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         txtGiaNhap.setToolTipText("Tự động lấy từ phiếu nhập hàng");
         txtLoiNhuan = new JTextField();
         txtLoiNhuan.setText("20");
-        cboLoiNhuan = new JComboBox<>(new String[]{
-            "Chọn mức", "10", "15", "20", "25", "30", "40", "50", "60", "70", "80", "90", "100"
+        cboLoiNhuan = new JComboBox<>(new String[] {
+                "Chọn mức", "10", "15", "20", "25", "30", "40", "50", "60", "70", "80", "90", "100"
         });
         cboLoiNhuan.setSelectedItem("20");
         cboLoiNhuan.addActionListener(e -> {
@@ -372,7 +374,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         txtGiaNhap.getDocument().addDocumentListener(createPricingListener());
         txtLoiNhuan.getDocument().addDocumentListener(createPricingListener());
 
-        cboLoai = new JComboBox<>(new String[]{
+        cboLoai = new JComboBox<>(new String[] {
                 "Giày Sneaker", "Giày Chạy Bộ"
         });
 
@@ -384,7 +386,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         txtMoTa.setLineWrap(true);
         txtMoTa.setWrapStyleWord(true);
 
-        cboTrangThai = new JComboBox<>(new String[]{
+        cboTrangThai = new JComboBox<>(new String[] {
                 "Hoạt động", "Ngừng bán"
         });
 
@@ -445,14 +447,12 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
 
         TitledBorder border = BorderFactory.createTitledBorder(
                 BorderFactory.createLineBorder(new Color(220, 220, 220)),
-                "Hình ảnh"
-        );
+                "Hình ảnh");
         border.setTitleColor(new Color(100, 100, 100));
 
         wrap.setBorder(BorderFactory.createCompoundBorder(
                 border,
-                new EmptyBorder(4, 8, 4, 8)
-        ));
+                new EmptyBorder(4, 8, 4, 8)));
 
         lblMainImage = new JLabel();
         lblMainImage.setPreferredSize(new Dimension(MAIN_IMAGE_SIZE, MAIN_IMAGE_SIZE));
@@ -565,8 +565,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
             thumb.setPreferredSize(new Dimension(THUMBNAIL_SIZE, THUMBNAIL_SIZE));
             thumb.setBorder(BorderFactory.createLineBorder(
                     i == currentImageIndex ? new Color(0, 90, 158) : Color.LIGHT_GRAY,
-                    i == currentImageIndex ? 2 : 1
-            ));
+                    i == currentImageIndex ? 2 : 1));
             thumb.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
             ImageIcon icon = loadImageIcon(imgRef, THUMBNAIL_SIZE, THUMBNAIL_SIZE);
@@ -655,7 +654,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                     continue;
                 }
 
-                tableModel.addRow(new Object[]{
+                tableModel.addRow(new Object[] {
                         sp.getMaSP(),
                         sp.getTenSP(),
                         sp.getLoaiSP(),
@@ -683,9 +682,9 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         return switch (mucGia) {
             case "Dưới 500.000" -> donGia.compareTo(gia500) < 0;
             case "500.000 - 1.000.000" ->
-                    donGia.compareTo(gia500) >= 0 && donGia.compareTo(gia1000) <= 0;
+                donGia.compareTo(gia500) >= 0 && donGia.compareTo(gia1000) <= 0;
             case "1.000.000 - 2.000.000" ->
-                    donGia.compareTo(gia1000) > 0 && donGia.compareTo(gia2000) <= 0;
+                donGia.compareTo(gia1000) > 0 && donGia.compareTo(gia2000) <= 0;
             case "Trên 2.000.000" -> donGia.compareTo(gia2000) > 0;
             default -> true;
         };
@@ -712,16 +711,18 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         txtSoLuong.setText(String.valueOf(sp.getSoLuong()));
         txtGiaNhap.setText(sp.getGiaNhap() == null ? "" : formatInputMoney(sp.getGiaNhap()));
         BigDecimal loiNhuan = sp.getPhanTramLoiNhuan() == null
-            ? BigDecimal.valueOf(20) : sp.getPhanTramLoiNhuan();
+                ? BigDecimal.valueOf(20)
+                : sp.getPhanTramLoiNhuan();
         txtLoiNhuan.setText(loiNhuan.stripTrailingZeros().toPlainString());
         cboLoiNhuan.setSelectedItem(loiNhuan.stripTrailingZeros().toPlainString());
         BigDecimal giaBan = SanPhamDTO.tinhGiaBan(sp.getGiaNhap(), loiNhuan);
         txtDonGia.setText(giaBan == null ? "" : formatInputMoney(giaBan));
         BigDecimal mucGiam = sp.getDonGia() != null && sp.getGiaKhuyenMai() != null
-            ? sp.getDonGia().subtract(sp.getGiaKhuyenMai())
-            : null;
+                ? sp.getDonGia().subtract(sp.getGiaKhuyenMai())
+                : null;
         txtGiaKhuyenMai.setText(mucGiam == null || mucGiam.compareTo(BigDecimal.ZERO) <= 0
-            ? "" : formatInputMoney(mucGiam));
+                ? ""
+                : formatInputMoney(mucGiam));
         txtMau.setText(sp.getMauSac());
         txtSize.setText(sp.getSize());
         txtChatLieu.setText(sp.getChatLieu());
@@ -734,8 +735,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
             spNgaySX.setValue(Date.from(
                     sp.getNgaySanXuat()
                             .atStartOfDay(ZoneId.systemDefault())
-                            .toInstant()
-            ));
+                            .toInstant()));
         }
 
         imageList.clear();
@@ -770,21 +770,23 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
             sp.setDonViTinh(txtDonVi.getText().trim());
             sp.setSoLuong(Integer.parseInt(txtSoLuong.getText().trim()));
 
-            BigDecimal giaNhap = txtGiaNhap.getText().trim().isEmpty() ? null : new BigDecimal(txtGiaNhap.getText().trim().replace(".", "").replace(",", ""));
-            BigDecimal tyLeLoiNhuan = txtLoiNhuan.getText().trim().isEmpty() ? null : new BigDecimal(txtLoiNhuan.getText().trim());
-            BigDecimal giaKhuyenMai = txtGiaKhuyenMai.getText().trim().isEmpty() ? null : new BigDecimal(txtGiaKhuyenMai.getText().trim().replace(".", "").replace(",", ""));
+            BigDecimal giaNhap = txtGiaNhap.getText().trim().isEmpty() ? null
+                    : new BigDecimal(txtGiaNhap.getText().trim().replace(".", "").replace(",", ""));
+            BigDecimal tyLeLoiNhuan = txtLoiNhuan.getText().trim().isEmpty() ? null
+                    : new BigDecimal(txtLoiNhuan.getText().trim());
+            BigDecimal giaKhuyenMai = txtGiaKhuyenMai.getText().trim().isEmpty() ? null
+                    : new BigDecimal(txtGiaKhuyenMai.getText().trim().replace(".", "").replace(",", ""));
 
-                if (tyLeLoiNhuan != null && (tyLeLoiNhuan.compareTo(BigDecimal.ZERO) <= 0
+            if (tyLeLoiNhuan != null && (tyLeLoiNhuan.compareTo(BigDecimal.ZERO) <= 0
                     || tyLeLoiNhuan.compareTo(BigDecimal.valueOf(100)) > 0)) {
                 JOptionPane.showMessageDialog(
-                    null,
-                    "% lợi nhuận phải lớn hơn 0% và không vượt quá 100%.",
-                    "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-                );
+                        null,
+                        "% lợi nhuận phải lớn hơn 0% và không vượt quá 100%.",
+                        "Cảnh báo",
+                        JOptionPane.WARNING_MESSAGE);
                 txtLoiNhuan.requestFocus();
                 return null;
-                }
+            }
 
             BigDecimal giaBan = SanPhamDTO.tinhGiaBan(giaNhap, tyLeLoiNhuan);
 
@@ -795,8 +797,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                             null,
                             "Số tiền giảm phải lớn hơn 0 và nhỏ hơn giá bán.",
                             "Cảnh báo",
-                            JOptionPane.WARNING_MESSAGE
-                    );
+                            JOptionPane.WARNING_MESSAGE);
                     txtGiaKhuyenMai.requestFocus();
                     return null;
                 }
@@ -835,8 +836,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                     null,
                     "Dữ liệu không hợp lệ. Vui lòng kiểm tra các ô số/tiền.",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             return null;
         }
     }
@@ -847,8 +847,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                     null,
                     "Mã sản phẩm không được để trống!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             txtMa.requestFocus();
             return false;
         }
@@ -858,8 +857,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                     null,
                     "Tên sản phẩm không được để trống!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             txtTen.requestFocus();
             return false;
         }
@@ -869,8 +867,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                     null,
                     "Đơn vị không được để trống!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             txtDonVi.requestFocus();
             return false;
         }
@@ -880,8 +877,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                     null,
                     "Số lượng không được âm!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             txtSoLuong.requestFocus();
             return false;
         }
@@ -891,8 +887,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                     null,
                     "Đơn giá phải lớn hơn 0!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             txtDonGia.requestFocus();
             return false;
         }
@@ -915,8 +910,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                     null,
                     "Mã sản phẩm này đã tồn tại!",
                     "Lỗi",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -925,8 +919,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                     null,
                     "Thêm sản phẩm thành công!",
                     "Thông báo",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
+                    JOptionPane.INFORMATION_MESSAGE);
             loadTable();
             clear();
         } else {
@@ -934,8 +927,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                     null,
                     "Thêm sản phẩm thất bại!",
                     "Lỗi",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -946,8 +938,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                     null,
                     "Vui lòng chọn sản phẩm cần sửa trên bảng!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -965,8 +956,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                     null,
                     "Cập nhật sản phẩm thành công!",
                     "Thông báo",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
+                    JOptionPane.INFORMATION_MESSAGE);
             loadTable();
             clear();
         } else {
@@ -974,8 +964,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                     null,
                     "Cập nhật sản phẩm thất bại!",
                     "Lỗi",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -986,8 +975,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                     null,
                     "Vui lòng chọn sản phẩm cần xóa!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -1000,8 +988,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                 "Bạn có chắc chắn muốn xóa sản phẩm [" + ten + "] không?",
                 "Xác nhận xóa",
                 JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE
-        );
+                JOptionPane.WARNING_MESSAGE);
 
         if (confirm == JOptionPane.YES_OPTION) {
             if (sanPhamBUS.deleteProduct(ma)) {
@@ -1009,8 +996,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                         null,
                         "Đã xóa sản phẩm thành công!",
                         "Thông báo",
-                        JOptionPane.INFORMATION_MESSAGE
-                );
+                        JOptionPane.INFORMATION_MESSAGE);
                 loadTable();
                 clear();
             } else {
@@ -1018,8 +1004,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                         null,
                         "Xóa sản phẩm thất bại!",
                         "Lỗi",
-                        JOptionPane.ERROR_MESSAGE
-                );
+                        JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -1101,8 +1086,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                     null,
                     "Xuất file Excel thành công! Bạn có muốn mở file ngay không?",
                     "Thành công",
-                    JOptionPane.YES_NO_OPTION
-            );
+                    JOptionPane.YES_NO_OPTION);
 
             if (open == JOptionPane.YES_OPTION && Desktop.isDesktopSupported()) {
                 Desktop.getDesktop().open(fileToSave);
@@ -1113,8 +1097,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                     null,
                     "Lỗi xuất file Excel: " + e.getMessage(),
                     "Lỗi",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -1156,6 +1139,12 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                     sp.setSize(getCellValue(row.getCell(4)));
                     sp.setMauSac(getCellValue(row.getCell(5)));
 
+                    String sourceMaSP = maSP;
+                    String normalizedSku = sanPhamBUS.buildSku(sourceMaSP, sp.getSize(), sp.getMauSac());
+                    if (normalizedSku != null) {
+                        sp.setMaSP(normalizedSku);
+                    }
+
                     String slStr = getCellValue(row.getCell(6)).replaceAll("[^\\d-]", "");
                     sp.setSoLuong(slStr.isEmpty() ? 0 : Integer.parseInt(slStr));
 
@@ -1172,8 +1161,12 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                     sp.setMoTa("");
                     sp.setHinhAnh("");
 
-                    SanPhamDTO old = sanPhamBUS.findById(maSP);
+                    SanPhamDTO old = sanPhamBUS.findById(sourceMaSP);
+                    if (old == null && normalizedSku != null) {
+                        old = sanPhamBUS.findById(normalizedSku);
+                    }
                     if (old != null) {
+                        sp.setMaSP(old.getMaSP());
                         sp.setGiaNhap(old.getGiaNhap());
                         sp.setPhanTramLoiNhuan(old.getPhanTramLoiNhuan());
                         sp.setDonViTinh(old.getDonViTinh());
@@ -1208,16 +1201,14 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                             "\n- Thêm mới: " + successCount +
                             "\n- Cập nhật: " + updateCount,
                     "Thành công",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
+                    JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception e) {
             e.printStackTrace();
             JOptionPane.showMessageDialog(
                     null,
                     "Lỗi đọc file Excel. Vui lòng kiểm tra lại định dạng!",
                     "Lỗi",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -1302,9 +1293,20 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
 
     private DocumentListener createPricingListener() {
         return new DocumentListener() {
-            @Override public void insertUpdate(DocumentEvent e) { recalcBasePrice(); }
-            @Override public void removeUpdate(DocumentEvent e) { recalcBasePrice(); }
-            @Override public void changedUpdate(DocumentEvent e) { recalcBasePrice(); }
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                recalcBasePrice();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                recalcBasePrice();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                recalcBasePrice();
+            }
         };
     }
 
@@ -1320,7 +1322,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
             BigDecimal giaNhap = parseMoneyText(giaNhapText);
             BigDecimal loiNhuan = parsePercentText(loiNhuanText);
 
-                if (giaNhap == null || loiNhuan == null || giaNhap.compareTo(BigDecimal.ZERO) <= 0
+            if (giaNhap == null || loiNhuan == null || giaNhap.compareTo(BigDecimal.ZERO) <= 0
                     || loiNhuan.compareTo(BigDecimal.ZERO) <= 0
                     || loiNhuan.compareTo(BigDecimal.valueOf(100)) > 0) {
                 return;
@@ -1336,9 +1338,11 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
     }
 
     private BigDecimal parseMoneyText(String text) {
-        if (text == null || text.isBlank()) return null;
+        if (text == null || text.isBlank())
+            return null;
         String normalized = text.replace(".", "").replace(",", "");
-        if (normalized.isBlank()) return null;
+        if (normalized.isBlank())
+            return null;
         try {
             return new BigDecimal(normalized);
         } catch (Exception e) {
@@ -1347,7 +1351,8 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
     }
 
     private BigDecimal parsePercentText(String text) {
-        if (text == null || text.isBlank()) return null;
+        if (text == null || text.isBlank())
+            return null;
         try {
             return new BigDecimal(text.trim());
         } catch (Exception e) {
@@ -1356,7 +1361,8 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
     }
 
     private String formatInputMoney(BigDecimal value) {
-        if (value == null) return "";
+        if (value == null)
+            return "";
         DecimalFormat df = new DecimalFormat("#,##0");
         return df.format(value);
     }
@@ -1379,39 +1385,38 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                 parentWindow,
                 lbl,
                 "Xem ảnh sản phẩm",
-                JOptionPane.PLAIN_MESSAGE
-        );
+                JOptionPane.PLAIN_MESSAGE);
     }
 
     private void styleActionButton(JButton button, String type) {
         String style = switch (type) {
             case "success" ->
-                    "arc:10;" +
-                            "focusWidth:0;" +
-                            "innerFocusWidth:0;" +
-                            "margin:4,6,4,6;" +
-                            "background:#E8F5E9;" +
-                            "foreground:#2E7D32;" +
-                            "hoverBackground:#D7F0DB;" +
-                            "pressedBackground:#C2E7C8";
+                "arc:10;" +
+                        "focusWidth:0;" +
+                        "innerFocusWidth:0;" +
+                        "margin:4,6,4,6;" +
+                        "background:#E8F5E9;" +
+                        "foreground:#2E7D32;" +
+                        "hoverBackground:#D7F0DB;" +
+                        "pressedBackground:#C2E7C8";
             case "danger" ->
-                    "arc:10;" +
-                            "focusWidth:0;" +
-                            "innerFocusWidth:0;" +
-                            "margin:4,6,4,6;" +
-                            "background:#FDECEC;" +
-                            "foreground:#C62828;" +
-                            "hoverBackground:#F9D6D6;" +
-                            "pressedBackground:#F4BDBD";
+                "arc:10;" +
+                        "focusWidth:0;" +
+                        "innerFocusWidth:0;" +
+                        "margin:4,6,4,6;" +
+                        "background:#FDECEC;" +
+                        "foreground:#C62828;" +
+                        "hoverBackground:#F9D6D6;" +
+                        "pressedBackground:#F4BDBD";
             default ->
-                    "arc:10;" +
-                            "focusWidth:0;" +
-                            "innerFocusWidth:0;" +
-                            "margin:4,6,4,6;" +
-                            "background:#E8F0FE;" +
-                            "foreground:#005A9E;" +
-                            "hoverBackground:#DCE8FC;" +
-                            "pressedBackground:#C9DCF8";
+                "arc:10;" +
+                        "focusWidth:0;" +
+                        "innerFocusWidth:0;" +
+                        "margin:4,6,4,6;" +
+                        "background:#E8F0FE;" +
+                        "foreground:#005A9E;" +
+                        "hoverBackground:#DCE8FC;" +
+                        "pressedBackground:#C9DCF8";
         };
 
         button.putClientProperty(FlatClientProperties.STYLE, style);
@@ -1424,8 +1429,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                 FlatClientProperties.STYLE,
                 "arc:8;" +
                         "focusWidth:0;" +
-                        "innerFocusWidth:0"
-        );
+                        "innerFocusWidth:0");
     }
 
     private void styleTable() {
@@ -1449,16 +1453,14 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                     boolean isSelected,
                     boolean hasFocus,
                     int row,
-                    int column
-            ) {
+                    int column) {
                 Component c = super.getTableCellRendererComponent(
                         tbl,
                         value,
                         isSelected,
                         hasFocus,
                         row,
-                        column
-                );
+                        column);
 
                 if (isSelected) {
                     c.setBackground(new Color(232, 240, 254));
@@ -1515,19 +1517,20 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         try {
             File sourceFile = new File(sourcePath);
             String fileName = sourceFile.getName();
-                Path projectRoot = Path.of(
+            Path projectRoot = Path.of(
                     SanPhamPanel.class.getProtectionDomain().getCodeSource().getLocation().toURI())
                     .getParent().getParent();
-                File sourceResourceFile = projectRoot.resolve(
+            File sourceResourceFile = projectRoot.resolve(
                     "src/main/resources/images/products/").resolve(fileName).toFile();
             File resourceDir = sourceResourceFile.getParentFile();
-            if (!resourceDir.exists()) resourceDir.mkdirs();
+            if (!resourceDir.exists())
+                resourceDir.mkdirs();
 
             if (!sourceFile.getCanonicalFile().equals(sourceResourceFile.getCanonicalFile())) {
                 Files.copy(sourceFile.toPath(), sourceResourceFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
             }
 
-                File runtimeFile = projectRoot.resolve("target/classes/images/products/")
+            File runtimeFile = projectRoot.resolve("target/classes/images/products/")
                     .resolve(fileName).toFile();
             File runtimeDir = runtimeFile.getParentFile();
             if (runtimeDir.isDirectory()) {
@@ -1542,7 +1545,8 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
     }
 
     private String formatMoney(BigDecimal value) {
-        if (value == null) return "";
+        if (value == null)
+            return "";
         return new DecimalFormat("#,###").format(value) + "đ";
     }
 

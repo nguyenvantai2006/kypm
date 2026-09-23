@@ -15,7 +15,6 @@ import com.qlgiay.dto.ChiTietHoaDonDTO;
 import com.qlgiay.dto.HoaDonDTO;
 import com.qlgiay.dto.VoucherDTO;
 import com.qlgiay.util.DBConnect;
-import com.qlgiay.util.DemoTransactionData;
 
 public class BanHangBUS {
     private static final BigDecimal DIEM_TO_VND = new BigDecimal("1000");
@@ -29,20 +28,12 @@ public class BanHangBUS {
     private final KhachHangDAO khachHangDAO = new KhachHangDAO();
 
     public boolean createInvoice(HoaDonDTO hd, List<ChiTietHoaDonDTO> items, int diemMuonDung) {
-        if (hd == null || items == null || items.isEmpty()) return false;
-        if (hd.getMaNV() == null || hd.getMaNV().trim().isEmpty()) return false;
-        if (hd.getMaHD() == null || hd.getMaHD().trim().isEmpty()) return false;
-
-        if (DBConnect.isDemoMode()) {
-            BigDecimal subtotal = calcSubTotal(items);
-            if (subtotal.signum() <= 0) return false;
-            for (ChiTietHoaDonDTO item : items) {
-                if (item == null || item.getMaSP() == null || item.getDonGia() == null || item.getSoLuong() <= 0) return false;
-                item.setMaHD(hd.getMaHD());
-            }
-            hd.setTongTien(subtotal);
-            return DemoTransactionData.addInvoice(hd, items);
-        }
+        if (hd == null || items == null || items.isEmpty())
+            return false;
+        if (hd.getMaNV() == null || hd.getMaNV().trim().isEmpty())
+            return false;
+        if (hd.getMaHD() == null || hd.getMaHD().trim().isEmpty())
+            return false;
 
         Connection c = null;
         try {
@@ -67,7 +58,8 @@ public class BanHangBUS {
             }
 
             BigDecimal tongSauVoucher = tamTinh.subtract(giamVoucher);
-            if (tongSauVoucher.compareTo(BigDecimal.ZERO) < 0) tongSauVoucher = BigDecimal.ZERO;
+            if (tongSauVoucher.compareTo(BigDecimal.ZERO) < 0)
+                tongSauVoucher = BigDecimal.ZERO;
 
             int diemThucTeDung = 0;
             BigDecimal giamDiem = BigDecimal.ZERO;
@@ -91,7 +83,8 @@ public class BanHangBUS {
             }
 
             BigDecimal tongCuoi = tongSauVoucher.subtract(giamDiem);
-            if (tongCuoi.compareTo(BigDecimal.ZERO) < 0) tongCuoi = BigDecimal.ZERO;
+            if (tongCuoi.compareTo(BigDecimal.ZERO) < 0)
+                tongCuoi = BigDecimal.ZERO;
 
             hd.setTongTien(tongCuoi);
 
@@ -102,8 +95,10 @@ public class BanHangBUS {
             }
 
             for (ChiTietHoaDonDTO ct : items) {
-                if (ct.getMaHD() == null || ct.getMaHD().trim().isEmpty()) ct.setMaHD(hd.getMaHD());
-                if (ct.getMaSP() == null || ct.getMaSP().trim().isEmpty() || ct.getSoLuong() <= 0 || ct.getDonGia() == null || ct.getDonGia().compareTo(BigDecimal.ZERO) < 0) {
+                if (ct.getMaHD() == null || ct.getMaHD().trim().isEmpty())
+                    ct.setMaHD(hd.getMaHD());
+                if (ct.getMaSP() == null || ct.getMaSP().trim().isEmpty() || ct.getSoLuong() <= 0
+                        || ct.getDonGia() == null || ct.getDonGia().compareTo(BigDecimal.ZERO) < 0) {
                     c.rollback();
                     return false;
                 }
@@ -153,7 +148,8 @@ public class BanHangBUS {
 
         } catch (SQLException e) {
             try {
-                if (c != null) c.rollback();
+                if (c != null)
+                    c.rollback();
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
@@ -174,22 +170,28 @@ public class BanHangBUS {
     private BigDecimal calcSubTotal(List<ChiTietHoaDonDTO> items) {
         BigDecimal sum = BigDecimal.ZERO;
         for (ChiTietHoaDonDTO ct : items) {
-            if (ct == null) continue;
-            if (ct.getDonGia() == null) continue;
-            if (ct.getSoLuong() <= 0) continue;
+            if (ct == null)
+                continue;
+            if (ct.getDonGia() == null)
+                continue;
+            if (ct.getSoLuong() <= 0)
+                continue;
             sum = sum.add(ct.getDonGia().multiply(new BigDecimal(ct.getSoLuong())));
         }
         return sum.setScale(0, RoundingMode.HALF_UP);
     }
 
     private BigDecimal calcVoucherDiscount(VoucherDTO v, BigDecimal tamTinh) {
-        if (v == null) return BigDecimal.ZERO;
-        if (tamTinh == null || tamTinh.compareTo(BigDecimal.ZERO) <= 0) return BigDecimal.ZERO;
+        if (v == null)
+            return BigDecimal.ZERO;
+        if (tamTinh == null || tamTinh.compareTo(BigDecimal.ZERO) <= 0)
+            return BigDecimal.ZERO;
 
         BigDecimal discount = BigDecimal.ZERO;
 
         if (v.getPhanTramGiam() > 0) {
-            BigDecimal rate = new BigDecimal(v.getPhanTramGiam()).divide(new BigDecimal("100"), 6, RoundingMode.HALF_UP);
+            BigDecimal rate = new BigDecimal(v.getPhanTramGiam()).divide(new BigDecimal("100"), 6,
+                    RoundingMode.HALF_UP);
             discount = tamTinh.multiply(rate);
 
             if (v.getGiamToiDa() != null && v.getGiamToiDa().compareTo(BigDecimal.ZERO) > 0) {
@@ -199,15 +201,19 @@ public class BanHangBUS {
             discount = v.getSoTienGiam();
         }
 
-        if (discount.compareTo(BigDecimal.ZERO) < 0) discount = BigDecimal.ZERO;
-        if (discount.compareTo(tamTinh) > 0) discount = tamTinh;
+        if (discount.compareTo(BigDecimal.ZERO) < 0)
+            discount = BigDecimal.ZERO;
+        if (discount.compareTo(tamTinh) > 0)
+            discount = tamTinh;
 
         return discount.setScale(0, RoundingMode.FLOOR);
     }
 
     private int calcEarnedPoints(BigDecimal tongTienSauGiam) {
-        if (tongTienSauGiam == null) return 0;
-        if (tongTienSauGiam.compareTo(BigDecimal.ZERO) <= 0) return 0;
+        if (tongTienSauGiam == null)
+            return 0;
+        if (tongTienSauGiam.compareTo(BigDecimal.ZERO) <= 0)
+            return 0;
 
         return tongTienSauGiam.divide(VND_PER_POINT, 0, RoundingMode.FLOOR).intValue();
     }

@@ -12,7 +12,6 @@ import com.qlgiay.dao.SanPhamDAO;
 import com.qlgiay.dto.ChiTietPhieuNhapDTO;
 import com.qlgiay.dto.PhieuNhapDTO;
 import com.qlgiay.util.DBConnect;
-import com.qlgiay.util.DemoTransactionData;
 
 public class NhapHangBUS {
     private final PhieuNhapDAO phieuNhapDAO = new PhieuNhapDAO();
@@ -20,25 +19,16 @@ public class NhapHangBUS {
     private final SanPhamDAO sanPhamDAO = new SanPhamDAO();
 
     public boolean createImport(PhieuNhapDTO pn, List<ChiTietPhieuNhapDTO> items) {
-        if (pn == null) return false;
-        if (items == null || items.isEmpty()) return false;
-        if (pn.getMaPN() == null || pn.getMaPN().trim().isEmpty()) return false;
-        if (pn.getMaNV() == null || pn.getMaNV().trim().isEmpty()) return false;
-        if (pn.getMaNCC() == null || pn.getMaNCC().trim().isEmpty()) return false;
-
-        if (DBConnect.isDemoMode()) {
-            BigDecimal total = BigDecimal.ZERO;
-            int quantity = 0;
-            for (ChiTietPhieuNhapDTO item : items) {
-                if (item == null || item.getSoLuong() <= 0 || item.getGiaNhap() == null || item.getGiaNhap().signum() < 0) return false;
-                item.setMaPN(pn.getMaPN());
-                quantity += item.getSoLuong();
-                total = total.add(item.getGiaNhap().multiply(BigDecimal.valueOf(item.getSoLuong())));
-            }
-            pn.setTongSoMatHang(quantity);
-            pn.setTongTien(total.setScale(0, RoundingMode.HALF_UP));
-            return DemoTransactionData.addImport(pn, items);
-        }
+        if (pn == null)
+            return false;
+        if (items == null || items.isEmpty())
+            return false;
+        if (pn.getMaPN() == null || pn.getMaPN().trim().isEmpty())
+            return false;
+        if (pn.getMaNV() == null || pn.getMaNV().trim().isEmpty())
+            return false;
+        if (pn.getMaNCC() == null || pn.getMaNCC().trim().isEmpty())
+            return false;
 
         Connection c = null;
         try {
@@ -110,7 +100,8 @@ public class NhapHangBUS {
 
         } catch (SQLException e) {
             try {
-                if (c != null) c.rollback();
+                if (c != null)
+                    c.rollback();
             } catch (SQLException ignored) {
             }
             e.printStackTrace();
@@ -128,22 +119,18 @@ public class NhapHangBUS {
     }
 
     public List<PhieuNhapDTO> getAllImports() {
-        if (DBConnect.isDemoMode()) return DemoTransactionData.imports();
         return phieuNhapDAO.findAll();
     }
 
     public List<PhieuNhapDTO> searchImports(String keyword) {
-        if (DBConnect.isDemoMode()) return DemoTransactionData.imports().stream().filter(p -> keyword == null || keyword.isBlank() || p.getMaPN().contains(keyword.trim()) || p.getMaNCC().contains(keyword.trim())).toList();
         return phieuNhapDAO.search(keyword);
     }
 
     public PhieuNhapDTO findImportById(String maPN) {
-        if (DBConnect.isDemoMode()) return DemoTransactionData.imports().stream().filter(p -> p.getMaPN().equalsIgnoreCase(maPN)).findFirst().orElse(null);
         return phieuNhapDAO.findById(maPN);
     }
 
     public List<ChiTietPhieuNhapDTO> getImportDetails(String maPN) {
-        if (DBConnect.isDemoMode()) return DemoTransactionData.importDetails(maPN);
         return chiTietPhieuNhapDAO.findByMaPN(maPN);
     }
 }

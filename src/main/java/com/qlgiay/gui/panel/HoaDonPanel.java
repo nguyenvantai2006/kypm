@@ -76,8 +76,6 @@ import com.qlgiay.dto.HoaDonDTO;
 import com.qlgiay.dto.KhachHangDTO;
 import com.qlgiay.dto.NhanVienDTO;
 import com.qlgiay.dto.SanPhamDTO;
-import com.qlgiay.util.DBConnect;
-import com.qlgiay.util.DemoTransactionData;
 import com.qlgiay.util.IconUtil;
 
 public class HoaDonPanel extends JPanel implements IRefreshable {
@@ -241,6 +239,7 @@ public class HoaDonPanel extends JPanel implements IRefreshable {
         });
 
         JScrollPane sp = new JScrollPane(tableHoaDon);
+        sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(225, 225, 225)),
@@ -352,7 +351,7 @@ public class HoaDonPanel extends JPanel implements IRefreshable {
         styleTable(tableChiTiet, false);
 
         JScrollPane sp = new JScrollPane(tableChiTiet);
-        sp.setPreferredSize(new Dimension(0, 180));
+        sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(225, 225, 225)),
                 new EmptyBorder(2, 2, 2, 2)));
@@ -549,9 +548,7 @@ public class HoaDonPanel extends JPanel implements IRefreshable {
             txtVoucher.setText("");
             txtTongTien.setText("");
 
-                List<HoaDonDTO> list = DBConnect.isDemoMode()
-                    ? DemoTransactionData.invoices()
-                    : hoaDonDAO.findAll();
+            List<HoaDonDTO> list = hoaDonDAO.findAll();
             Map<String, NhanVienDTO> employees = new HashMap<>();
             Map<String, KhachHangDTO> customers = new HashMap<>();
 
@@ -617,9 +614,7 @@ public class HoaDonPanel extends JPanel implements IRefreshable {
 
         String maHD = String.valueOf(hoaDonModel.getValueAt(modelRow, 0));
 
-        HoaDonDTO hd = DBConnect.isDemoMode()
-            ? DemoTransactionData.findInvoice(maHD)
-            : hoaDonDAO.findById(maHD);
+        HoaDonDTO hd = hoaDonDAO.findById(maHD);
         if (hd == null) {
             return;
         }
@@ -637,9 +632,7 @@ public class HoaDonPanel extends JPanel implements IRefreshable {
 
     private void loadDetailTable(String maHD) {
         chiTietModel.setRowCount(0);
-        List<ChiTietHoaDonDTO> list = DBConnect.isDemoMode()
-            ? DemoTransactionData.invoiceDetails(maHD)
-            : chiTietHoaDonDAO.findByMaHD(maHD);
+        List<ChiTietHoaDonDTO> list = chiTietHoaDonDAO.findByMaHD(maHD);
 
         if (list != null) {
             for (ChiTietHoaDonDTO ct : list) {
@@ -866,16 +859,12 @@ public class HoaDonPanel extends JPanel implements IRefreshable {
         String maHD = String.valueOf(hoaDonModel.getValueAt(modelRow, 0));
 
         try {
-                HoaDonDTO hd = DBConnect.isDemoMode()
-                    ? DemoTransactionData.findInvoice(maHD)
-                    : hoaDonDAO.findById(maHD);
+            HoaDonDTO hd = hoaDonDAO.findById(maHD);
             if (hd == null) {
                 return;
             }
 
-                List<ChiTietHoaDonDTO> items = DBConnect.isDemoMode()
-                    ? DemoTransactionData.invoiceDetails(maHD)
-                    : chiTietHoaDonDAO.findByMaHD(maHD);
+            List<ChiTietHoaDonDTO> items = chiTietHoaDonDAO.findByMaHD(maHD);
 
             String path = "HoaDon_" + hd.getMaHD() + ".pdf";
             Document document = new Document(PageSize.A5);

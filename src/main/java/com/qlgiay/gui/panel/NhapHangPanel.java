@@ -149,8 +149,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
         JSplitPane split = new JSplitPane(
                 JSplitPane.HORIZONTAL_SPLIT,
                 createLeftPanel(),
-                createRightPanel()
-        );
+                createRightPanel());
         split.setResizeWeight(0.62);
         split.setDividerSize(6);
         split.setOpaque(false);
@@ -166,8 +165,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
         JSplitPane split = new JSplitPane(
                 JSplitPane.HORIZONTAL_SPLIT,
                 createHistoryLeftPanel(),
-                createHistoryRightPanel()
-        );
+                createHistoryRightPanel());
         split.setOpaque(false);
         split.setResizeWeight(0.62);
         split.setDividerSize(6);
@@ -183,8 +181,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
         JSplitPane split = new JSplitPane(
                 JSplitPane.HORIZONTAL_SPLIT,
                 createReturnRequestPanel(),
-                createReturnHistoryPanel()
-        );
+                createReturnHistoryPanel());
         split.setOpaque(false);
         split.setResizeWeight(0.5);
         split.setDividerSize(6);
@@ -206,9 +203,12 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
         cboReturnImport.addActionListener(e -> loadReturnSourceDetails());
         top.add(cboReturnImport, BorderLayout.CENTER);
 
-        String[] columns = {"Mã SP", "Tên sản phẩm", "SL nhập", "Giá nhập"};
+        String[] columns = { "Mã SP", "Tên sản phẩm", "SL nhập", "Giá nhập" };
         returnSourceModel = new DefaultTableModel(columns, 0) {
-            @Override public boolean isCellEditable(int row, int column) { return false; }
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
         tableReturnSource = new JTable(returnSourceModel);
         styleHistoryTable(tableReturnSource, false);
@@ -230,7 +230,9 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
         note.add(buttons, BorderLayout.SOUTH);
 
         panel.add(top, BorderLayout.NORTH);
-        panel.add(new JScrollPane(tableReturnSource), BorderLayout.CENTER);
+        JScrollPane returnSourceScroll = new JScrollPane(tableReturnSource);
+        returnSourceScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        panel.add(returnSourceScroll, BorderLayout.CENTER);
         panel.add(note, BorderLayout.SOUTH);
         return panel;
     }
@@ -240,9 +242,12 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
         panel.putClientProperty(FlatClientProperties.STYLE, "arc:15;background:#FFFFFF");
         panel.setBorder(new EmptyBorder(15, 15, 15, 15));
 
-        String[] columns = {"Mã yêu cầu", "Mã PN", "Mã NCC", "Ngày tạo", "SL", "Tổng tiền", "Trạng thái", "Lý do"};
+        String[] columns = { "Mã yêu cầu", "Mã PN", "Mã NCC", "Ngày tạo", "SL", "Tổng tiền", "Trạng thái", "Lý do" };
         returnRequestModel = new DefaultTableModel(columns, 0) {
-            @Override public boolean isCellEditable(int row, int column) { return false; }
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
         };
         tableReturnRequests = new JTable(returnRequestModel);
         styleHistoryTable(tableReturnRequests, false);
@@ -261,8 +266,12 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
 
         JPanel actions = new JPanel(new FlowLayout(FlowLayout.RIGHT, 6, 0));
         actions.setOpaque(false);
-        actions.add(btnApprove); actions.add(btnReject); actions.add(btnRefresh);
-        panel.add(new JScrollPane(tableReturnRequests), BorderLayout.CENTER);
+        actions.add(btnApprove);
+        actions.add(btnReject);
+        actions.add(btnRefresh);
+        JScrollPane returnRequestScroll = new JScrollPane(tableReturnRequests);
+        returnRequestScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        panel.add(returnRequestScroll, BorderLayout.CENTER);
         panel.add(actions, BorderLayout.SOUTH);
         return panel;
     }
@@ -303,6 +312,8 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
 
         JScrollPane scroll = new JScrollPane(productGridPanel);
         scroll.setBorder(null);
+        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scroll.getViewport().setOpaque(false);
         scroll.setOpaque(false);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
@@ -354,7 +365,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
     }
 
     private JScrollPane createCartTable() {
-        String[] cols = {"Mã SP", "Tên sản phẩm", "SL", "Giá nhập", "Thành tiền"};
+        String[] cols = { "Mã SP", "Tên sản phẩm", "SL", "Giá nhập", "Thành tiền" };
 
         cartModel = new DefaultTableModel(cols, 0) {
             @Override
@@ -395,8 +406,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
                     boolean isSelected,
                     boolean hasFocus,
                     int row,
-                    int column
-            ) {
+                    int column) {
                 if (value instanceof BigDecimal) {
                     value = formatMoney((BigDecimal) value);
                 }
@@ -407,8 +417,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
                         isSelected,
                         hasFocus,
                         row,
-                        column
-                );
+                        column);
 
                 if (isSelected) {
                     c.setBackground(new Color(232, 240, 254));
@@ -457,11 +466,10 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
         });
 
         JScrollPane sp = new JScrollPane(tableCart);
-        sp.setPreferredSize(new Dimension(0, 200));
+        sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(225, 225, 225)),
-                new EmptyBorder(2, 2, 2, 2)
-        ));
+                new EmptyBorder(2, 2, 2, 2)));
 
         return sp;
     }
@@ -561,7 +569,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
             }
         });
 
-        cboFilterNgayHistory = new JComboBox<>(new String[]{
+        cboFilterNgayHistory = new JComboBox<>(new String[] {
                 "Tất cả thời gian", "Hôm nay", "Tháng này"
         });
 
@@ -609,10 +617,10 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
         });
 
         JScrollPane sp = new JScrollPane(tablePhieuNhap);
+        sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(225, 225, 225)),
-                new EmptyBorder(2, 2, 2, 2)
-        ));
+                new EmptyBorder(2, 2, 2, 2)));
 
         JPanel panel = new JPanel(new BorderLayout());
         panel.setOpaque(false);
@@ -638,8 +646,10 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
 
         int row = 0;
 
-        addGridRow(contentPanel, gbc, row++, field("Mã phiếu nhập", txtMaPNHistory), field("Ngày nhập", txtNgayNhapHistory));
-        addGridRow(contentPanel, gbc, row++, field("Mã nhân viên", txtNVHistory), field("Mã nhà cung cấp", txtNCCHistory));
+        addGridRow(contentPanel, gbc, row++, field("Mã phiếu nhập", txtMaPNHistory),
+                field("Ngày nhập", txtNgayNhapHistory));
+        addGridRow(contentPanel, gbc, row++, field("Mã nhân viên", txtNVHistory),
+                field("Mã nhà cung cấp", txtNCCHistory));
         addGridRow(contentPanel, gbc, row++, field("Tổng tiền", txtTongTienHistory), new JLabel());
 
         JPanel alignTopPanel = new JPanel(new BorderLayout(0, 10));
@@ -688,14 +698,14 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
         txtNCCHistory = new JTextField();
         txtTongTienHistory = new JTextField();
 
-        JTextField[] arr = {txtMaPNHistory, txtNgayNhapHistory, txtNVHistory, txtNCCHistory, txtTongTienHistory};
+        JTextField[] arr = { txtMaPNHistory, txtNgayNhapHistory, txtNVHistory, txtNCCHistory, txtTongTienHistory };
         for (JTextField t : arr) {
             t.setEnabled(false);
         }
     }
 
     private JScrollPane createHistoryDetailTable() {
-        String[] cols = {"Mã SP", "Tên sản phẩm", "SL", "Giá nhập", "Thành tiền"};
+        String[] cols = { "Mã SP", "Tên sản phẩm", "SL", "Giá nhập", "Thành tiền" };
 
         chiTietNhapModel = new DefaultTableModel(cols, 0) {
             @Override
@@ -719,11 +729,10 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
         styleHistoryTable(tableChiTietNhap, false);
 
         JScrollPane sp = new JScrollPane(tableChiTietNhap);
-        sp.setPreferredSize(new Dimension(0, 180));
+        sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(225, 225, 225)),
-                new EmptyBorder(2, 2, 2, 2)
-        ));
+                new EmptyBorder(2, 2, 2, 2)));
 
         return sp;
     }
@@ -809,8 +818,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
                 JOptionPane.QUESTION_MESSAGE,
                 null,
                 null,
-                "1"
-        );
+                "1");
         if (soLuongText == null) {
             return;
         }
@@ -823,8 +831,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
                     null,
                     "Số lượng phải là số nguyên!",
                     "Lỗi",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -839,8 +846,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
                 JOptionPane.QUESTION_MESSAGE,
                 null,
                 null,
-                sp.getGiaNhap() == null ? "" : formatInputMoney(sp.getGiaNhap())
-        );
+                sp.getGiaNhap() == null ? "" : formatInputMoney(sp.getGiaNhap()));
         if (giaNhapText == null) {
             return;
         }
@@ -853,8 +859,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
                     null,
                     "Giá nhập không hợp lệ!",
                     "Lỗi",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -863,8 +868,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
                     null,
                     "Giá nhập phải lớn hơn 0!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -881,7 +885,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
             cartModel.setValueAt(averagePrice, rowIndex, 3);
             cartModel.setValueAt(averagePrice.multiply(BigDecimal.valueOf(newQty)), rowIndex, 4);
         } else {
-            cartModel.addRow(new Object[]{
+            cartModel.addRow(new Object[] {
                     sp.getMaSP(),
                     sp.getTenSP(),
                     soLuong,
@@ -909,8 +913,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
                     null,
                     "Vui lòng chọn sản phẩm cần sửa trong phiếu nhập!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -921,8 +924,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
                 JOptionPane.QUESTION_MESSAGE,
                 null,
                 null,
-                cartModel.getValueAt(r, 2).toString()
-        );
+                cartModel.getValueAt(r, 2).toString());
         if (input == null) {
             return;
         }
@@ -935,8 +937,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
                     null,
                     "Số lượng phải là số nguyên!",
                     "Lỗi",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -959,8 +960,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
                     null,
                     "Vui lòng chọn sản phẩm cần xóa khỏi phiếu nhập!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -987,8 +987,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
                     null,
                     "Phiếu nhập đang trống!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -998,19 +997,18 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
                     null,
                     "Vui lòng chọn nhà cung cấp!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             cboNCC.requestFocus();
             return;
         }
 
-        if (session == null || session.getNhanVien() == null || session.getNhanVien().getMaNV() == null || session.getNhanVien().getMaNV().isBlank()) {
+        if (session == null || session.getNhanVien() == null || session.getNhanVien().getMaNV() == null
+                || session.getNhanVien().getMaNV().isBlank()) {
             JOptionPane.showMessageDialog(
                     null,
                     "Không xác định được nhân viên đăng nhập!",
                     "Lỗi",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -1039,8 +1037,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
                     "Nhập hàng thành công!\nBạn có muốn in phiếu nhập kho không?",
                     "In Phiếu Nhập",
                     JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE
-            );
+                    JOptionPane.QUESTION_MESSAGE);
 
             if (confirm == JOptionPane.YES_OPTION) {
                 inPhieuNhapPDF(pn, items, nccItem.tenNCC);
@@ -1054,8 +1051,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
                     null,
                     "Nhập hàng thất bại! Vui lòng thử lại.",
                     "Lỗi",
-                    JOptionPane.ERROR_MESSAGE
-            );
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -1080,7 +1076,8 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
             txtNCCHistory.setText("");
             txtTongTienHistory.setText("");
 
-            List<PhieuNhapDTO> list = keyword.isEmpty() ? nhapHangBUS.getAllImports() : nhapHangBUS.searchImports(keyword);
+            List<PhieuNhapDTO> list = keyword.isEmpty() ? nhapHangBUS.getAllImports()
+                    : nhapHangBUS.searchImports(keyword);
 
             if (list != null) {
                 LocalDate today = LocalDate.now();
@@ -1091,12 +1088,12 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
                         }
                         if ("Tháng này".equals(filterDate)
                                 && (pn.getNgayNhap().getMonthValue() != today.getMonthValue()
-                                || pn.getNgayNhap().getYear() != today.getYear())) {
+                                        || pn.getNgayNhap().getYear() != today.getYear())) {
                             continue;
                         }
                     }
 
-                    phieuNhapModel.addRow(new Object[]{
+                    phieuNhapModel.addRow(new Object[] {
                             pn.getMaPN(),
                             pn.getNgayNhap(),
                             pn.getMaNV(),
@@ -1111,7 +1108,8 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
     }
 
     private void loadReturnData() {
-        if (cboReturnImport == null) return;
+        if (cboReturnImport == null)
+            return;
         DefaultComboBoxModel<PhieuNhapItem> model = new DefaultComboBoxModel<>();
         for (PhieuNhapDTO pn : nhapHangBUS.getAllImports()) {
             model.addElement(new PhieuNhapItem(pn));
@@ -1121,21 +1119,23 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
 
         returnRequestModel.setRowCount(0);
         for (PhieuTraNccDTO p : traHangNccBUS.getAllRequests()) {
-            returnRequestModel.addRow(new Object[]{p.getMaPT(), p.getMaPN(), p.getMaNCC(), p.getNgayTao(),
-                    p.getTongSoMatHang(), p.getTongTien(), p.getTrangThai(), p.getLyDo()});
+            returnRequestModel.addRow(new Object[] { p.getMaPT(), p.getMaPN(), p.getMaNCC(), p.getNgayTao(),
+                    p.getTongSoMatHang(), p.getTongTien(), p.getTrangThai(), p.getLyDo() });
         }
         updateReturnButtons();
     }
 
     private void loadReturnSourceDetails() {
-        if (returnSourceModel == null) return;
+        if (returnSourceModel == null)
+            return;
         returnSourceModel.setRowCount(0);
         PhieuNhapItem item = (PhieuNhapItem) cboReturnImport.getSelectedItem();
-        if (item == null) return;
+        if (item == null)
+            return;
         for (ChiTietPhieuNhapDTO ct : nhapHangBUS.getImportDetails(item.phieuNhap.getMaPN())) {
             SanPhamDTO sp = sanPhamBUS.findById(ct.getMaSP());
-            returnSourceModel.addRow(new Object[]{ct.getMaSP(), sp == null ? ct.getMaSP() : sp.getTenSP(),
-                    ct.getSoLuong(), ct.getGiaNhap()});
+            returnSourceModel.addRow(new Object[] { ct.getMaSP(), sp == null ? ct.getMaSP() : sp.getTenSP(),
+                    ct.getSoLuong(), ct.getGiaNhap() });
         }
     }
 
@@ -1143,67 +1143,90 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
         if (session == null || session.getNhanVien() == null
                 || session.getNhanVien().getMaNV() == null
                 || session.getNhanVien().getMaNV().isBlank()) {
-            JOptionPane.showMessageDialog(this, "Không xác định được nhân viên đăng nhập.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Không xác định được nhân viên đăng nhập.", "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
         int row = tableReturnSource.getSelectedRow();
         PhieuNhapItem item = (PhieuNhapItem) cboReturnImport.getSelectedItem();
         if (row < 0 || item == null) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn phiếu nhập và sản phẩm cần hoàn trả!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn phiếu nhập và sản phẩm cần hoàn trả!", "Cảnh báo",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
-        String quantity = JOptionPane.showInputDialog(this, "Nhập số lượng hoàn trả (tối đa " + returnSourceModel.getValueAt(row, 2) + "):", "1");
-        if (quantity == null) return;
+        String quantity = JOptionPane.showInputDialog(this,
+                "Nhập số lượng hoàn trả (tối đa " + returnSourceModel.getValueAt(row, 2) + "):", "1");
+        if (quantity == null)
+            return;
         int amount;
-        try { amount = Integer.parseInt(quantity.trim()); } catch (NumberFormatException e) { amount = 0; }
+        try {
+            amount = Integer.parseInt(quantity.trim());
+        } catch (NumberFormatException e) {
+            amount = 0;
+        }
         int max = (int) returnSourceModel.getValueAt(row, 2);
         if (amount <= 0 || amount > max) {
-            JOptionPane.showMessageDialog(this, "Số lượng hoàn trả không hợp lệ!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Số lượng hoàn trả không hợp lệ!", "Cảnh báo",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
         String reason = JOptionPane.showInputDialog(this, "Lý do hoàn trả (ví dụ: sản phẩm lỗi):", "Sản phẩm lỗi");
-        if (reason == null || reason.trim().isEmpty()) return;
+        if (reason == null || reason.trim().isEmpty())
+            return;
 
         PhieuTraNccDTO request = new PhieuTraNccDTO();
         request.setMaPT("PT" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyMMddHHmmss")));
-        request.setMaPN(item.phieuNhap.getMaPN()); request.setMaNV(session.getNhanVien().getMaNV());
-        request.setMaNCC(item.phieuNhap.getMaNCC()); request.setLyDo(reason.trim());
+        request.setMaPN(item.phieuNhap.getMaPN());
+        request.setMaNV(session.getNhanVien().getMaNV());
+        request.setMaNCC(item.phieuNhap.getMaNCC());
+        request.setLyDo(reason.trim());
         ChiTietTraNccDTO detail = new ChiTietTraNccDTO();
-        detail.setMaSP(String.valueOf(returnSourceModel.getValueAt(row, 0))); detail.setSoLuong(amount);
+        detail.setMaSP(String.valueOf(returnSourceModel.getValueAt(row, 0)));
+        detail.setSoLuong(amount);
         if (traHangNccBUS.createRequest(request, detail)) {
-            JOptionPane.showMessageDialog(this, "Đã tạo yêu cầu, đang chờ duyệt.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Đã tạo yêu cầu, đang chờ duyệt.", "Thông báo",
+                    JOptionPane.INFORMATION_MESSAGE);
             loadReturnData();
         } else {
             String error = traHangNccBUS.getLastError();
-            if (error == null || error.isBlank()) error = "Không thể tạo yêu cầu hoàn trả.";
-            JOptionPane.showMessageDialog(this, "Không thể tạo yêu cầu hoàn trả:\n" + error, "Lỗi", JOptionPane.ERROR_MESSAGE);
+            if (error == null || error.isBlank())
+                error = "Không thể tạo yêu cầu hoàn trả.";
+            JOptionPane.showMessageDialog(this, "Không thể tạo yêu cầu hoàn trả:\n" + error, "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void processReturn(boolean approve) {
         int row = tableReturnRequests.getSelectedRow();
         if (row < 0) {
-            JOptionPane.showMessageDialog(this, "Vui lòng chọn một yêu cầu hoàn trả.", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn một yêu cầu hoàn trả.", "Cảnh báo",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
         String maPT = String.valueOf(returnRequestModel.getValueAt(row, 0));
         String status = String.valueOf(returnRequestModel.getValueAt(row, 6));
         if (!"Đang duyệt".equals(status)) {
-            JOptionPane.showMessageDialog(this, "Yêu cầu này đã được xử lý.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Yêu cầu này đã được xử lý.", "Thông báo",
+                    JOptionPane.INFORMATION_MESSAGE);
             return;
         }
         String maNV = session == null || session.getNhanVien() == null ? "" : session.getNhanVien().getMaNV();
         boolean ok = approve ? traHangNccBUS.approve(maPT, maNV) : traHangNccBUS.reject(maPT, maNV);
         if (ok) {
-            JOptionPane.showMessageDialog(this, approve ? "Đã duyệt và trừ tồn kho." : "Đã từ chối yêu cầu.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-            loadReturnData(); loadProducts();
+            JOptionPane.showMessageDialog(this, approve ? "Đã duyệt và trừ tồn kho." : "Đã từ chối yêu cầu.",
+                    "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            loadReturnData();
+            loadProducts();
         } else {
-            JOptionPane.showMessageDialog(this, approve ? "Không đủ tồn kho hoặc yêu cầu không còn hiệu lực." : "Không thể từ chối yêu cầu.", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this,
+                    approve ? "Không đủ tồn kho hoặc yêu cầu không còn hiệu lực." : "Không thể từ chối yêu cầu.", "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void updateReturnButtons() {
-        if (tableReturnRequests == null) return;
+        if (tableReturnRequests == null)
+            return;
         int row = tableReturnRequests.getSelectedRow();
         boolean pending = row >= 0 && "Đang duyệt".equals(returnRequestModel.getValueAt(row, 6));
         tableReturnRequests.setToolTipText(pending ? "Yêu cầu đang chờ xử lý" : "Chọn yêu cầu đang duyệt để xử lý");
@@ -1250,7 +1273,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
                 String tenSP = sp != null ? sp.getTenSP() : ct.getMaSP();
                 BigDecimal thanhTien = ct.getGiaNhap().multiply(new BigDecimal(ct.getSoLuong()));
 
-                chiTietNhapModel.addRow(new Object[]{
+                chiTietNhapModel.addRow(new Object[] {
                         ct.getMaSP(),
                         tenSP,
                         ct.getSoLuong(),
@@ -1268,8 +1291,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
                     null,
                     "Vui lòng chọn 1 phiếu nhập để in!",
                     "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE
-            );
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -1309,9 +1331,12 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
             PdfWriter.getInstance(document, new FileOutputStream(path));
             document.open();
 
-            com.itextpdf.text.Font fontTitle = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA, 16, com.itextpdf.text.Font.BOLD);
-            com.itextpdf.text.Font fontNormal = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA, 12, com.itextpdf.text.Font.NORMAL);
-            com.itextpdf.text.Font fontBold = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA, 12, com.itextpdf.text.Font.BOLD);
+            com.itextpdf.text.Font fontTitle = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA,
+                    16, com.itextpdf.text.Font.BOLD);
+            com.itextpdf.text.Font fontNormal = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA,
+                    12, com.itextpdf.text.Font.NORMAL);
+            com.itextpdf.text.Font fontBold = new com.itextpdf.text.Font(com.itextpdf.text.Font.FontFamily.HELVETICA,
+                    12, com.itextpdf.text.Font.BOLD);
 
             Paragraph title = new Paragraph("PHIEU NHAP KHO\n\n", fontTitle);
             title.setAlignment(Element.ALIGN_CENTER);
@@ -1321,11 +1346,13 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
             document.add(new Paragraph("Ngay nhap: " + pn.getNgayNhap(), fontNormal));
             document.add(new Paragraph("Nhan vien: " + safePdfText(getNhanVienNameById(pn.getMaNV())), fontNormal));
             document.add(new Paragraph("Nha cung cap: " + safePdfText(tenNCC), fontNormal));
-            document.add(new Paragraph("---------------------------------------------------------------------------------------\n", fontNormal));
+            document.add(new Paragraph(
+                    "---------------------------------------------------------------------------------------\n",
+                    fontNormal));
 
             PdfPTable table = new PdfPTable(4);
             table.setWidthPercentage(100);
-            table.setWidths(new float[]{4f, 1f, 2.5f, 2.8f});
+            table.setWidths(new float[] { 4f, 1f, 2.5f, 2.8f });
 
             PdfPCell h1 = new PdfPCell(new Phrase("Ten SP", fontBold));
             PdfPCell h2 = new PdfPCell(new Phrase("SL", fontBold));
@@ -1371,7 +1398,9 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
             }
             document.add(table);
 
-            document.add(new Paragraph("---------------------------------------------------------------------------------------\n", fontNormal));
+            document.add(new Paragraph(
+                    "---------------------------------------------------------------------------------------\n",
+                    fontNormal));
             document.add(new Paragraph("Tong so luong: " + tongSoLuong, fontNormal));
             document.add(new Paragraph("Tong tien: " + df.format(tongTien) + " VND", fontTitle));
 
@@ -1389,7 +1418,8 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
     }
 
     private String getNhanVienNameById(String maNV) {
-        if (session != null && session.getNhanVien() != null && maNV != null && maNV.equals(session.getNhanVien().getMaNV())) {
+        if (session != null && session.getNhanVien() != null && maNV != null
+                && maNV.equals(session.getNhanVien().getMaNV())) {
             return getNhanVienName();
         }
         return maNV == null ? "" : maNV;
@@ -1455,32 +1485,32 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
     private void styleActionButton(JButton button, String type) {
         String style = switch (type) {
             case "success" ->
-                    "arc:10;" +
-                            "focusWidth:0;" +
-                            "innerFocusWidth:0;" +
-                            "margin:4,6,4,6;" +
-                            "background:#E8F5E9;" +
-                            "foreground:#2E7D32;" +
-                            "hoverBackground:#D7F0DB;" +
-                            "pressedBackground:#C2E7C8";
+                "arc:10;" +
+                        "focusWidth:0;" +
+                        "innerFocusWidth:0;" +
+                        "margin:4,6,4,6;" +
+                        "background:#E8F5E9;" +
+                        "foreground:#2E7D32;" +
+                        "hoverBackground:#D7F0DB;" +
+                        "pressedBackground:#C2E7C8";
             case "danger" ->
-                    "arc:10;" +
-                            "focusWidth:0;" +
-                            "innerFocusWidth:0;" +
-                            "margin:4,6,4,6;" +
-                            "background:#FDECEC;" +
-                            "foreground:#C62828;" +
-                            "hoverBackground:#F9D6D6;" +
-                            "pressedBackground:#F4BDBD";
+                "arc:10;" +
+                        "focusWidth:0;" +
+                        "innerFocusWidth:0;" +
+                        "margin:4,6,4,6;" +
+                        "background:#FDECEC;" +
+                        "foreground:#C62828;" +
+                        "hoverBackground:#F9D6D6;" +
+                        "pressedBackground:#F4BDBD";
             default ->
-                    "arc:10;" +
-                            "focusWidth:0;" +
-                            "innerFocusWidth:0;" +
-                            "margin:4,6,4,6;" +
-                            "background:#E8F0FE;" +
-                            "foreground:#005A9E;" +
-                            "hoverBackground:#DCE8FC;" +
-                            "pressedBackground:#C9DCF8";
+                "arc:10;" +
+                        "focusWidth:0;" +
+                        "innerFocusWidth:0;" +
+                        "margin:4,6,4,6;" +
+                        "background:#E8F0FE;" +
+                        "foreground:#005A9E;" +
+                        "hoverBackground:#DCE8FC;" +
+                        "pressedBackground:#C9DCF8";
         };
 
         button.putClientProperty(FlatClientProperties.STYLE, style);
@@ -1491,8 +1521,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
     private void styleComboBox(JComboBox<?> comboBox) {
         comboBox.putClientProperty(
                 FlatClientProperties.STYLE,
-                "arc:8;focusWidth:0;innerFocusWidth:0"
-        );
+                "arc:8;focusWidth:0;innerFocusWidth:0");
     }
 
     private void styleHistoryTable(JTable targetTable, boolean isPhieuNhapTable) {
@@ -1516,8 +1545,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
                     boolean isSelected,
                     boolean hasFocus,
                     int row,
-                    int column
-            ) {
+                    int column) {
                 if (value instanceof BigDecimal) {
                     value = formatMoney((BigDecimal) value);
                 }
@@ -1592,7 +1620,8 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
         });
     }
 
-    static BigDecimal calculateWeightedAverageImportPrice(BigDecimal previousPrice, int previousQty, BigDecimal newPrice, int newQty) {
+    static BigDecimal calculateWeightedAverageImportPrice(BigDecimal previousPrice, int previousQty,
+            BigDecimal newPrice, int newQty) {
         if (previousPrice == null) {
             previousPrice = BigDecimal.ZERO;
         }
@@ -1618,28 +1647,40 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
         return s
                 .replace("Đ", "D").replace("đ", "d")
                 .replace("á", "a").replace("à", "a").replace("ả", "a").replace("ã", "a").replace("ạ", "a")
-                .replace("ă", "a").replace("ắ", "a").replace("ằ", "a").replace("ẳ", "a").replace("ẵ", "a").replace("ặ", "a")
-                .replace("â", "a").replace("ấ", "a").replace("ầ", "a").replace("ẩ", "a").replace("ẫ", "a").replace("ậ", "a")
+                .replace("ă", "a").replace("ắ", "a").replace("ằ", "a").replace("ẳ", "a").replace("ẵ", "a")
+                .replace("ặ", "a")
+                .replace("â", "a").replace("ấ", "a").replace("ầ", "a").replace("ẩ", "a").replace("ẫ", "a")
+                .replace("ậ", "a")
                 .replace("é", "e").replace("è", "e").replace("ẻ", "e").replace("ẽ", "e").replace("ẹ", "e")
-                .replace("ê", "e").replace("ế", "e").replace("ề", "e").replace("ể", "e").replace("ễ", "e").replace("ệ", "e")
+                .replace("ê", "e").replace("ế", "e").replace("ề", "e").replace("ể", "e").replace("ễ", "e")
+                .replace("ệ", "e")
                 .replace("í", "i").replace("ì", "i").replace("ỉ", "i").replace("ĩ", "i").replace("ị", "i")
                 .replace("ó", "o").replace("ò", "o").replace("ỏ", "o").replace("õ", "o").replace("ọ", "o")
-                .replace("ô", "o").replace("ố", "o").replace("ồ", "o").replace("ổ", "o").replace("ỗ", "o").replace("ộ", "o")
-                .replace("ơ", "o").replace("ớ", "o").replace("ờ", "o").replace("ở", "o").replace("ỡ", "o").replace("ợ", "o")
+                .replace("ô", "o").replace("ố", "o").replace("ồ", "o").replace("ổ", "o").replace("ỗ", "o")
+                .replace("ộ", "o")
+                .replace("ơ", "o").replace("ớ", "o").replace("ờ", "o").replace("ở", "o").replace("ỡ", "o")
+                .replace("ợ", "o")
                 .replace("ú", "u").replace("ù", "u").replace("ủ", "u").replace("ũ", "u").replace("ụ", "u")
-                .replace("ư", "u").replace("ứ", "u").replace("ừ", "u").replace("ử", "u").replace("ữ", "u").replace("ự", "u")
+                .replace("ư", "u").replace("ứ", "u").replace("ừ", "u").replace("ử", "u").replace("ữ", "u")
+                .replace("ự", "u")
                 .replace("ý", "y").replace("ỳ", "y").replace("ỷ", "y").replace("ỹ", "y").replace("ỵ", "y")
                 .replace("Á", "A").replace("À", "A").replace("Ả", "A").replace("Ã", "A").replace("Ạ", "A")
-                .replace("Ă", "A").replace("Ắ", "A").replace("Ằ", "A").replace("Ẳ", "A").replace("Ẵ", "A").replace("Ặ", "A")
-                .replace("Â", "A").replace("Ấ", "A").replace("Ầ", "A").replace("Ẩ", "A").replace("Ẫ", "A").replace("Ậ", "A")
+                .replace("Ă", "A").replace("Ắ", "A").replace("Ằ", "A").replace("Ẳ", "A").replace("Ẵ", "A")
+                .replace("Ặ", "A")
+                .replace("Â", "A").replace("Ấ", "A").replace("Ầ", "A").replace("Ẩ", "A").replace("Ẫ", "A")
+                .replace("Ậ", "A")
                 .replace("É", "E").replace("È", "E").replace("Ẻ", "E").replace("Ẽ", "E").replace("Ẹ", "E")
-                .replace("Ê", "E").replace("Ế", "E").replace("Ề", "E").replace("Ể", "E").replace("Ễ", "E").replace("Ệ", "E")
+                .replace("Ê", "E").replace("Ế", "E").replace("Ề", "E").replace("Ể", "E").replace("Ễ", "E")
+                .replace("Ệ", "E")
                 .replace("Í", "I").replace("Ì", "I").replace("Ỉ", "I").replace("Ĩ", "I").replace("Ị", "I")
                 .replace("Ó", "O").replace("Ò", "O").replace("Ỏ", "O").replace("Õ", "O").replace("Ọ", "O")
-                .replace("Ô", "O").replace("Ố", "O").replace("Ồ", "O").replace("Ổ", "O").replace("Ỗ", "O").replace("Ộ", "O")
-                .replace("Ơ", "O").replace("Ớ", "O").replace("Ờ", "O").replace("Ở", "O").replace("Ỡ", "O").replace("Ợ", "O")
+                .replace("Ô", "O").replace("Ố", "O").replace("Ồ", "O").replace("Ổ", "O").replace("Ỗ", "O")
+                .replace("Ộ", "O")
+                .replace("Ơ", "O").replace("Ớ", "O").replace("Ờ", "O").replace("Ở", "O").replace("Ỡ", "O")
+                .replace("Ợ", "O")
                 .replace("Ú", "U").replace("Ù", "U").replace("Ủ", "U").replace("Ũ", "U").replace("Ụ", "U")
-                .replace("Ư", "U").replace("Ứ", "U").replace("Ừ", "U").replace("Ử", "U").replace("Ữ", "U").replace("Ự", "U")
+                .replace("Ư", "U").replace("Ứ", "U").replace("Ừ", "U").replace("Ử", "U").replace("Ữ", "U")
+                .replace("Ự", "U")
                 .replace("Ý", "Y").replace("Ỳ", "Y").replace("Ỷ", "Y").replace("Ỹ", "Y").replace("Ỵ", "Y");
     }
 

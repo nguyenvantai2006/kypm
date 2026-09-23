@@ -130,6 +130,8 @@ public class BanHangPanel extends JPanel implements IRefreshable {
 
         JScrollPane scroll = new JScrollPane(productGridPanel);
         scroll.setBorder(null);
+        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scroll.getViewport().setOpaque(false);
         scroll.setOpaque(false);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
@@ -402,7 +404,7 @@ public class BanHangPanel extends JPanel implements IRefreshable {
         }
 
         JScrollPane sp = new JScrollPane(tableCart);
-        sp.setPreferredSize(new Dimension(0, 200));
+        sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(225, 225, 225)),
                 new EmptyBorder(2, 2, 2, 2)));
