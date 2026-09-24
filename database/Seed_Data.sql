@@ -33,7 +33,7 @@ BEGIN TRY
     -- ==============================================================================
     INSERT INTO dbo.QUYEN (MaQuyen, TenQuyen, QL_BanHang, QL_KhachHang, QL_SanPham, QL_NhapHang, QL_NhanVien, QL_ThongKe)
     VALUES
-        (N'Q01', N'Quản trị viên', 1, 1, 1, 1, 1, 1),
+        (N'Q01', N'Quản trị viên', 0, 0, 0, 0, 1, 0),
         (N'Q02', N'Quản lý', 1, 1, 1, 1, 0, 1),
         (N'Q03', N'Nhân viên', 1, 1, 1, 0, 0, 0),
         (N'TQ001', N'Quản trị mẫu', 1, 1, 1, 1, 1, 1),
@@ -100,28 +100,28 @@ BEGIN TRY
     -- ==============================================================================
     -- 5. SẢN PHẨM THỰC TẾ (20 Sản Phẩm, SKU: SP-SIZE-COLOR)
     -- ==============================================================================
-    INSERT INTO dbo.SAN_PHAM (MaSP, TenSP, LoaiSP, DonViTinh, SoLuong, DonGia, PhanTramLoiNhuan, MauSac, Size, ChatLieu, ThuongHieu, NuocSanXuat, NgaySanXuat, MoTa, HinhAnh, TrangThai)
+    INSERT INTO dbo.SAN_PHAM (MaSP, TenSP, LoaiSP, DonViTinh, SoLuong, DonGia, PhanTramLoiNhuan, MauSac, Size, ChatLieu, ThuongHieu, NuocSanXuat, NgaySanXuat, MoTa, HinhAnh, TrangThai,maNCC)
     VALUES
-        (N'SP001-42-DEN', N'Nike Air Force 1', N'Giày Thể Thao', N'Đôi', 25, 0, 20, N'Đen', N'42', N'Da Bò', N'Nike', N'Mỹ', '2025-05-10', N'Mẫu giày quốc dân không bao giờ lỗi mốt.', N'Nike_Air_Force_1.png', 1),
-        (N'SP002-41-TRANG', N'Adidas Ultraboost 22', N'Giày Chạy Bộ', N'Đôi', 30, 0, 20, N'Trắng', N'41', N'Vải Primeknit', N'Adidas', N'Đức', '2025-08-15', N'Đế boost êm ái, hỗ trợ chạy bộ chuyên nghiệp.', N'Adidas_Ultraboost_22.png', 1),
-        (N'SP003-40-DEN', N'Vans Old Skool', N'Giày Sneaker', N'Đôi', 50, 0, 20, N'Đen', N'40', N'Vải Canvas', N'Vans', N'Mỹ', '2025-01-20', N'Giày trượt ván cổ điển, phối đồ cực dễ.', N'Vans_Old_Skool.png', 1),
-        (N'SP004-43-TRANG', N'Converse Chuck 70', N'Giày Sneaker', N'Đôi', 40, 0, 20, N'Trắng', N'43', N'Vải Canvas', N'Converse', N'Mỹ', '2025-02-14', N'Chất vải dày dặn, form chuẩn vintage.', N'Converse_Chuck_70.png', 1),
-        (N'SP005-39-TRANG', N'Puma RS-X', N'Giày Thể Thao', N'Đôi', 20, 0, 20, N'Trắng', N'39', N'Vải Mesh', N'Puma', N'Đức', '2025-07-22', N'Thiết kế chunky khỏe khoắn, năng động.', N'Puma_RS_X.png', 1),
-        (N'SP006-42-DEN', N'Bitis Hunter X', N'Giày Chạy Bộ', N'Đôi', 60, 0, 20, N'Đen', N'42', N'Vải LiteKnit', N'Biti''s', N'Việt Nam', '2026-01-05', N'Tự hào thương hiệu Việt, đế siêu nhẹ.', N'Bitis_Hunter_X.png', 1),
-        (N'SP007-41-XANH', N'Nike Air Max 97', N'Giày Thể Thao', N'Đôi', 15, 0, 20, N'Xanh', N'41', N'Vải tổng hợp', N'Nike', N'Mỹ', '2025-11-11', N'Dải phản quang cực chất, êm ái đàn hồi.', N'Nike_Air_Max_97.png', 1),
-        (N'SP008-40-TRANG', N'Adidas Stan Smith', N'Giày Sneaker', N'Đôi', 45, 0, 20, N'Trắng', N'40', N'Da PU', N'Adidas', N'Đức', '2025-04-12', N'Basic, lịch sự và phù hợp mọi lứa tuổi.', N'Adidas_Stan_Smith.png', 1),
-        (N'SP009-42-DEN', N'Giày Oxford Classic', N'Giày Tây', N'Đôi', 10, 0, 30, N'Đen', N'42', N'Da Bò Thật', N'No Brand', N'Việt Nam', '2025-09-09', N'Lịch lãm, phong cách công sở sang trọng.', N'Giay_Oxford_Classic.png', 1),
-        (N'SP010-41-NAU', N'Giày Lười Loafer', N'Giày Lười', N'Đôi', 18, 0, 30, N'Nâu', N'41', N'Da Sáp', N'No Brand', N'Việt Nam', '2025-10-25', N'Dễ mang, thoải mái cho mùa hè.', N'Giay_Luoi_Loafer.png', 1),
-        (N'SP011-38-HONG', N'MLB Boston Chunky', N'Giày Sneaker', N'Đôi', 22, 0, 20, N'Hồng', N'38', N'Da Tổng Hợp', N'MLB', N'Hàn Quốc', '2025-12-01', N'Hack dáng 5cm, phong cách Hàn Quốc.', N'MLB_Boston_Chunky.png', 1),
-        (N'SP012-42-XAM', N'New Balance 574', N'Giày Chạy Bộ', N'Đôi', 30, 0, 20, N'Xám', N'42', N'Da Lộn', N'New Balance', N'Mỹ', '2025-06-15', N'Phong cách retro, cực kỳ êm chân.', N'New_Balance_574.png', 1),
-        (N'SP013-40-TRANG', N'Fila Disruptor 2', N'Giày Sneaker', N'Đôi', 15, 0, 20, N'Trắng', N'40', N'Da PU', N'Fila', N'Hàn Quốc', '2025-03-08', N'Chunky sneaker cá tính cho phái nữ.', N'Fila_Disruptor_2.png', 1),
-        (N'SP014-41-DEN', N'Asics Gel Kayano', N'Giày Chạy Bộ', N'Đôi', 25, 0, 20, N'Đen', N'41', N'Vải Mesh', N'Asics', N'Nhật Bản', '2026-02-14', N'Bảo vệ cổ chân cực tốt khi chạy đường dài.', N'Asics_Gel_Kayano.png', 1),
-        (N'SP015-43-DO', N'Nike Air Jordan 1', N'Giày Bóng Rổ', N'Đôi', 10, 0, 20, N'Đỏ', N'43', N'Da Tổng Hợp', N'Nike', N'Mỹ', '2025-09-30', N'Biểu tượng của văn hóa sát mặt đất.', N'Nike_Air_Jordan_1.png', 1),
-        (N'SP016-39-TRANG', N'Reebok Club C 85', N'Giày Thể Thao', N'Đôi', 20, 0, 20, N'Trắng', N'39', N'Da Bò', N'Reebok', N'Anh Quốc', '2025-11-20', N'Tinh giản, thanh lịch, độ bền cao.', N'Reebok_Club_C_85.png', 1),
-        (N'SP017-42-DEN', N'Giày Derby Nam', N'Giày Tây', N'Đôi', 12, 0, 30, N'Đen', N'42', N'Da Bò Thật', N'No Brand', N'Việt Nam', '2026-01-15', N'Mẫu Derby basic phù hợp mọi dịp tiệc tùng.', N'Giay_Derby_Nam.png', 1),
-        (N'SP018-40-NAU', N'Chelsea Boot', N'Giày Boot', N'Đôi', 15, 0, 30, N'Nâu', N'40', N'Da Lộn', N'No Brand', N'Việt Nam', '2025-12-10', N'Cổ cao, nam tính, cực chất khi mặc jeans.', N'Chelsea_Boot.png', 1),
-        (N'SP019-41-XANH', N'Mizuno Wave Rider', N'Giày Chạy Bộ', N'Đôi', 20, 0, 20, N'Xanh', N'41', N'Vải Mesh', N'Mizuno', N'Nhật Bản', '2026-01-22', N'Đế Wave đàn hồi, thích hợp chạy track.', N'Mizuno_Wave_Rider.png', 1),
-        (N'SP020-42-DEN', N'Under Armour Curry', N'Giày Bóng Rổ', N'Đôi', 15, 0, 20, N'Đen', N'42', N'Vải Knit', N'Under Armour', N'Mỹ', '2025-10-10', N'Bám sàn cực tốt, chuyên dụng cho bóng rổ.', N'Under_Armour_Curry.png', 1);
+        (N'SP001-42-DEN', N'Nike Air Force 1', N'Giày Thể Thao', N'Đôi', 25, 0, 20, N'Đen', N'42', N'Da Bò', N'Nike', N'Mỹ', '2025-05-10', N'Mẫu giày quốc dân không bao giờ lỗi mốt.', N'nike.jpg', 1,NCC001),
+        (N'SP002-41-TRANG', N'Adidas Ultraboost 22', N'Giày Chạy Bộ', N'Đôi', 30, 0, 20, N'Trắng', N'41', N'Vải Primeknit', N'Adidas', N'Đức', '2025-08-15', N'Đế boost êm ái, hỗ trợ chạy bộ chuyên nghiệp.', N'chelseaboot.jpg', 1,NCC002),
+        (N'SP003-40-DEN', N'Vans Old Skool', N'Giày Sneaker', N'Đôi', 50, 0, 20, N'Đen', N'40', N'Vải Canvas', N'Vans', N'Mỹ', '2025-01-20', N'Giày trượt ván cổ điển, phối đồ cực dễ.', N'vansold.jpg', 1,NCC004),
+        (N'SP004-43-TRANG', N'Converse Chuck 70', N'Giày Sneaker', N'Đôi', 40, 0, 20, N'Trắng', N'43', N'Vải Canvas', N'Converse', N'Mỹ', '2025-02-14', N'Chất vải dày dặn, form chuẩn vintage.', N'converse.jpg', 1,NCC003),
+        (N'SP005-39-TRANG', N'Puma RS-X', N'Giày Thể Thao', N'Đôi', 20, 0, 20, N'Trắng', N'39', N'Vải Mesh', N'Puma', N'Đức', '2025-07-22', N'Thiết kế chunky khỏe khoắn, năng động.', N'puma.jpg', 1,NCC004),
+        (N'SP006-42-DEN', N'Bitis Hunter X', N'Giày Chạy Bộ', N'Đôi', 60, 0, 20, N'Đen', N'42', N'Vải LiteKnit', N'Biti''s', N'Việt Nam', '2026-01-05', N'Tự hào thương hiệu Việt, đế siêu nhẹ.', N'bitis.jpg', 1,NCC001),
+        (N'SP007-41-XANH', N'Nike Air Max 97', N'Giày Thể Thao', N'Đôi', 15, 0, 20, N'Xanh', N'41', N'Vải tổng hợp', N'Nike', N'Mỹ', '2025-11-11', N'Dải phản quang cực chất, êm ái đàn hồi.', N'nike.jpg', 1,NCC003),
+        (N'SP008-40-TRANG', N'Adidas Stan Smith', N'Giày Sneaker', N'Đôi', 45, 0, 20, N'Trắng', N'40', N'Da PU', N'Adidas', N'Đức', '2025-04-12', N'Basic, lịch sự và phù hợp mọi lứa tuổi.', N'adias1.jpg', 1,NCC001),
+        (N'SP009-42-DEN', N'Giày Oxford Classic', N'Giày Tây', N'Đôi', 10, 0, 30, N'Đen', N'42', N'Da Bò Thật', N'No Brand', N'Việt Nam', '2025-09-09', N'Lịch lãm, phong cách công sở sang trọng.', N'oxford.jpg', 1,NCC001),
+        (N'SP010-41-NAU', N'Giày Lười Loafer', N'Giày Lười', N'Đôi', 18, 0, 30, N'Nâu', N'41', N'Da Sáp', N'No Brand', N'Việt Nam', '2025-10-25', N'Dễ mang, thoải mái cho mùa hè.', N'Giay_Luoi_Loafer.png', 1,NCC002),
+        (N'SP011-38-HONG', N'MLB Boston Chunky', N'Giày Sneaker', N'Đôi', 22, 0, 20, N'Hồng', N'38', N'Da Tổng Hợp', N'MLB', N'Hàn Quốc', '2025-12-01', N'Hack dáng 5cm, phong cách Hàn Quốc.', N'boston.jpg', 1,NCC003),
+        (N'SP012-42-XAM', N'New Balance 574', N'Giày Chạy Bộ', N'Đôi', 30, 0, 20, N'Xám', N'42', N'Da Lộn', N'New Balance', N'Mỹ', '2025-06-15', N'Phong cách retro, cực kỳ êm chân.', N'balnce.jpg', 1,NCC002),
+        (N'SP013-40-TRANG', N'Fila Disruptor 2', N'Giày Sneaker', N'Đôi', 15, 0, 20, N'Trắng', N'40', N'Da PU', N'Fila', N'Hàn Quốc', '2025-03-08', N'Chunky sneaker cá tính cho phái nữ.', N'fila.jpg', 1,NCC003),
+        (N'SP014-41-DEN', N'Asics Gel Kayano', N'Giày Chạy Bộ', N'Đôi', 25, 0, 20, N'Đen', N'41', N'Vải Mesh', N'Asics', N'Nhật Bản', '2026-02-14', N'Bảo vệ cổ chân cực tốt khi chạy đường dài.', N'asic.jpg', 1,NCC004),
+        (N'SP015-43-DO', N'Nike Air Jordan 1', N'Giày Bóng Rổ', N'Đôi', 10, 0, 20, N'Đỏ', N'43', N'Da Tổng Hợp', N'Nike', N'Mỹ', '2025-09-30', N'Biểu tượng của văn hóa sát mặt đất.', N'jordan.jpg', 1,NCC003),
+        (N'SP016-39-TRANG', N'Reebok Club C 85', N'Giày Thể Thao', N'Đôi', 20, 0, 20, N'Trắng', N'39', N'Da Bò', N'Reebok', N'Anh Quốc', '2025-11-20', N'Tinh giản, thanh lịch, độ bền cao.', N'Rebbok.jpg', 1,NCC003),
+        (N'SP017-42-DEN', N'Giày Derby Nam', N'Giày Tây', N'Đôi', 12, 0, 30, N'Đen', N'42', N'Da Bò Thật', N'No Brand', N'Việt Nam', '2026-01-15', N'Mẫu Derby basic phù hợp mọi dịp tiệc tùng.', N'derby.jpg', 1,NCC003),
+        (N'SP018-40-NAU', N'Chelsea Boot', N'Giày Boot', N'Đôi', 15, 0, 30, N'Nâu', N'40', N'Da Lộn', N'No Brand', N'Việt Nam', '2025-12-10', N'Cổ cao, nam tính, cực chất khi mặc jeans.', N'chelseaboot.jpg', 1,NCC004),
+        (N'SP019-41-XANH', N'Mizuno Wave Rider', N'Giày Chạy Bộ', N'Đôi', 20, 0, 20, N'Xanh', N'41', N'Vải Mesh', N'Mizuno', N'Nhật Bản', '2026-01-22', N'Đế Wave đàn hồi, thích hợp chạy track.', N'mizuno.jpg', 1,NCC004),
+        (N'SP020-42-DEN', N'Under Armour Curry', N'Giày Bóng Rổ', N'Đôi', 15, 0, 20, N'Đen', N'42', N'Vải Knit', N'Under Armour', N'Mỹ', '2025-10-10', N'Bám sàn cực tốt, chuyên dụng cho bóng rổ.', N'under.jpg', 1,NCC001);
 
     -- ==============================================================================
     -- 6. VOUCHER KHUYẾN MÃI
