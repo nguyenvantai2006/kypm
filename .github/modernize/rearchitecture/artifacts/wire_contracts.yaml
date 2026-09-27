@@ -1,0 +1,35 @@
+contracts:
+  - name: import-transaction-sql-contract
+    unit: nhap-hang-page
+    type: sql
+    stability: must_preserve
+    source_loc: "src/main/java/com/qlgiay/bus/NhapHangBUS.java:35"
+    contract:
+      method: "JDBC transaction"
+      path: "PHIEU_NHAP -> CHI_TIET_PHIEU_NHAP -> SAN_PHAM"
+      request: "PhieuNhapDTO + List<ChiTietPhieuNhapDTO>"
+      response: "boolean; commit toàn bộ hoặc rollback"
+      error: "false và rollback khi validation/insert/update thất bại"
+      auth: "MaNV trong PhieuNhapDTO"
+    target_contract:
+      method: "boolean createImport(PhieuNhapDTO, List<ChiTietPhieuNhapDTO>)"
+      notes: "Giữ atomicity; khi thêm lô phải ghi nhận lot trước khi cập nhật tổng tồn."
+    semantic_divergence: []
+
+  - name: sales-transaction-sql-contract
+    unit: ban-hang-page
+    type: sql
+    stability: must_preserve
+    source_loc: "src/main/java/com/qlgiay/bus/BanHangBUS.java:38"
+    contract:
+      method: "JDBC transaction"
+      path: "HOA_DON -> CHI_TIET_HOA_DON -> SAN_PHAM; optional VOUCHER/KHACH_HANG"
+      request: "HoaDonDTO + List<ChiTietHoaDonDTO> + điểm muốn dùng"
+      response: "boolean; commit toàn bộ hoặc rollback"
+      error: "false và rollback khi voucher, chi tiết, tồn kho hoặc điểm thất bại"
+      auth: "MaNV trong HoaDonDTO"
+    target_contract:
+      method: "boolean createInvoice(HoaDonDTO, List<ChiTietHoaDonDTO>, int)"
+      notes: "FIFO phải diễn ra trong cùng transaction với invoice detail và các side effect voucher/điểm."
+    semantic_divergence: []
+

@@ -1,0 +1,10 @@
+unit: nhap-hang-page
+commit: false
+candidate_splits:
+  - id: "src/main/java/com/qlgiay/bus/NhapHangBUS.java:21-119"
+    drivers: [data_ownership_split, concern_split]
+    rationale: >
+      Luồng hiện tại đồng thời ghi chứng từ nhập, chi tiết nhập, tồn tổng hợp và giá bán;
+      FIFO sẽ tách thêm trách nhiệm tạo lô, phân bổ tồn và định giá.
+    source_slice: {file: "src/main/java/com/qlgiay/bus/NhapHangBUS.java", lines: [21, 119]}
+

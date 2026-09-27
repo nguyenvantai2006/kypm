@@ -237,36 +237,30 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
         scroll.getViewport().setOpaque(false);
         scroll.setOpaque(false);
 
-        JPanel pnlButtons = new JPanel(new GridLayout(1, 4, 5, 0));
+        JPanel pnlButtons = new JPanel(new GridLayout(1, 3, 5, 0));
         pnlButtons.setPreferredSize(new Dimension(0, 40));
         pnlButtons.setOpaque(false);
 
-        JButton btnAdd = new JButton("Thêm");
         JButton btnUpdate = new JButton("Sửa");
         JButton btnClear = new JButton("Làm mới");
         JButton btnPrint = new JButton("In phiếu");
 
-        btnAdd.setIcon(IconUtil.loadPng("/icons/add.png", 24));
         btnUpdate.setIcon(IconUtil.loadPng("/icons/edit.png", 24));
         btnClear.setIcon(IconUtil.loadPng("/icons/refresh.png", 24));
         btnPrint.setIcon(IconUtil.loadPng("/icons/print.png", 24));
 
-        btnAdd.setIconTextGap(4);
         btnUpdate.setIconTextGap(4);
         btnClear.setIconTextGap(4);
         btnPrint.setIconTextGap(4);
 
-        styleActionButton(btnAdd, "success");
         styleActionButton(btnUpdate, "default");
         styleActionButton(btnClear, "default");
         styleActionButton(btnPrint, "default");
 
-        btnAdd.addActionListener(e -> add());
         btnUpdate.addActionListener(e -> update());
         btnClear.addActionListener(e -> clear());
         btnPrint.addActionListener(e -> printWarranty());
 
-        pnlButtons.add(btnAdd);
         pnlButtons.add(btnUpdate);
         pnlButtons.add(btnClear);
         pnlButtons.add(btnPrint);

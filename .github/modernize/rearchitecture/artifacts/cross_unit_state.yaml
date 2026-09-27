@@ -1,0 +1,31 @@
+flows:
+  - name: imported-stock-to-sale
+    medium: database
+    key: "SAN_PHAM(MaSP).SoLuong"
+    writer:
+      unit: nhap-hang-page
+      source_loc: "src/main/java/com/qlgiay/dao/SanPhamDAO.java:321"
+    reader:
+      unit: ban-hang-page
+      source_loc: "src/main/java/com/qlgiay/dao/SanPhamDAO.java:299"
+    pairing: matched
+    must_preserve: true
+    must_confirm: null
+    verification_hint: "Sau nhập và sau bán, đối chiếu SAN_PHAM.SoLuong với tổng nhập trừ tổng bán."
+    notes: "Đây là state tồn tổng hợp; không chứa định danh hoặc số dư từng lô nhập."
+
+  - name: latest-cost-to-sale-price
+    medium: database
+    key: "SAN_PHAM.DonGia derived from latest CHI_TIET_PHIEU_NHAP.GiaNhap"
+    writer:
+      unit: nhap-hang-page
+      source_loc: "src/main/java/com/qlgiay/dao/SanPhamDAO.java:341"
+    reader:
+      unit: ban-hang-page
+      source_loc: "src/main/java/com/qlgiay/gui/panel/BanHangPanel.java:921"
+    pairing: matched
+    must_preserve: true
+    must_confirm: null
+    verification_hint: "Bán hàng phải dùng giá tại thời điểm thêm vào giỏ và không tự đổi theo lô FIFO nếu chưa có chính sách giá mới."
+    notes: "SELECT_ALL cũng truy vấn GiaNhap gần nhất theo NgayNhap DESC, không phải giá vốn FIFO."
+
