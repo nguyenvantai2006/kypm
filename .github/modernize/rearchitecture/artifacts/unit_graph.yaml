@@ -1,0 +1,55 @@
+units:
+  - name: nhap-hang-page
+    trigger: page
+    trigger_detail: "NhapHangPanel tab 'Tạo phiếu nhập' -> action nhập hàng"
+    source_anchors:
+      - path: src/main/java/com/qlgiay/gui/panel/NhapHangPanel.java
+        line: 72
+      - path: src/main/java/com/qlgiay/bus/NhapHangBUS.java
+        line: 21
+      - path: src/main/java/com/qlgiay/dao/PhieuNhapDAO.java
+        line: 89
+      - path: src/main/java/com/qlgiay/dao/ChiTietPhieuNhapDAO.java
+        line: 46
+    exported_signature:
+      - method: "boolean NhapHangBUS.createImport(PhieuNhapDTO, List<ChiTietPhieuNhapDTO>)"
+        source_loc: "src/main/java/com/qlgiay/bus/NhapHangBUS.java:21"
+        stability: must_preserve
+    dynamic_entrypoints: []
+    depends_on:
+      - unit: ban-hang-page
+        via: "database SAN_PHAM.SoLuong and latest CHI_TIET_PHIEU_NHAP.GiaNhap"
+    shared_refs:
+      - module: san-pham-persistence
+        used_fields: [increaseStock, updateDerivedSalePrice]
+      - module: jdbc-transaction
+        used_fields: [DBConnect.getConnection, setAutoCommit, commit, rollback]
+
+  - name: ban-hang-page
+    trigger: page
+    trigger_detail: "BanHangPanel -> checkout() -> createInvoice()"
+    source_anchors:
+      - path: src/main/java/com/qlgiay/gui/panel/BanHangPanel.java
+        line: 49
+      - path: src/main/java/com/qlgiay/bus/BanHangBUS.java
+        line: 30
+      - path: src/main/java/com/qlgiay/dao/HoaDonDAO.java
+        line: 90
+      - path: src/main/java/com/qlgiay/dao/ChiTietHoaDonDAO.java
+        line: 65
+    exported_signature:
+      - method: "boolean BanHangBUS.createInvoice(HoaDonDTO, List<ChiTietHoaDonDTO>, int)"
+        source_loc: "src/main/java/com/qlgiay/bus/BanHangBUS.java:30"
+        stability: must_preserve
+    dynamic_entrypoints: []
+    depends_on:
+      - unit: nhap-hang-page
+        via: "database SAN_PHAM.SoLuong and SAN_PHAM.DonGia"
+    shared_refs:
+      - module: san-pham-persistence
+        used_fields: [decreaseStock]
+      - module: jdbc-transaction
+        used_fields: [DBConnect.getConnection, setAutoCommit, commit, rollback]
+      - module: voucher-persistence
+        used_fields: [findValidById, decreaseQuantity]
+

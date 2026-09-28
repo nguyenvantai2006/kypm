@@ -266,27 +266,21 @@ public class DoiTraPanel extends JPanel implements IRefreshable {
         scroll.getViewport().setOpaque(false);
         scroll.setOpaque(false);
 
-        JPanel pnlButtons = new JPanel(new GridLayout(1, 2, 5, 0));
+        JPanel pnlButtons = new JPanel(new GridLayout(1, 1, 5, 0));
         pnlButtons.setPreferredSize(new Dimension(0, 40));
         pnlButtons.setOpaque(false);
 
-        JButton btnAdd = new JButton("Thêm");
         JButton btnClear = new JButton("Làm mới");
 
-        btnAdd.setIcon(IconUtil.loadPng("/icons/add.png", 24));
         btnClear.setIcon(IconUtil.loadPng("/icons/refresh.png", 24));
 
         int gap = 4;
-        btnAdd.setIconTextGap(gap);
         btnClear.setIconTextGap(gap);
 
-        styleActionButton(btnAdd, "success");
         styleActionButton(btnClear, "default");
 
-        btnAdd.addActionListener(e -> add());
         btnClear.addActionListener(e -> clear());
 
-        pnlButtons.add(btnAdd);
         pnlButtons.add(btnClear);
 
         formWrapper.add(scroll, BorderLayout.CENTER);
