@@ -28,7 +28,7 @@ public class VoucherBUS {
 
         if (v.getSoLuong() < 0) return false;
 
-        if (v.getTrangThai() != 0 && v.getTrangThai() != 1) v.setTrangThai(1);
+        if (v.getTrangThai() < 0 || v.getTrangThai() > 2) v.setTrangThai(1);
 
         int pt = v.getPhanTramGiam();
         if (pt < 0 || pt > 100) return false;
@@ -108,5 +108,31 @@ public class VoucherBUS {
 
     public List<VoucherDTO> searchActive(String keyword) {
         return voucherDAO.searchActive(keyword);
+    }
+
+    public void autoUpdateVoucherStatuses() {
+        List<VoucherDTO> list = getAll();
+        if (list == null) return;
+
+        LocalDate now = LocalDate.now();
+        for (VoucherDTO v : list) {
+            int currentState = v.getTrangThai();
+            int correctState = currentState;
+
+            if (v.getNgayBatDau() != null && v.getNgayBatDau().isAfter(now)) {
+                correctState = 2;
+            } else if (v.getNgayKetThuc() != null && v.getNgayKetThuc().isBefore(now)) {
+                correctState = 0;
+            } else if (currentState == 2
+                    && v.getNgayBatDau() != null
+                    && !v.getNgayBatDau().isAfter(now)) {
+                correctState = 1;
+            }
+
+            if (currentState != correctState) {
+                v.setTrangThai(correctState);
+                updateVoucher(v);
+            }
+        }
     }
 }

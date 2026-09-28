@@ -140,3 +140,6 @@ GHI CHÚ CẬP NHẬT (2026-09-28):
 - VoucherPanel.java: đổi nhãn thành "Đơn tối thiểu (VNĐ)", tự động định dạng dấu phẩy cho các ô tiền và loại bỏ dấu phẩy khi parse BigDecimal.
 - VoucherPanel.java: thay DocumentFilter định dạng tiền bằng DocumentListener để tránh kẹt phím khi nhập đến chữ số thứ 4.
 - VoucherPanel.java: thay định dạng tiền thủ công bằng JFormattedTextField và NumberFormatter chuẩn của Swing.
+- VoucherBUS.java: hỗ trợ trạng thái voucher 2 (Chưa hoạt động) và tự động cập nhật trạng thái theo ngày.
+- MainFrame.java: tự động quét, cập nhật vòng đời voucher khi khởi động ứng dụng.
+- VoucherPanel.java: chuyển ngày sang DatePicker, bổ sung trạng thái Chưa hoạt động, ràng buộc ngày và trạng thái trên giao diện.

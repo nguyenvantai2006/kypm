@@ -1,0 +1,196 @@
+Tôi sẽ rà soát luồng trạng thái, constructor, các hàm thêm/sửa/lưu và cách dự án hiện dùng `DatePicker`, rồi triển khai đồng bộ BUS–MainFrame–VoucherPanel cùng hai file ghi chú.
+
+Read , lines 1 to 180
+Completed with input: {
+  "path": "F:\\Workspace\\PROGRAMMING_LANGUAGES\\Java\\kypm\\src\\main\\java\\com\\qlgiay\\bus\\VoucherBUS.java",
+  "view_range": [
+    1,
+    180
+  ]
+}
+
+Search for `DatePicker|spNgayBD|spNgayKT|isAddingNew|private void add\(|private void upda...`
+
+Search for `public MainFrame\(|initUI\(\)|DatePicker|DateTimePicker|spNgayBD|spNgayKT|isA...`
+
+Search for `DatePicker`
+
+Read , lines 55 to 75
+Completed with input: {
+  "path": "F:\\Workspace\\PROGRAMMING_LANGUAGES\\Java\\kypm\\pom.xml",
+  "view_range": [
+    55,
+    75
+  ]
+}
+
+Read , lines 1 to 35
+Completed with input: {
+  "path": "F:\\Workspace\\PROGRAMMING_LANGUAGES\\Java\\kypm\\src\\main\\java\\com\\qlgiay\\gui\\panel\\VoucherPanel.java",
+  "view_range": [
+    1,
+    35
+  ]
+}
+
+Read , lines 1 to 60
+Completed with input: {
+  "path": "F:\\Workspace\\PROGRAMMING_LANGUAGES\\Java\\kypm\\src\\main\\java\\com\\qlgiay\\gui\\frame\\MainFrame.java",
+  "view_range": [
+    1,
+    60
+  ]
+}
+
+Read , lines 170 to 320
+Completed with input: {
+  "path": "F:\\Workspace\\PROGRAMMING_LANGUAGES\\Java\\kypm\\src\\main\\java\\com\\qlgiay\\gui\\panel\\VoucherPanel.java",
+  "view_range": [
+    170,
+    320
+  ]
+}
+
+Read , lines 390 to 510
+Completed with input: {
+  "path": "F:\\Workspace\\PROGRAMMING_LANGUAGES\\Java\\kypm\\src\\main\\java\\com\\qlgiay\\gui\\panel\\VoucherPanel.java",
+  "view_range": [
+    390,
+    510
+  ]
+}
+
+Read , lines 530 to 790
+Completed with input: {
+  "path": "F:\\Workspace\\PROGRAMMING_LANGUAGES\\Java\\kypm\\src\\main\\java\\com\\qlgiay\\gui\\panel\\VoucherPanel.java",
+  "view_range": [
+    530,
+    790
+  ]
+}
+
+Read , lines 80 to 170
+Completed with input: {
+  "path": "F:\\Workspace\\PROGRAMMING_LANGUAGES\\Java\\kypm\\src\\main\\java\\com\\qlgiay\\gui\\panel\\VoucherPanel.java",
+  "view_range": [
+    80,
+    170
+  ]
+}
+
+Read , lines 745 to 790
+Completed with input: {
+  "path": "F:\\Workspace\\PROGRAMMING_LANGUAGES\\Java\\kypm\\src\\main\\java\\com\\qlgiay\\gui\\panel\\VoucherPanel.java",
+  "view_range": [
+    745,
+    790
+  ]
+}
+
+Read , lines 32 to 55
+Completed with input: {
+  "path": "F:\\Workspace\\PROGRAMMING_LANGUAGES\\Java\\kypm\\src\\main\\java\\com\\qlgiay\\gui\\frame\\MainFrame.java",
+  "view_range": [
+    32,
+    55
+  ]
+}
+
+Search for `Date|ZoneId|spNgay`
+
+Search for `loadSelectedRow\(|MouseListener|mouseClicked|clear\(\)`
+
+Edit , , 
+
+Read , lines 330 to 420
+Completed with input: {
+  "path": "F:\\Workspace\\PROGRAMMING_LANGUAGES\\Java\\kypm\\src\\main\\java\\com\\qlgiay\\gui\\panel\\VoucherPanel.java",
+  "view_range": [
+    330,
+    420
+  ]
+}
+
+Search for `loadTable\(|clear\(\);`
+
+Read , lines 55 to 75
+Completed with input: {
+  "path": "F:\\Workspace\\PROGRAMMING_LANGUAGES\\Java\\kypm\\src\\main\\java\\com\\qlgiay\\gui\\panel\\VoucherPanel.java",
+  "view_range": [
+    55,
+    75
+  ]
+}
+
+Edit 
+
+Luồng đã được nối: trạng thái 0/1/2 được hiển thị và lọc đúng, ngày dùng `DatePicker`, trạng thái tự đánh giá theo ngày, và validate chặn ngày kết thúc trước hôm nay hoặc trước ngày bắt đầu. Tôi sẽ biên dịch toàn bộ các file liên quan để bắt lỗi API `DatePicker`/kiểu dữ liệu và rà soát các tham chiếu spinner cũ.
+
+Edit , 
+
+Search for `spNgay|ZoneId|java.util.Date|Ngừng hoạt động|v.getTrangThai\(\) == 1 \?`
+
+Ran terminal command: git diff --check; git diff --stat
+
+Ran terminal command: $jars = Get-ChildItem "$env:USERPROFILE\.m2\repository" -Recurse -Filter *.jar -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName }; $cp = ($jars -join ';') + ';target\classes'; New-Item -ItemType Directory -Force -Path 'target\voucher-check' | Out-Null; & javac -encoding UTF-8 -cp $cp -d 'target\voucher-check' 'src\main\java\com\qlgiay\bus\VoucherBUS.java' 'src\main\java\com\qlgiay\gui\panel\VoucherPanel.java' 'src\main\java\com\qlgiay\gui\frame\MainFrame.java'; $code = $LASTEXITCODE; if (Test-Path 'target\voucher-check') { Remove-Item -LiteralPath 'target\voucher-check' -Recurse -Force }; exit $code
+
+Biên dịch đã phát hiện một lỗi nối thiếu: các listener đã gọi `evaluateVoucherState()` nhưng hàm chưa được thêm vào class. Tôi sẽ bổ sung hàm này theo đúng quy tắc trạng thái/ngày rồi biên dịch lại.
+
+Edit 
+
+Search for `spNgay|evaluateVoucherState|setSelectedIndex\(v.getTrangThai\(\)\)|setTrangTh...`
+
+Ran terminal command: git diff --check; git status --short
+
+Ran terminal command: $jars = Get-ChildItem "$env:USERPROFILE\.m2\repository" -Recurse -Filter *.jar -ErrorAction SilentlyContinue | ForEach-Object { $_.FullName }; $cp = ($jars -join ';') + ';target\classes'; New-Item -ItemType Directory -Force -Path 'target\voucher-check' | Out-Null; & javac -encoding UTF-8 -cp $cp -d 'target\voucher-check' 'src\main\java\com\qlgiay\bus\VoucherBUS.java' 'src\main\java\com\qlgiay\gui\panel\VoucherPanel.java' 'src\main\java\com\qlgiay\gui\frame\MainFrame.java'; $code = $LASTEXITCODE; if (Test-Path 'target\voucher-check') { Remove-Item -LiteralPath 'target\voucher-check' -Recurse -Force }; exit $code
+
+Edit 
+
+Search for `getTrangThai\(\) < 0|autoUpdateVoucherStatuses`
+
+Search for `autoUpdateVoucherStatuses`
+
+Search for `DatePicker|cboFilterTrangThai =|cboTrangThai =|Ngày kết thúc không được trước...`
+
+Ran terminal command: git diff --check; git diff --stat
+
+Đã triển khai đầy đủ vòng đời Voucher trên 5 file được yêu cầu:
+
+- `VoucherBUS.java`
+  - Cho phép trạng thái `0`, `1`, `2`.
+  - Thêm `autoUpdateVoucherStatuses()`:
+    - Chưa đến ngày bắt đầu → `2 - Chưa hoạt động`.
+    - Hết hạn → `0 - Ngưng hoạt động`.
+    - Đến ngày bắt đầu với trạng thái `2` → `1 - Hoạt động`.
+    - Không tự bật lại Voucher đã bị ngưng thủ công.
+
+- `MainFrame.java`
+  - Tự động gọi quét trạng thái Voucher ngay sau `initUI()` khi mở ứng dụng.
+
+- `VoucherPanel.java`
+  - Thay `JSpinner` ngày bằng `DatePicker`.
+  - Bổ sung ba trạng thái:
+    - `Ngưng hoạt động`
+    - `Hoạt động`
+    - `Chưa hoạt động`
+  - Cập nhật bộ lọc và hiển thị trạng thái trên bảng.
+  - Thêm `evaluateVoucherState()`:
+    - Khóa ngày bắt đầu khi Voucher đã bắt đầu chạy.
+    - Luôn cho phép sửa ngày kết thúc.
+    - Tự khóa và ép trạng thái theo ngày.
+  - Gắn listener cho cả hai `DatePicker`.
+  - Thêm cờ `isAddingNew`.
+  - Chuyển đọc/ghi ngày sang `getDate()` và `setDate()`.
+  - Validate không cho lưu khi:
+    - Ngày kết thúc trước ngày bắt đầu.
+    - Ngày kết thúc trước ngày hiện tại.
+
+- `DirectoryStructure.txt`
+- `FilesContent.txt`
+  - Đã cập nhật ghi chú thay đổi.
+
+Đã kiểm tra:
+
+- Biên dịch các lớp `VoucherBUS`, `VoucherPanel`, `MainFrame` thành công với dependency đã cache.
+- Không còn tham chiếu đến `JSpinner` ngày cũ.
+- `git diff --check` không phát hiện lỗi định dạng.

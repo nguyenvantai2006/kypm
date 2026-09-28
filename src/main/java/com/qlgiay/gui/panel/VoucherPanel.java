@@ -1,6 +1,7 @@
 package com.qlgiay.gui.panel;
 
 import com.formdev.flatlaf.FlatClientProperties;
+import com.github.lgooddatepicker.components.DatePicker;
 import com.qlgiay.bus.VoucherBUS;
 import com.qlgiay.dto.VoucherDTO;
 import com.qlgiay.util.IconUtil;
@@ -25,8 +26,7 @@ import java.math.BigDecimal;
 import java.text.Normalizer;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.time.ZoneId;
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.List;
 
 public class VoucherPanel extends JPanel implements IRefreshable {
@@ -45,9 +45,10 @@ public class VoucherPanel extends JPanel implements IRefreshable {
     private JFormattedTextField txtGiamToiDa;
     private JFormattedTextField txtDieuKien;
     private JTextField txtSoLuong;
-    private JSpinner spNgayBD;
-    private JSpinner spNgayKT;
+    private DatePicker dpNgayBatDau;
+    private DatePicker dpNgayKetThuc;
     private JComboBox<String> cboTrangThai;
+    private boolean isAddingNew;
 
     private int hoverRow = -1;
     private final LevenshteinDistance fuzzyDistance = LevenshteinDistance.getDefaultInstance();
@@ -107,7 +108,7 @@ public class VoucherPanel extends JPanel implements IRefreshable {
         });
 
         cboFilterTrangThai = new JComboBox<>(new String[] {
-                "Tất cả trạng thái", "Hoạt động", "Ngừng hoạt động"
+                "Tất cả trạng thái", "Hoạt động", "Ngưng hoạt động", "Chưa hoạt động"
         });
 
         styleComboBox(cboFilterTrangThai);
@@ -194,7 +195,8 @@ public class VoucherPanel extends JPanel implements IRefreshable {
         addGridRow(contentPanel, gbc, row++, field("Giảm tối đa", txtGiamToiDa),
                 field("Đơn tối thiểu (VNĐ)", txtDieuKien));
         addGridRow(contentPanel, gbc, row++, field("Số lượng", txtSoLuong), field("Trạng thái", cboTrangThai));
-        addGridRow(contentPanel, gbc, row++, field("Ngày bắt đầu", spNgayBD), field("Ngày kết thúc", spNgayKT));
+        addGridRow(contentPanel, gbc, row++, field("Ngày bắt đầu", dpNgayBatDau),
+                field("Ngày kết thúc", dpNgayKetThuc));
 
         JPanel alignTopPanel = new JPanel(new BorderLayout());
         alignTopPanel.setOpaque(false);
@@ -259,14 +261,13 @@ public class VoucherPanel extends JPanel implements IRefreshable {
         setNumberOnly(txtPhanTram);
         setNumberOnly(txtSoLuong);
 
-        spNgayBD = new JSpinner(new SpinnerDateModel());
-        spNgayBD.setEditor(new JSpinner.DateEditor(spNgayBD, "dd/MM/yyyy"));
-
-        spNgayKT = new JSpinner(new SpinnerDateModel());
-        spNgayKT.setEditor(new JSpinner.DateEditor(spNgayKT, "dd/MM/yyyy"));
+        dpNgayBatDau = new DatePicker();
+        dpNgayKetThuc = new DatePicker();
+        dpNgayBatDau.addDateChangeListener(e -> evaluateVoucherState());
+        dpNgayKetThuc.addDateChangeListener(e -> evaluateVoucherState());
 
         cboTrangThai = new JComboBox<>(new String[] {
-                "Hoạt động", "Ngừng hoạt động"
+                "Ngưng hoạt động", "Hoạt động", "Chưa hoạt động"
         });
 
         styleComboBox(cboTrangThai);
@@ -387,7 +388,10 @@ public class VoucherPanel extends JPanel implements IRefreshable {
                 if ("Hoạt động".equals(tt) && v.getTrangThai() != 1) {
                     continue;
                 }
-                if ("Ngừng hoạt động".equals(tt) && v.getTrangThai() != 0) {
+                if ("Ngưng hoạt động".equals(tt) && v.getTrangThai() != 0) {
+                    continue;
+                }
+                if ("Chưa hoạt động".equals(tt) && v.getTrangThai() != 2) {
                     continue;
                 }
                 if (!keyword.isEmpty() && !matchesVoucherSearch(keyword, v)) {
@@ -402,10 +406,18 @@ public class VoucherPanel extends JPanel implements IRefreshable {
                         v.getGiamToiDa() == null ? "" : formatMoney(v.getGiamToiDa()),
                         v.getDieuKienApDung() == null ? "" : formatMoney(v.getDieuKienApDung()),
                         v.getSoLuong(),
-                        v.getTrangThai() == 1 ? "Hoạt động" : "Ngừng hoạt động"
+                        statusText(v.getTrangThai())
                 });
             }
         }
+    }
+
+    private String statusText(int status) {
+        return switch (status) {
+            case 1 -> "Hoạt động";
+            case 2 -> "Chưa hoạt động";
+            default -> "Ngưng hoạt động";
+        };
     }
 
     private void loadSelectedRow() {
@@ -422,6 +434,7 @@ public class VoucherPanel extends JPanel implements IRefreshable {
             return;
         }
 
+        isAddingNew = false;
         txtMa.setText(v.getMaVoucher());
         txtTen.setText(v.getTenVoucher());
         txtPhanTram.setText(String.valueOf(v.getPhanTramGiam()));
@@ -429,14 +442,11 @@ public class VoucherPanel extends JPanel implements IRefreshable {
         txtGiamToiDa.setValue(v.getGiamToiDa() == null ? null : v.getGiamToiDa().longValue());
         txtDieuKien.setValue(v.getDieuKienApDung() == null ? null : v.getDieuKienApDung().longValue());
         txtSoLuong.setText(String.valueOf(v.getSoLuong()));
-        cboTrangThai.setSelectedIndex(v.getTrangThai() == 1 ? 0 : 1);
+        cboTrangThai.setSelectedIndex(v.getTrangThai());
 
-        if (v.getNgayBatDau() != null) {
-            spNgayBD.setValue(Date.from(v.getNgayBatDau().atStartOfDay(ZoneId.systemDefault()).toInstant()));
-        }
-        if (v.getNgayKetThuc() != null) {
-            spNgayKT.setValue(Date.from(v.getNgayKetThuc().atStartOfDay(ZoneId.systemDefault()).toInstant()));
-        }
+        dpNgayBatDau.setDate(v.getNgayBatDau());
+        dpNgayKetThuc.setDate(v.getNgayKetThuc());
+        evaluateVoucherState();
 
         txtTienGiam.setEnabled(v.getPhanTramGiam() == 0);
         txtPhanTram.setEnabled(v.getSoTienGiam() == null || v.getSoTienGiam().compareTo(BigDecimal.ZERO) == 0);
@@ -477,13 +487,9 @@ public class VoucherPanel extends JPanel implements IRefreshable {
             String soLuong = txtSoLuong.getText().trim();
             v.setSoLuong(soLuong.isEmpty() ? 0 : Integer.parseInt(soLuong));
 
-            v.setTrangThai(cboTrangThai.getSelectedIndex() == 0 ? 1 : 0);
-
-            Date ngayBD = (Date) spNgayBD.getValue();
-            v.setNgayBatDau(ngayBD.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-
-            Date ngayKT = (Date) spNgayKT.getValue();
-            v.setNgayKetThuc(ngayKT.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+            v.setTrangThai(cboTrangThai.getSelectedIndex());
+            v.setNgayBatDau(dpNgayBatDau.getDate());
+            v.setNgayKetThuc(dpNgayKetThuc.getDate());
 
             return v;
         } catch (Exception e) {
@@ -597,7 +603,18 @@ public class VoucherPanel extends JPanel implements IRefreshable {
                     "Ngày kết thúc phải sau hoặc bằng ngày bắt đầu!",
                     "Cảnh báo",
                     JOptionPane.WARNING_MESSAGE);
-            spNgayKT.requestFocus();
+            dpNgayKetThuc.requestFocus();
+            return false;
+        }
+
+        LocalDate now = LocalDate.now();
+        if (v.getNgayKetThuc() != null && v.getNgayKetThuc().isBefore(now)) {
+            JOptionPane.showMessageDialog(
+                    SwingUtilities.getWindowAncestor(this),
+                    "Ngày kết thúc không được trước ngày hiện tại!",
+                    "Cảnh báo",
+                    JOptionPane.WARNING_MESSAGE);
+            dpNgayKetThuc.requestFocus();
             return false;
         }
 
@@ -605,6 +622,8 @@ public class VoucherPanel extends JPanel implements IRefreshable {
     }
 
     private void add() {
+        isAddingNew = true;
+        evaluateVoucherState();
         {
             int confirm = javax.swing.JOptionPane.showConfirmDialog(
                     this,
@@ -766,8 +785,9 @@ public class VoucherPanel extends JPanel implements IRefreshable {
         txtSoLuong.setText("");
         cboTrangThai.setSelectedIndex(0);
 
-        spNgayBD.setValue(new Date());
-        spNgayKT.setValue(new Date());
+        dpNgayBatDau.setDate(LocalDate.now());
+        dpNgayKetThuc.setDate(LocalDate.now());
+        evaluateVoucherState();
 
         txtPhanTram.setEnabled(true);
         txtTienGiam.setEnabled(true);
@@ -778,6 +798,39 @@ public class VoucherPanel extends JPanel implements IRefreshable {
         table.repaint();
 
         txtMa.requestFocus();
+    }
+
+    private void evaluateVoucherState() {
+        if (dpNgayBatDau == null || dpNgayKetThuc == null || cboTrangThai == null) {
+            return;
+        }
+
+        LocalDate start = dpNgayBatDau.getDate();
+        LocalDate end = dpNgayKetThuc.getDate();
+        LocalDate now = LocalDate.now();
+
+        dpNgayKetThuc.setEnabled(true);
+
+        if (start != null) {
+            if (!isAddingNew && !start.isAfter(now)) {
+                dpNgayBatDau.setEnabled(false);
+            } else {
+                dpNgayBatDau.setEnabled(true);
+            }
+
+            if (start.isAfter(now)) {
+                cboTrangThai.setSelectedItem("Chưa hoạt động");
+                cboTrangThai.setEnabled(false);
+            } else if (end != null && end.isBefore(now)) {
+                cboTrangThai.setSelectedItem("Ngưng hoạt động");
+                cboTrangThai.setEnabled(false);
+            } else {
+                cboTrangThai.setEnabled(true);
+                if ("Chưa hoạt động".equals(cboTrangThai.getSelectedItem())) {
+                    cboTrangThai.setSelectedItem("Hoạt động");
+                }
+            }
+        }
     }
 
     private void setNumberOnly(JTextField textField) {

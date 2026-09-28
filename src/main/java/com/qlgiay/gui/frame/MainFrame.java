@@ -35,6 +35,7 @@ public class MainFrame extends JFrame {
     public MainFrame(AuthSession session) {
         this.session = session;
         initUI();
+        new com.qlgiay.bus.VoucherBUS().autoUpdateVoucherStatuses();
         buildNav();
         applyPermission();
     }
