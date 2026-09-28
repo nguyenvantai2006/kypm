@@ -34,8 +34,8 @@ BEGIN TRY
     INSERT INTO dbo.QUYEN (MaQuyen, TenQuyen, QL_BanHang, QL_KhachHang, QL_SanPham, QL_NhapHang, QL_NhanVien, QL_ThongKe)
     VALUES
         (N'Q01', N'Quản trị viên', 0, 0, 0, 0, 1, 0),
-        (N'Q02', N'Quản lý', 1, 1, 1, 1, 0, 1),
-        (N'Q03', N'Nhân viên', 1, 1, 1, 0, 0, 0),
+        (N'Q02', N'Quản lý', 0, 1, 1, 1, 0, 1),
+        (N'Q03', N'Nhân viên', 1, 1, 0, 0, 0, 0),
         (N'TQ001', N'Quản trị mẫu', 1, 1, 1, 1, 1, 1),
         (N'TQ002', N'Quản lý mẫu', 1, 1, 1, 1, 0, 1),
         (N'TQ003', N'Nhân viên mẫu', 1, 1, 1, 0, 0, 0);

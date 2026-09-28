@@ -1,0 +1,139 @@
+Directory structure:
+└── nguyenvantai2006-kypm/
+    ├── generate_word_spec.py
+    ├── pom.xml
+    ├── TaiLieu_KiemThu_PhanMem.docx
+    ├── database/
+    │   ├── Init_Schema.sql
+    │   └── Seed_Data.sql
+    ├── src/
+    │   ├── main/
+    │   │   └── java/
+    │   │       └── com/
+    │   │           └── qlgiay/
+    │   │               ├── bus/
+    │   │               │   ├── AuthBUS.java
+    │   │               │   ├── BanHangBUS.java
+    │   │               │   ├── BaoHanhBUS.java
+    │   │               │   ├── DoiTraBUS.java
+    │   │               │   ├── KhachHangBUS.java
+    │   │               │   ├── NhaCungCapBUS.java
+    │   │               │   ├── NhanVienBUS.java
+    │   │               │   ├── NhapHangBUS.java
+    │   │               │   ├── QuyenBUS.java
+    │   │               │   ├── SanPhamBUS.java
+    │   │               │   ├── ThongKeBUS.java
+    │   │               │   ├── TraHangNccBUS.java
+    │   │               │   └── VoucherBUS.java
+    │   │               ├── dao/
+    │   │               │   ├── ChiTietHoaDonDAO.java
+    │   │               │   ├── ChiTietPhieuNhapDAO.java
+    │   │               │   ├── ChiTietTraNccDAO.java
+    │   │               │   ├── DoiTraDAO.java
+    │   │               │   ├── HoaDonDAO.java
+    │   │               │   ├── KhachHangDAO.java
+    │   │               │   ├── NhaCungCapDAO.java
+    │   │               │   ├── NhanVienDAO.java
+    │   │               │   ├── PhieuBaoHanhDAO.java
+    │   │               │   ├── PhieuNhapDAO.java
+    │   │               │   ├── PhieuTraNccDAO.java
+    │   │               │   ├── QuyenDAO.java
+    │   │               │   ├── SanPhamDAO.java
+    │   │               │   ├── ThongKeDAO.java
+    │   │               │   └── VoucherDAO.java
+    │   │               ├── dto/
+    │   │               │   ├── AuthSession.java
+    │   │               │   ├── ChiTietHoaDonDTO.java
+    │   │               │   ├── ChiTietPhieuNhapDTO.java
+    │   │               │   ├── ChiTietTraNccDTO.java
+    │   │               │   ├── DoanhThuTheoNgayDTO.java
+    │   │               │   ├── DoiTraDTO.java
+    │   │               │   ├── HoaDonDTO.java
+    │   │               │   ├── KhachHangDTO.java
+    │   │               │   ├── LoaiSanPhamThongKeDTO.java
+    │   │               │   ├── LoiNhuanTheoKyDTO.java
+    │   │               │   ├── NhaCungCapDTO.java
+    │   │               │   ├── NhanVienDTO.java
+    │   │               │   ├── PhieuBaoHanhDTO.java
+    │   │               │   ├── PhieuNhapDTO.java
+    │   │               │   ├── PhieuTraNccDTO.java
+    │   │               │   ├── QuyenDTO.java
+    │   │               │   ├── SanPhamDTO.java
+    │   │               │   ├── TopKhachHangDTO.java
+    │   │               │   ├── TopSanPhamDTO.java
+    │   │               │   └── VoucherDTO.java
+    │   │               ├── gui/
+    │   │               │   ├── component/
+    │   │               │   │   ├── PanelShadow.java
+    │   │               │   │   ├── ProductCard.java
+    │   │               │   │   └── ProductGridPanel.java
+    │   │               │   ├── dialog/
+    │   │               │   │   ├── BaoHanhDialog.java
+    │   │               │   │   ├── DoiTraDialog.java
+    │   │               │   │   ├── ThemKhachHangDialog.java
+    │   │               │   │   └── ThongTinTaiKhoanDialog.java
+    │   │               │   ├── frame/
+    │   │               │   │   ├── LoginFrame.java
+    │   │               │   │   └── MainFrame.java
+    │   │               │   └── panel/
+    │   │               │       ├── BanHangPanel.java
+    │   │               │       ├── BaoHanhPanel.java
+    │   │               │       ├── DoiTraPanel.java
+    │   │               │       ├── HoaDonPanel.java
+    │   │               │       ├── HomePanel.java
+    │   │               │       ├── IRefreshable.java
+    │   │               │       ├── KhachHangPanel.java
+    │   │               │       ├── NhaCungCapPanel.java
+    │   │               │       ├── NhanVienPanel.java
+    │   │               │       ├── PhanQuyenPanel.java
+    │   │               │       ├── ThongKePanel.java
+    │   │               │       └── VoucherPanel.java
+    │   │               ├── main/
+    │   │               │   ├── App.java
+    │   │               │   └── tempCodeRunnerFile.java
+    │   │               └── util/
+    │   │                   ├── DBConnect.java
+    │   │                   ├── IconUtil.java
+    │   │                   ├── TestDB.java
+    │   │                   └── WrapLayout.java
+    │   └── test/
+    │       └── java/
+    │           └── com/
+    │               └── qlgiay/
+    │                   └── gui/
+    │                       ├── frame/
+    │                       │   └── MainFramePermissionTest.java
+    │                       └── panel/
+    │                           └── NhapHangPanelTest.java
+    └── .github/
+        └── modernize/
+            └── rearchitecture/
+                ├── artifacts/
+                │   ├── architecture_index.md
+                │   ├── cross_unit_state.yaml
+                │   ├── data-model.md
+                │   ├── migration_boundary.yaml
+                │   ├── project-structure.md
+                │   ├── shared_modules.yaml
+                │   ├── tech-stack.md
+                │   ├── unit_graph.yaml
+                │   └── wire_contracts.yaml
+                └── units/
+                    ├── ban-hang-page/
+                    │   ├── behavior.yaml
+                    │   ├── bindings.yaml
+                    │   └── unit_decomposition.yaml
+                    └── nhap-hang-page/
+                        ├── behavior.yaml
+                        ├── bindings.yaml
+                        └── unit_decomposition.yaml
+
+GHI CHÚ CẬP NHẬT (2026-09-28):
+- SanPhamDAO.java: thêm overload findById(Connection, String) để truy vấn trong transaction hiện tại.
+- SanPhamDAO.java: mapRow đọc DonGia trực tiếp từ cơ sở dữ liệu, không tính đè giá bán.
+- NhapHangBUS.java: createImport đọc tồn kho cũ, cập nhật giá bình quân và DonGia trước khi insert chi tiết nhập và tăng tồn kho.
+- BanHangPanel.java, NhapHangPanel.java, ThemKhachHangDialog.java: thêm confirmation dialog trước các thao tác thanh toán, nhập hàng và lưu khách hàng.
+- SanPhamPanel.java, VoucherPanel.java, NhaCungCapPanel.java: thêm confirmation dialog tại đầu các thao tác thêm, sửa và xóa.
+- KhachHangPanel.java: thêm confirmation dialog cho thao tác sửa và xóa khách hàng.
+- NhanVienPanel.java: thêm confirmation dialog cho thao tác thêm, sửa và khóa nhân viên.
+- PhanQuyenPanel.java: thêm confirmation dialog cho thao tác cập nhật quyền.
