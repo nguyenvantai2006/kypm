@@ -9224,3 +9224,6 @@ GHI CHÚ CẬP NHẬT (2026-09-28)
 - KhachHangPanel.java: thêm confirmation dialog cho thao tác sửa và xóa khách hàng.
 - NhanVienPanel.java: thêm confirmation dialog cho thao tác thêm, sửa và khóa nhân viên.
 - PhanQuyenPanel.java: thêm confirmation dialog cho thao tác cập nhật quyền.
+- VoucherPanel.java: đổi nhãn thành "Đơn tối thiểu (VNĐ)", tự động định dạng dấu phẩy cho các ô tiền và loại bỏ dấu phẩy khi parse BigDecimal.
+- VoucherPanel.java: thay DocumentFilter định dạng tiền bằng DocumentListener để tránh kẹt phím khi nhập đến chữ số thứ 4.
+- VoucherPanel.java: thay định dạng tiền thủ công bằng JFormattedTextField và NumberFormatter chuẩn của Swing.

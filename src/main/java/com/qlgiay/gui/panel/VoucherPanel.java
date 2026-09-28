@@ -17,12 +17,14 @@ import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
+import javax.swing.text.NumberFormatter;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.math.BigDecimal;
 import java.text.Normalizer;
 import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
@@ -39,9 +41,9 @@ public class VoucherPanel extends JPanel implements IRefreshable {
     private JTextField txtMa;
     private JTextField txtTen;
     private JTextField txtPhanTram;
-    private JTextField txtTienGiam;
-    private JTextField txtGiamToiDa;
-    private JTextField txtDieuKien;
+    private JFormattedTextField txtTienGiam;
+    private JFormattedTextField txtGiamToiDa;
+    private JFormattedTextField txtDieuKien;
     private JTextField txtSoLuong;
     private JSpinner spNgayBD;
     private JSpinner spNgayKT;
@@ -190,7 +192,7 @@ public class VoucherPanel extends JPanel implements IRefreshable {
         addGridRow(contentPanel, gbc, row++, field("Mã voucher", txtMa), field("Tên voucher", txtTen));
         addGridRow(contentPanel, gbc, row++, field("% giảm", txtPhanTram), field("Tiền giảm", txtTienGiam));
         addGridRow(contentPanel, gbc, row++, field("Giảm tối đa", txtGiamToiDa),
-                field("Điều kiện áp dụng", txtDieuKien));
+                field("Đơn tối thiểu (VNĐ)", txtDieuKien));
         addGridRow(contentPanel, gbc, row++, field("Số lượng", txtSoLuong), field("Trạng thái", cboTrangThai));
         addGridRow(contentPanel, gbc, row++, field("Ngày bắt đầu", spNgayBD), field("Ngày kết thúc", spNgayKT));
 
@@ -249,15 +251,12 @@ public class VoucherPanel extends JPanel implements IRefreshable {
         txtMa = new JTextField();
         txtTen = new JTextField();
         txtPhanTram = new JTextField();
-        txtTienGiam = new JTextField();
-        txtGiamToiDa = new JTextField();
-        txtDieuKien = new JTextField();
+        txtTienGiam = new JFormattedTextField(createCurrencyFormatter());
+        txtGiamToiDa = new JFormattedTextField(createCurrencyFormatter());
+        txtDieuKien = new JFormattedTextField(createCurrencyFormatter());
         txtSoLuong = new JTextField();
 
         setNumberOnly(txtPhanTram);
-        setNumberOnly(txtTienGiam);
-        setNumberOnly(txtGiamToiDa);
-        setNumberOnly(txtDieuKien);
         setNumberOnly(txtSoLuong);
 
         spNgayBD = new JSpinner(new SpinnerDateModel());
@@ -290,13 +289,13 @@ public class VoucherPanel extends JPanel implements IRefreshable {
 
             private void handle() {
                 boolean hasPhanTram = !txtPhanTram.getText().trim().isEmpty();
-                boolean hasTienGiam = !txtTienGiam.getText().trim().isEmpty();
+                boolean hasTienGiam = txtTienGiam.getValue() != null;
 
                 txtTienGiam.setEnabled(!hasPhanTram);
                 txtPhanTram.setEnabled(!hasTienGiam);
 
                 if (hasTienGiam) {
-                    SwingUtilities.invokeLater(() -> txtGiamToiDa.setText(""));
+                    SwingUtilities.invokeLater(() -> txtGiamToiDa.setValue(null));
                     txtGiamToiDa.setEnabled(false);
                 } else {
                     txtGiamToiDa.setEnabled(true);
@@ -426,9 +425,9 @@ public class VoucherPanel extends JPanel implements IRefreshable {
         txtMa.setText(v.getMaVoucher());
         txtTen.setText(v.getTenVoucher());
         txtPhanTram.setText(String.valueOf(v.getPhanTramGiam()));
-        txtTienGiam.setText(v.getSoTienGiam() == null ? "" : String.valueOf(v.getSoTienGiam().longValue()));
-        txtGiamToiDa.setText(v.getGiamToiDa() == null ? "" : String.valueOf(v.getGiamToiDa().longValue()));
-        txtDieuKien.setText(v.getDieuKienApDung() == null ? "" : String.valueOf(v.getDieuKienApDung().longValue()));
+        txtTienGiam.setValue(v.getSoTienGiam() == null ? null : v.getSoTienGiam().longValue());
+        txtGiamToiDa.setValue(v.getGiamToiDa() == null ? null : v.getGiamToiDa().longValue());
+        txtDieuKien.setValue(v.getDieuKienApDung() == null ? null : v.getDieuKienApDung().longValue());
         txtSoLuong.setText(String.valueOf(v.getSoLuong()));
         cboTrangThai.setSelectedIndex(v.getTrangThai() == 1 ? 0 : 1);
 
@@ -460,19 +459,19 @@ public class VoucherPanel extends JPanel implements IRefreshable {
             String phanTram = txtPhanTram.getText().trim();
             v.setPhanTramGiam(phanTram.isEmpty() ? 0 : Integer.parseInt(phanTram));
 
-            String tienGiam = txtTienGiam.getText().trim();
-            if (!tienGiam.isEmpty()) {
-                v.setSoTienGiam(new BigDecimal(tienGiam));
+            Object soTienGiam = txtTienGiam.getValue();
+            if (soTienGiam instanceof Number) {
+                v.setSoTienGiam(new BigDecimal(((Number) soTienGiam).longValue()));
             }
 
-            String giamToiDa = txtGiamToiDa.getText().trim();
-            if (!giamToiDa.isEmpty()) {
-                v.setGiamToiDa(new BigDecimal(giamToiDa));
+            Object giamToiDa = txtGiamToiDa.getValue();
+            if (giamToiDa instanceof Number) {
+                v.setGiamToiDa(new BigDecimal(((Number) giamToiDa).longValue()));
             }
 
-            String dieuKien = txtDieuKien.getText().trim();
-            if (!dieuKien.isEmpty()) {
-                v.setDieuKienApDung(new BigDecimal(dieuKien));
+            Object dieuKien = txtDieuKien.getValue();
+            if (dieuKien instanceof Number) {
+                v.setDieuKienApDung(new BigDecimal(((Number) dieuKien).longValue()));
             }
 
             String soLuong = txtSoLuong.getText().trim();
@@ -761,9 +760,9 @@ public class VoucherPanel extends JPanel implements IRefreshable {
         txtMa.setText("");
         txtTen.setText("");
         txtPhanTram.setText("");
-        txtTienGiam.setText("");
-        txtGiamToiDa.setText("");
-        txtDieuKien.setText("");
+        txtTienGiam.setValue(null);
+        txtGiamToiDa.setValue(null);
+        txtDieuKien.setValue(null);
         txtSoLuong.setText("");
         cboTrangThai.setSelectedIndex(0);
 
@@ -799,6 +798,17 @@ public class VoucherPanel extends JPanel implements IRefreshable {
                 }
             }
         });
+    }
+
+    private NumberFormatter createCurrencyFormatter() {
+        NumberFormat format = NumberFormat.getNumberInstance();
+        NumberFormatter formatter = new NumberFormatter(format);
+        formatter.setValueClass(Long.class);
+        formatter.setMinimum(0L);
+        formatter.setMaximum(Long.MAX_VALUE);
+        formatter.setAllowsInvalid(false);
+        formatter.setCommitsOnValidEdit(true);
+        return formatter;
     }
 
     private void styleActionButton(JButton button, String type) {
