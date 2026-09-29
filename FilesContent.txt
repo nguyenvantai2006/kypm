@@ -9230,3 +9230,4 @@ GHI CHÚ CẬP NHẬT (2026-09-28)
 - VoucherBUS.java: hỗ trợ trạng thái voucher 2 (Chưa hoạt động) và tự động cập nhật trạng thái theo ngày.
 - MainFrame.java: tự động quét, cập nhật vòng đời voucher khi khởi động ứng dụng.
 - VoucherPanel.java: chuyển ngày sang DatePicker, bổ sung trạng thái Chưa hoạt động, ràng buộc ngày và trạng thái trên giao diện.
+- VoucherPanel.java: reset chế độ Thêm mới khi làm mới/mở tab, dùng model trạng thái động và ánh xạ trạng thái theo nhãn để khóa lựa chọn sai logic.

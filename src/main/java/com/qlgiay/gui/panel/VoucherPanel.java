@@ -68,6 +68,7 @@ public class VoucherPanel extends JPanel implements IRefreshable {
 
         add(split, BorderLayout.CENTER);
         loadTable();
+        clear();
     }
 
     private JPanel createLeftPanel() {
@@ -442,11 +443,16 @@ public class VoucherPanel extends JPanel implements IRefreshable {
         txtGiamToiDa.setValue(v.getGiamToiDa() == null ? null : v.getGiamToiDa().longValue());
         txtDieuKien.setValue(v.getDieuKienApDung() == null ? null : v.getDieuKienApDung().longValue());
         txtSoLuong.setText(String.valueOf(v.getSoLuong()));
-        cboTrangThai.setSelectedIndex(v.getTrangThai());
-
         dpNgayBatDau.setDate(v.getNgayBatDau());
         dpNgayKetThuc.setDate(v.getNgayKetThuc());
         evaluateVoucherState();
+        if (v.getTrangThai() == 1) {
+            cboTrangThai.setSelectedItem("Hoạt động");
+        } else if (v.getTrangThai() == 2) {
+            cboTrangThai.setSelectedItem("Chưa hoạt động");
+        } else {
+            cboTrangThai.setSelectedItem("Ngưng hoạt động");
+        }
 
         txtTienGiam.setEnabled(v.getPhanTramGiam() == 0);
         txtPhanTram.setEnabled(v.getSoTienGiam() == null || v.getSoTienGiam().compareTo(BigDecimal.ZERO) == 0);
@@ -487,7 +493,14 @@ public class VoucherPanel extends JPanel implements IRefreshable {
             String soLuong = txtSoLuong.getText().trim();
             v.setSoLuong(soLuong.isEmpty() ? 0 : Integer.parseInt(soLuong));
 
-            v.setTrangThai(cboTrangThai.getSelectedIndex());
+            String tt = (String) cboTrangThai.getSelectedItem();
+            if ("Hoạt động".equals(tt)) {
+                v.setTrangThai(1);
+            } else if ("Chưa hoạt động".equals(tt)) {
+                v.setTrangThai(2);
+            } else {
+                v.setTrangThai(0);
+            }
             v.setNgayBatDau(dpNgayBatDau.getDate());
             v.setNgayKetThuc(dpNgayKetThuc.getDate());
 
@@ -774,6 +787,7 @@ public class VoucherPanel extends JPanel implements IRefreshable {
     }
 
     private void clear() {
+        isAddingNew = true;
         txtMa.setEnabled(true);
 
         txtMa.setText("");
@@ -819,17 +833,25 @@ public class VoucherPanel extends JPanel implements IRefreshable {
             }
 
             if (start.isAfter(now)) {
-                cboTrangThai.setSelectedItem("Chưa hoạt động");
+                updateTrangThaiModel(new String[] {"Chưa hoạt động"}, "Chưa hoạt động");
                 cboTrangThai.setEnabled(false);
             } else if (end != null && end.isBefore(now)) {
-                cboTrangThai.setSelectedItem("Ngưng hoạt động");
+                updateTrangThaiModel(new String[] {"Ngưng hoạt động"}, "Ngưng hoạt động");
                 cboTrangThai.setEnabled(false);
             } else {
+                updateTrangThaiModel(new String[] {"Hoạt động", "Ngưng hoạt động"}, "Hoạt động");
                 cboTrangThai.setEnabled(true);
-                if ("Chưa hoạt động".equals(cboTrangThai.getSelectedItem())) {
-                    cboTrangThai.setSelectedItem("Hoạt động");
-                }
             }
+        }
+    }
+
+    private void updateTrangThaiModel(String[] items, String defaultItem) {
+        String current = (String) cboTrangThai.getSelectedItem();
+        cboTrangThai.setModel(new DefaultComboBoxModel<>(items));
+        if (current != null && java.util.Arrays.asList(items).contains(current)) {
+            cboTrangThai.setSelectedItem(current);
+        } else {
+            cboTrangThai.setSelectedItem(defaultItem);
         }
     }
 

@@ -91,10 +91,8 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
     private JTextField txtDonVi;
     private JTextField txtSoLuong;
     private JTextField txtGiaNhap;
-    private JTextField txtLoiNhuan;
-    private JComboBox<String> cboLoiNhuan;
+    private JComboBox<String> cboPhanTramLoiNhuan;
     private JTextField txtDonGia;
-    private JTextField txtGiaKhuyenMai;
     private JTextField txtMau;
     private JTextField txtSize;
     private JTextField txtChatLieu;
@@ -275,12 +273,11 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         addGridRow(contentPanel, gbc, row++, field("Mã sản phẩm", txtMa), field("Tên sản phẩm", txtTen));
         addGridRow(contentPanel, gbc, row++, field("Loại sản phẩm", cboLoai), field("Đơn vị", txtDonVi));
         addGridRow(contentPanel, gbc, row++, field("Số lượng", txtSoLuong), field("Giá nhập", txtGiaNhap));
-        addGridRow(contentPanel, gbc, row++, field("% lợi nhuận", createProfitInput()), field("Giá bán", txtDonGia));
-        addGridRow(contentPanel, gbc, row++, field("Giá khuyến mãi (số tiền giảm)", txtGiaKhuyenMai),
-                field("Màu sắc", txtMau));
-        addGridRow(contentPanel, gbc, row++, field("Size", txtSize), field("Chất liệu", txtChatLieu));
-        addGridRow(contentPanel, gbc, row++, field("Thương hiệu", txtThuongHieu), field("Nước sản xuất", txtNuocSX));
-        addGridRow(contentPanel, gbc, row++, field("Ngày sản xuất", spNgaySX), field("Trạng thái", cboTrangThai));
+        addGridRow(contentPanel, gbc, row++, field("% lợi nhuận", cboPhanTramLoiNhuan), field("Giá bán", txtDonGia));
+        addGridRow(contentPanel, gbc, row++, field("Màu sắc", txtMau), field("Size", txtSize));
+        addGridRow(contentPanel, gbc, row++, field("Chất liệu", txtChatLieu), field("Thương hiệu", txtThuongHieu));
+        addGridRow(contentPanel, gbc, row++, field("Nước sản xuất", txtNuocSX), field("Ngày sản xuất", spNgaySX));
+        addGridRow(contentPanel, gbc, row++, field("Trạng thái", cboTrangThai), new JPanel());
 
         gbc.gridx = 0;
         gbc.gridy = row++;
@@ -346,25 +343,21 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         txtMa = new JTextField();
         txtTen = new JTextField();
         txtDonVi = new JTextField();
+        txtDonVi.setText("Đôi");
+        txtDonVi.setEditable(false);
         txtSoLuong = new JTextField();
+        txtSoLuong.setEditable(false);
         txtGiaNhap = new JTextField();
         txtGiaNhap.setEditable(false);
         txtGiaNhap.setToolTipText("Tự động lấy từ phiếu nhập hàng");
-        txtLoiNhuan = new JTextField();
-        txtLoiNhuan.setText("20");
-        cboLoiNhuan = new JComboBox<>(new String[] {
-                "Chọn mức", "10", "15", "20", "25", "30", "40", "50", "60", "70", "80", "90", "100"
+        cboPhanTramLoiNhuan = new JComboBox<>(new String[] {
+                "10", "20", "30", "40", "50", "60", "70", "80", "90", "100"
         });
-        cboLoiNhuan.setSelectedItem("20");
-        cboLoiNhuan.addActionListener(e -> {
-            if (cboLoiNhuan.getSelectedIndex() > 0) {
-                txtLoiNhuan.setText(String.valueOf(cboLoiNhuan.getSelectedItem()));
-            }
-        });
+        cboPhanTramLoiNhuan.setEditable(true);
+        cboPhanTramLoiNhuan.setSelectedItem("20");
         txtDonGia = new JTextField();
         txtDonGia.setEditable(false);
         txtDonGia.setToolTipText("Tự động tính từ giá nhập và % lợi nhuận");
-        txtGiaKhuyenMai = new JTextField();
         txtMau = new JTextField();
         txtSize = new JTextField();
         txtChatLieu = new JTextField();
@@ -372,7 +365,9 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         txtNuocSX = new JTextField();
 
         txtGiaNhap.getDocument().addDocumentListener(createPricingListener());
-        txtLoiNhuan.getDocument().addDocumentListener(createPricingListener());
+        ((JTextField) cboPhanTramLoiNhuan.getEditor().getEditorComponent())
+                .getDocument().addDocumentListener(createPricingListener());
+        cboPhanTramLoiNhuan.addActionListener(e -> recalcBasePrice());
 
         cboLoai = new JComboBox<>(new String[] {
                 "Giày Sneaker", "Giày Chạy Bộ"
@@ -392,15 +387,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
 
         styleComboBox(cboLoai);
         styleComboBox(cboTrangThai);
-        styleComboBox(cboLoiNhuan);
-    }
-
-    private JComponent createProfitInput() {
-        JPanel panel = new JPanel(new BorderLayout(5, 0));
-        panel.setOpaque(false);
-        panel.add(txtLoiNhuan, BorderLayout.CENTER);
-        panel.add(cboLoiNhuan, BorderLayout.EAST);
-        return panel;
+        styleComboBox(cboPhanTramLoiNhuan);
     }
 
     private void addGridRow(JPanel parent, GridBagConstraints gbc, int row, JComponent left, JComponent right) {
@@ -707,22 +694,17 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         txtMa.setText(sp.getMaSP());
         txtTen.setText(sp.getTenSP());
         cboLoai.setSelectedItem(sp.getLoaiSP());
-        txtDonVi.setText(sp.getDonViTinh());
+        txtDonVi.setText(sp.getDonViTinh() == null || sp.getDonViTinh().isBlank()
+                ? "Đôi"
+                : sp.getDonViTinh());
         txtSoLuong.setText(String.valueOf(sp.getSoLuong()));
         txtGiaNhap.setText(sp.getGiaNhap() == null ? "" : formatInputMoney(sp.getGiaNhap()));
         BigDecimal loiNhuan = sp.getPhanTramLoiNhuan() == null
                 ? BigDecimal.valueOf(20)
                 : sp.getPhanTramLoiNhuan();
-        txtLoiNhuan.setText(loiNhuan.stripTrailingZeros().toPlainString());
-        cboLoiNhuan.setSelectedItem(loiNhuan.stripTrailingZeros().toPlainString());
+        cboPhanTramLoiNhuan.setSelectedItem(String.valueOf(loiNhuan.intValue()));
         BigDecimal giaBan = SanPhamDTO.tinhGiaBan(sp.getGiaNhap(), loiNhuan);
         txtDonGia.setText(giaBan == null ? "" : formatInputMoney(giaBan));
-        BigDecimal mucGiam = sp.getDonGia() != null && sp.getGiaKhuyenMai() != null
-                ? sp.getDonGia().subtract(sp.getGiaKhuyenMai())
-                : null;
-        txtGiaKhuyenMai.setText(mucGiam == null || mucGiam.compareTo(BigDecimal.ZERO) <= 0
-                ? ""
-                : formatInputMoney(mucGiam));
         txtMau.setText(sp.getMauSac());
         txtSize.setText(sp.getSize());
         txtChatLieu.setText(sp.getChatLieu());
@@ -772,42 +754,25 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
 
             BigDecimal giaNhap = txtGiaNhap.getText().trim().isEmpty() ? null
                     : new BigDecimal(txtGiaNhap.getText().trim().replace(".", "").replace(",", ""));
-            BigDecimal tyLeLoiNhuan = txtLoiNhuan.getText().trim().isEmpty() ? null
-                    : new BigDecimal(txtLoiNhuan.getText().trim());
-            BigDecimal giaKhuyenMai = txtGiaKhuyenMai.getText().trim().isEmpty() ? null
-                    : new BigDecimal(txtGiaKhuyenMai.getText().trim().replace(".", "").replace(",", ""));
+            String ptStr = String.valueOf(cboPhanTramLoiNhuan.getSelectedItem()).trim();
+            BigDecimal ptLoiNhuan = ptStr.isEmpty() ? new BigDecimal("20") : new BigDecimal(ptStr);
 
-            if (tyLeLoiNhuan != null && (tyLeLoiNhuan.compareTo(BigDecimal.ZERO) <= 0
-                    || tyLeLoiNhuan.compareTo(BigDecimal.valueOf(100)) > 0)) {
+            if (ptLoiNhuan.compareTo(BigDecimal.ZERO) <= 0
+                    || ptLoiNhuan.compareTo(BigDecimal.valueOf(100)) > 0) {
                 JOptionPane.showMessageDialog(
                         null,
                         "% lợi nhuận phải lớn hơn 0% và không vượt quá 100%.",
                         "Cảnh báo",
                         JOptionPane.WARNING_MESSAGE);
-                txtLoiNhuan.requestFocus();
+                cboPhanTramLoiNhuan.requestFocus();
                 return null;
             }
 
-            BigDecimal giaBan = SanPhamDTO.tinhGiaBan(giaNhap, tyLeLoiNhuan);
-
-            if (giaKhuyenMai != null) {
-                if (giaBan == null || giaKhuyenMai.compareTo(BigDecimal.ZERO) < 0
-                        || giaKhuyenMai.compareTo(giaBan) >= 0) {
-                    JOptionPane.showMessageDialog(
-                            null,
-                            "Số tiền giảm phải lớn hơn 0 và nhỏ hơn giá bán.",
-                            "Cảnh báo",
-                            JOptionPane.WARNING_MESSAGE);
-                    txtGiaKhuyenMai.requestFocus();
-                    return null;
-                }
-                giaKhuyenMai = giaBan.subtract(giaKhuyenMai);
-            }
+            BigDecimal giaBan = SanPhamDTO.tinhGiaBan(giaNhap, ptLoiNhuan);
 
             sp.setGiaNhap(giaNhap);
-            sp.setPhanTramLoiNhuan(tyLeLoiNhuan);
+            sp.setPhanTramLoiNhuan(ptLoiNhuan);
             sp.setDonGia(giaBan);
-            sp.setGiaKhuyenMai(giaKhuyenMai);
             sp.setMauSac(txtMau.getText().trim());
             sp.setSize(txtSize.getText().trim());
             sp.setChatLieu(txtChatLieu.getText().trim());
@@ -1296,13 +1261,11 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
 
         txtMa.setText("");
         txtTen.setText("");
-        txtDonVi.setText("");
+        txtDonVi.setText("Đôi");
         txtSoLuong.setText("");
         txtGiaNhap.setText("");
-        txtLoiNhuan.setText("20");
-        cboLoiNhuan.setSelectedItem("20");
+        cboPhanTramLoiNhuan.setSelectedItem("20");
         txtDonGia.setText("");
-        txtGiaKhuyenMai.setText("");
         txtMau.setText("");
         txtSize.setText("");
         txtChatLieu.setText("");
@@ -1349,7 +1312,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
     private void recalcBasePrice() {
         try {
             String giaNhapText = txtGiaNhap.getText() == null ? "" : txtGiaNhap.getText().trim();
-            String loiNhuanText = txtLoiNhuan.getText() == null ? "" : txtLoiNhuan.getText().trim();
+            String loiNhuanText = String.valueOf(cboPhanTramLoiNhuan.getSelectedItem()).trim();
 
             if (giaNhapText.isEmpty() || loiNhuanText.isEmpty()) {
                 return;
