@@ -74,16 +74,6 @@ public class ThemKhachHangDialog extends JDialog {
     }
 
     private void saveCustomer() {
-        int confirm = javax.swing.JOptionPane.showConfirmDialog(
-                this,
-                "Bạn có chắc chắn muốn thực hiện thao tác này?",
-                "Xác nhận",
-                javax.swing.JOptionPane.YES_NO_OPTION,
-                javax.swing.JOptionPane.QUESTION_MESSAGE);
-        if (confirm != javax.swing.JOptionPane.YES_OPTION) {
-            return;
-        }
-
         String ten = txtTen.getText().trim();
         String sdt = txtSdt.getText().trim();
 
@@ -94,6 +84,16 @@ public class ThemKhachHangDialog extends JDialog {
 
         if (!sdt.matches("^0\\d{9}$")) {
             showWarning("Số điện thoại phải gồm 10 chữ số và bắt đầu bằng 0.");
+            return;
+        }
+
+        int confirm = javax.swing.JOptionPane.showConfirmDialog(
+                this,
+                "Bạn có chắc chắn muốn thực hiện thao tác này?",
+                "Xác nhận",
+                javax.swing.JOptionPane.YES_NO_OPTION,
+                javax.swing.JOptionPane.QUESTION_MESSAGE);
+        if (confirm != javax.swing.JOptionPane.YES_OPTION) {
             return;
         }
 

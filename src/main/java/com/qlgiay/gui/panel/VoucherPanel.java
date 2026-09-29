@@ -637,18 +637,6 @@ public class VoucherPanel extends JPanel implements IRefreshable {
     private void add() {
         isAddingNew = true;
         evaluateVoucherState();
-        {
-            int confirm = javax.swing.JOptionPane.showConfirmDialog(
-                    this,
-                    "Bạn có chắc chắn muốn thực hiện thao tác này?",
-                    "Xác nhận",
-                    javax.swing.JOptionPane.YES_NO_OPTION,
-                    javax.swing.JOptionPane.QUESTION_MESSAGE);
-            if (confirm != javax.swing.JOptionPane.YES_OPTION) {
-                return;
-            }
-        }
-
         VoucherDTO v = readForm();
         if (v == null) {
             return;
@@ -665,6 +653,18 @@ public class VoucherPanel extends JPanel implements IRefreshable {
                     "Lỗi",
                     JOptionPane.ERROR_MESSAGE);
             return;
+        }
+
+        {
+            int confirm = javax.swing.JOptionPane.showConfirmDialog(
+                    this,
+                    "Bạn có chắc chắn muốn thực hiện thao tác này?",
+                    "Xác nhận",
+                    javax.swing.JOptionPane.YES_NO_OPTION,
+                    javax.swing.JOptionPane.QUESTION_MESSAGE);
+            if (confirm != javax.swing.JOptionPane.YES_OPTION) {
+                return;
+            }
         }
 
         if (voucherBUS.addVoucher(v)) {
@@ -685,18 +685,6 @@ public class VoucherPanel extends JPanel implements IRefreshable {
     }
 
     private void update() {
-        {
-            int confirm = javax.swing.JOptionPane.showConfirmDialog(
-                    this,
-                    "Bạn có chắc chắn muốn thực hiện thao tác này?",
-                    "Xác nhận",
-                    javax.swing.JOptionPane.YES_NO_OPTION,
-                    javax.swing.JOptionPane.QUESTION_MESSAGE);
-            if (confirm != javax.swing.JOptionPane.YES_OPTION) {
-                return;
-            }
-        }
-
         int viewRow = table.getSelectedRow();
         if (viewRow < 0) {
             JOptionPane.showMessageDialog(
@@ -714,6 +702,18 @@ public class VoucherPanel extends JPanel implements IRefreshable {
 
         if (!validateForm(v)) {
             return;
+        }
+
+        {
+            int confirm = javax.swing.JOptionPane.showConfirmDialog(
+                    this,
+                    "Bạn có chắc chắn muốn thực hiện thao tác này?",
+                    "Xác nhận",
+                    javax.swing.JOptionPane.YES_NO_OPTION,
+                    javax.swing.JOptionPane.QUESTION_MESSAGE);
+            if (confirm != javax.swing.JOptionPane.YES_OPTION) {
+                return;
+            }
         }
 
         if (voucherBUS.updateVoucher(v)) {
@@ -734,6 +734,16 @@ public class VoucherPanel extends JPanel implements IRefreshable {
     }
 
     private void delete() {
+        int viewRow = table.getSelectedRow();
+        if (viewRow < 0) {
+            JOptionPane.showMessageDialog(
+                    SwingUtilities.getWindowAncestor(this),
+                    "Vui lòng chọn voucher cần xóa!",
+                    "Cảnh báo",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         {
             int confirm = javax.swing.JOptionPane.showConfirmDialog(
                     this,
@@ -744,16 +754,6 @@ public class VoucherPanel extends JPanel implements IRefreshable {
             if (confirm != javax.swing.JOptionPane.YES_OPTION) {
                 return;
             }
-        }
-
-        int viewRow = table.getSelectedRow();
-        if (viewRow < 0) {
-            JOptionPane.showMessageDialog(
-                    SwingUtilities.getWindowAncestor(this),
-                    "Vui lòng chọn voucher cần xóa!",
-                    "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE);
-            return;
         }
 
         int modelRow = table.convertRowIndexToModel(viewRow);
@@ -833,13 +833,13 @@ public class VoucherPanel extends JPanel implements IRefreshable {
             }
 
             if (start.isAfter(now)) {
-                updateTrangThaiModel(new String[] {"Chưa hoạt động"}, "Chưa hoạt động");
+                updateTrangThaiModel(new String[] { "Chưa hoạt động" }, "Chưa hoạt động");
                 cboTrangThai.setEnabled(false);
             } else if (end != null && end.isBefore(now)) {
-                updateTrangThaiModel(new String[] {"Ngưng hoạt động"}, "Ngưng hoạt động");
+                updateTrangThaiModel(new String[] { "Ngưng hoạt động" }, "Ngưng hoạt động");
                 cboTrangThai.setEnabled(false);
             } else {
-                updateTrangThaiModel(new String[] {"Hoạt động", "Ngưng hoạt động"}, "Hoạt động");
+                updateTrangThaiModel(new String[] { "Hoạt động", "Ngưng hoạt động" }, "Hoạt động");
                 cboTrangThai.setEnabled(true);
             }
         }

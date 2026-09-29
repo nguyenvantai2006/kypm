@@ -497,18 +497,6 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
     }
 
     private void add() {
-        {
-            int confirm = javax.swing.JOptionPane.showConfirmDialog(
-                    this,
-                    "Bạn có chắc chắn muốn thực hiện thao tác này?",
-                    "Xác nhận",
-                    javax.swing.JOptionPane.YES_NO_OPTION,
-                    javax.swing.JOptionPane.QUESTION_MESSAGE);
-            if (confirm != javax.swing.JOptionPane.YES_OPTION) {
-                return;
-            }
-        }
-
         NhaCungCapDTO ncc = readForm();
         if (ncc == null) {
             return;
@@ -521,6 +509,18 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                     "Lỗi",
                     JOptionPane.ERROR_MESSAGE);
             return;
+        }
+
+        {
+            int confirm = javax.swing.JOptionPane.showConfirmDialog(
+                    this,
+                    "Bạn có chắc chắn muốn thực hiện thao tác này?",
+                    "Xác nhận",
+                    javax.swing.JOptionPane.YES_NO_OPTION,
+                    javax.swing.JOptionPane.QUESTION_MESSAGE);
+            if (confirm != javax.swing.JOptionPane.YES_OPTION) {
+                return;
+            }
         }
 
         if (nhaCungCapBUS.addSupplier(ncc)) {
@@ -541,18 +541,6 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
     }
 
     private void update() {
-        {
-            int confirm = javax.swing.JOptionPane.showConfirmDialog(
-                    this,
-                    "Bạn có chắc chắn muốn thực hiện thao tác này?",
-                    "Xác nhận",
-                    javax.swing.JOptionPane.YES_NO_OPTION,
-                    javax.swing.JOptionPane.QUESTION_MESSAGE);
-            if (confirm != javax.swing.JOptionPane.YES_OPTION) {
-                return;
-            }
-        }
-
         int viewRow = table.getSelectedRow();
         if (viewRow < 0) {
             JOptionPane.showMessageDialog(
@@ -566,6 +554,18 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
         NhaCungCapDTO ncc = readForm();
         if (ncc == null) {
             return;
+        }
+
+        {
+            int confirm = javax.swing.JOptionPane.showConfirmDialog(
+                    this,
+                    "Bạn có chắc chắn muốn thực hiện thao tác này?",
+                    "Xác nhận",
+                    javax.swing.JOptionPane.YES_NO_OPTION,
+                    javax.swing.JOptionPane.QUESTION_MESSAGE);
+            if (confirm != javax.swing.JOptionPane.YES_OPTION) {
+                return;
+            }
         }
 
         if (nhaCungCapBUS.updateSupplier(ncc)) {
@@ -586,6 +586,16 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
     }
 
     private void delete() {
+        int viewRow = table.getSelectedRow();
+        if (viewRow < 0) {
+            JOptionPane.showMessageDialog(
+                    SwingUtilities.getWindowAncestor(this),
+                    "Vui lòng chọn nhà cung cấp cần xóa!",
+                    "Cảnh báo",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         {
             int confirm = javax.swing.JOptionPane.showConfirmDialog(
                     this,
@@ -596,16 +606,6 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
             if (confirm != javax.swing.JOptionPane.YES_OPTION) {
                 return;
             }
-        }
-
-        int viewRow = table.getSelectedRow();
-        if (viewRow < 0) {
-            JOptionPane.showMessageDialog(
-                    SwingUtilities.getWindowAncestor(this),
-                    "Vui lòng chọn nhà cung cấp cần xóa!",
-                    "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE);
-            return;
         }
 
         int modelRow = table.convertRowIndexToModel(viewRow);
