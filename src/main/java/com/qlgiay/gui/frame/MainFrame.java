@@ -94,6 +94,7 @@ public class MainFrame extends JFrame {
         pnlNav.setLayout(new BoxLayout(pnlNav, BoxLayout.Y_AXIS));
 
         JScrollPane sp = new JScrollPane(pnlNav);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(sp);
         sp.setBorder(null);
         sp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         sp.getVerticalScrollBar().setUnitIncrement(14);

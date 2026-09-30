@@ -192,6 +192,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
         });
 
         JScrollPane sp = new JScrollPane(table);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(sp);
         sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(225, 225, 225)),
@@ -240,6 +241,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
 
         panel.add(top, BorderLayout.NORTH);
         JScrollPane productScroll = new JScrollPane(productTable);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(productScroll);
         productScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         panel.add(productScroll, BorderLayout.CENTER);
         return panel;
@@ -310,6 +312,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
         alignTopPanel.add(contentPanel, BorderLayout.NORTH);
 
         JScrollPane scroll = new JScrollPane(alignTopPanel);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(scroll);
         scroll.setBorder(null);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
         scroll.getViewport().setOpaque(false);
@@ -398,6 +401,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
         p.add(new JLabel("Địa chỉ"), BorderLayout.NORTH);
 
         JScrollPane sp = new JScrollPane(txtDiaChi);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(sp);
         sp.setPreferredSize(new Dimension(0, 55));
         sp.putClientProperty(FlatClientProperties.STYLE, "arc: 8;");
 
@@ -707,7 +711,9 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
             JPanel description = new JPanel(new BorderLayout(0, 4));
             description.setBorder(new EmptyBorder(0, 15, 8, 15));
             description.add(new JLabel("Mô tả chi tiết"), BorderLayout.NORTH);
-            description.add(new JScrollPane(txtMoTa), BorderLayout.CENTER);
+            JScrollPane descriptionScroll = new JScrollPane(txtMoTa);
+            com.qlgiay.util.ScrollUtil.applySmoothScroll(descriptionScroll);
+            description.add(descriptionScroll, BorderLayout.CENTER);
             center.add(description, BorderLayout.CENTER);
 
             JButton save = new JButton("Lưu sản phẩm");
