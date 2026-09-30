@@ -216,3 +216,16 @@ CREATE UNIQUE NONCLUSTERED INDEX UX_SAN_PHAM_BienThe
     ON dbo.SAN_PHAM (TenSP, ThuongHieu, MauSac, Size)
     WHERE MauSac IS NOT NULL AND Size IS NOT NULL
 GO
+
+-- Nhật ký hoạt động hệ thống dành cho quản trị viên
+CREATE TABLE dbo.LICH_SU_HOAT_DONG (
+    MaLog int IDENTITY(1,1) NOT NULL,
+    MaNV varchar(50) NULL,
+    PhanLoai nvarchar(50) NOT NULL,
+    HanhDong nvarchar(100) NOT NULL,
+    DoiTuong nvarchar(100) NULL,
+    ThoiGian datetime NOT NULL CONSTRAINT DF_LICH_SU_HOAT_DONG_ThoiGian DEFAULT (GETDATE()),
+    ChiTiet nvarchar(max) NULL,
+    CONSTRAINT PK_LICH_SU_HOAT_DONG PRIMARY KEY CLUSTERED (MaLog)
+)
+GO

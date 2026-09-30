@@ -215,6 +215,7 @@ public class MainFrame extends JFrame {
             case "NHACUNGCAP" -> Permission.QL_NHAPHANG;
             case "NHANVIEN" -> Permission.QL_NHANVIEN;
             case "PHANQUYEN" -> Permission.QL_PHANQUYEN;
+            case "LICHSU" -> Permission.ALWAYS;
             case "THONGKE" -> Permission.QL_THONGKE;
             default -> Permission.ALWAYS;
         };
@@ -250,6 +251,7 @@ public class MainFrame extends JFrame {
         addGroupHeader("HỆ THỐNG");
         addView("NHANVIEN", "Nhân viên", permissionForKey("NHANVIEN"));
         addView("PHANQUYEN", "Phân quyền", permissionForKey("PHANQUYEN"));
+        addView("LICHSU", "Lịch sử hệ thống", permissionForKey("LICHSU"));
         addView("THONGKE", "Thống kê", permissionForKey("THONGKE"));
 
         pnlNav.add(Box.createVerticalGlue());
@@ -341,6 +343,7 @@ public class MainFrame extends JFrame {
             case "VOUCHER" -> new VoucherPanel();
             case "NHANVIEN" -> new NhanVienPanel(session);
             case "PHANQUYEN" -> new PhanQuyenPanel();
+            case "LICHSU" -> new LichSuPanel();
             case "THONGKE" -> new ThongKePanel();
             default -> createPlaceholderPanel("Tính năng " + key);
         };
@@ -433,6 +436,10 @@ public class MainFrame extends JFrame {
             String key = e.getKey();
             boolean allow = hasPermission(q, e.getValue().permission);
 
+            if (key.equals("LICHSU")) {
+                allow = q != null && "Q01".equalsIgnoreCase(q.getMaQuyen());
+            }
+
             e.getValue().button.setVisible(allow);
             e.getValue().button.setEnabled(allow);
 
@@ -507,6 +514,7 @@ public class MainFrame extends JFrame {
             case "VOUCHER" -> "/icons/voucher.png";
             case "NHANVIEN" -> "/icons/staff.png";
             case "PHANQUYEN" -> "/icons/role.png";
+            case "LICHSU" -> "/icons/stats.png";
             case "THONGKE" -> "/icons/stats.png";
             default -> null;
         };
