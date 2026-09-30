@@ -242,6 +242,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         });
 
         JScrollPane sp = new JScrollPane(table);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(sp);
         sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(225, 225, 225)),
@@ -295,6 +296,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         alignTopPanel.add(contentPanel, BorderLayout.NORTH);
 
         JScrollPane scroll = new JScrollPane(alignTopPanel);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(scroll);
         scroll.setBorder(null);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
         scroll.getViewport().setOpaque(false);
@@ -418,6 +420,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         p.add(new JLabel("Mô tả chi tiết"), BorderLayout.NORTH);
 
         JScrollPane sp = new JScrollPane(txtMoTa);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(sp);
         sp.setPreferredSize(new Dimension(0, 55));
         sp.putClientProperty(FlatClientProperties.STYLE, "arc: 8;");
 
@@ -469,6 +472,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         pnlThumbnails.setOpaque(false);
 
         JScrollPane scrollThumb = new JScrollPane(pnlThumbnails);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(scrollThumb);
         scrollThumb.setPreferredSize(new Dimension(0, THUMBNAIL_SIZE + 10));
         scrollThumb.setBorder(null);
         scrollThumb.setOpaque(false);

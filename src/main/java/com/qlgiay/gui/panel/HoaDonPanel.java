@@ -242,6 +242,7 @@ public class HoaDonPanel extends JPanel implements IRefreshable {
         });
 
         JScrollPane sp = new JScrollPane(tableHoaDon);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(sp);
         sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createCompoundBorder(
@@ -324,6 +325,7 @@ public class HoaDonPanel extends JPanel implements IRefreshable {
         scrollContent.add(pnlButtons, BorderLayout.SOUTH);
 
         JScrollPane scroll = new JScrollPane(scrollContent);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(scroll);
         scroll.setBorder(null);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -445,6 +447,7 @@ public class HoaDonPanel extends JPanel implements IRefreshable {
         styleTable(tableChiTiet, false);
 
         JScrollPane sp = new JScrollPane(tableChiTiet);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(sp);
         sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setPreferredSize(new Dimension(0, 180));
         sp.setBorder(BorderFactory.createCompoundBorder(

@@ -163,6 +163,7 @@ public class VoucherPanel extends JPanel implements IRefreshable {
         });
 
         JScrollPane sp = new JScrollPane(table);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(sp);
         sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(225, 225, 225)),
@@ -205,18 +206,18 @@ public class VoucherPanel extends JPanel implements IRefreshable {
         alignTopPanel.add(contentPanel, BorderLayout.NORTH);
 
         JScrollPane scroll = new JScrollPane(alignTopPanel);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(scroll);
         scroll.setBorder(null);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
         scroll.getViewport().setOpaque(false);
         scroll.setOpaque(false);
 
-        JPanel pnlButtons = new JPanel(new GridLayout(2, 4, 5, 5));
-        pnlButtons.setPreferredSize(new Dimension(0, 80));
+        JPanel pnlButtons = new JPanel(new GridLayout(1, 4, 5, 0));
+        pnlButtons.setPreferredSize(new Dimension(0, 40));
         pnlButtons.setOpaque(false);
 
         JButton btnAdd = new JButton("Thêm");
         JButton btnUpdate = new JButton("Sửa");
-        JButton btnDelete = new JButton("Xóa");
         JButton btnClear = new JButton("Làm mới");
         btnLock = new JButton("Tạm dừng");
         btnLock.setIcon(IconUtil.loadPng("/icons/lock.png", 24));
@@ -224,33 +225,28 @@ public class VoucherPanel extends JPanel implements IRefreshable {
 
         btnAdd.setIcon(IconUtil.loadPng("/icons/add.png", 24));
         btnUpdate.setIcon(IconUtil.loadPng("/icons/edit.png", 24));
-        btnDelete.setIcon(IconUtil.loadPng("/icons/delete.png", 24));
         btnClear.setIcon(IconUtil.loadPng("/icons/refresh.png", 24));
 
         int gap = 4;
         btnAdd.setIconTextGap(gap);
         btnUpdate.setIconTextGap(gap);
-        btnDelete.setIconTextGap(gap);
         btnClear.setIconTextGap(gap);
         btnLock.setIconTextGap(gap);
 
         styleActionButton(btnAdd, "success");
         styleActionButton(btnUpdate, "default");
-        styleActionButton(btnDelete, "danger");
         styleActionButton(btnClear, "default");
         styleActionButton(btnLock, "danger");
 
         btnAdd.addActionListener(e -> add());
         btnUpdate.addActionListener(e -> update());
-        btnDelete.addActionListener(e -> delete());
         btnLock.addActionListener(e -> toggleLock());
         btnClear.addActionListener(e -> clear());
 
         pnlButtons.add(btnAdd);
         pnlButtons.add(btnUpdate);
-        pnlButtons.add(btnDelete);
-        pnlButtons.add(btnLock);
         pnlButtons.add(btnClear);
+        pnlButtons.add(btnLock);
 
         formWrapper.add(scroll, BorderLayout.CENTER);
         formWrapper.add(pnlButtons, BorderLayout.SOUTH);
@@ -746,45 +742,6 @@ public class VoucherPanel extends JPanel implements IRefreshable {
                     "Cập nhật voucher thất bại!",
                     "Lỗi",
                     JOptionPane.ERROR_MESSAGE);
-        }
-    }
-
-    private void delete() {
-        int viewRow = table.getSelectedRow();
-        if (viewRow < 0) {
-            JOptionPane.showMessageDialog(
-                    SwingUtilities.getWindowAncestor(this),
-                    "Vui lòng chọn voucher cần xóa!",
-                    "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE);
-            return;
-        }
-        int modelRow = table.convertRowIndexToModel(viewRow);
-        String ma = String.valueOf(tableModel.getValueAt(modelRow, 0));
-        String ten = String.valueOf(tableModel.getValueAt(modelRow, 1));
-
-        int confirm = JOptionPane.showConfirmDialog(
-                SwingUtilities.getWindowAncestor(this),
-                "Bạn có chắc chắn muốn xóa vĩnh viễn voucher [" + ten + "] không?",
-                "Xác nhận xóa",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE);
-        if (confirm == JOptionPane.YES_OPTION) {
-            if (voucherBUS.deleteVoucher(ma)) {
-                JOptionPane.showMessageDialog(
-                        SwingUtilities.getWindowAncestor(this),
-                        "Đã xóa voucher thành công!",
-                        "Thông báo",
-                        JOptionPane.INFORMATION_MESSAGE);
-                loadTable();
-                clear();
-            } else {
-                JOptionPane.showMessageDialog(
-                        SwingUtilities.getWindowAncestor(this),
-                        "Xóa voucher thất bại!",
-                        "Lỗi",
-                        JOptionPane.ERROR_MESSAGE);
-            }
         }
     }
 

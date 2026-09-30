@@ -129,6 +129,7 @@ public class BanHangPanel extends JPanel implements IRefreshable {
         productGridPanel.setProductClickListener(this::addProductToCart);
 
         JScrollPane scroll = new JScrollPane(productGridPanel);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(scroll);
         scroll.setBorder(null);
         scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -404,6 +405,7 @@ public class BanHangPanel extends JPanel implements IRefreshable {
         }
 
         JScrollPane sp = new JScrollPane(tableCart);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(sp);
         sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(225, 225, 225)),

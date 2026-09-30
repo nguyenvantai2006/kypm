@@ -231,6 +231,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
 
         panel.add(top, BorderLayout.NORTH);
         JScrollPane returnSourceScroll = new JScrollPane(tableReturnSource);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(returnSourceScroll);
         returnSourceScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         panel.add(returnSourceScroll, BorderLayout.CENTER);
         panel.add(note, BorderLayout.SOUTH);
@@ -270,6 +271,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
         actions.add(btnReject);
         actions.add(btnRefresh);
         JScrollPane returnRequestScroll = new JScrollPane(tableReturnRequests);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(returnRequestScroll);
         returnRequestScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         panel.add(returnRequestScroll, BorderLayout.CENTER);
         panel.add(actions, BorderLayout.SOUTH);
@@ -311,6 +313,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
         productGridPanel.setProductClickListener(this::addProductToCart);
 
         JScrollPane scroll = new JScrollPane(productGridPanel);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(scroll);
         scroll.setBorder(null);
         scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -466,6 +469,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
         });
 
         JScrollPane sp = new JScrollPane(tableCart);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(sp);
         sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(225, 225, 225)),
@@ -617,6 +621,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
         });
 
         JScrollPane sp = new JScrollPane(tablePhieuNhap);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(sp);
         sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(225, 225, 225)),
@@ -658,6 +663,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
         alignTopPanel.add(createHistoryDetailTable(), BorderLayout.CENTER);
 
         JScrollPane scroll = new JScrollPane(alignTopPanel);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(scroll);
         scroll.setBorder(null);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
         scroll.getViewport().setOpaque(false);
@@ -729,6 +735,7 @@ public class NhapHangPanel extends JPanel implements IRefreshable {
         styleHistoryTable(tableChiTietNhap, false);
 
         JScrollPane sp = new JScrollPane(tableChiTietNhap);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(sp);
         sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(225, 225, 225)),
