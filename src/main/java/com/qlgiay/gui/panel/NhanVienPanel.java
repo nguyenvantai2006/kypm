@@ -198,39 +198,45 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
         scroll.getViewport().setOpaque(false);
         scroll.setOpaque(false);
 
-        JPanel pnlButtons = new JPanel(new GridLayout(1, 4, 5, 0));
+        JPanel pnlButtons = new JPanel(new GridLayout(1, 5, 5, 0));
         pnlButtons.setPreferredSize(new Dimension(0, 40));
         pnlButtons.setOpaque(false);
 
         JButton btnAdd = new JButton("Thêm");
         JButton btnUpdate = new JButton("Sửa");
         JButton btnLock = new JButton("Khóa");
+        JButton btnReset = new JButton("Reset Pass");
         JButton btnClear = new JButton("Làm mới");
 
         btnAdd.setIcon(IconUtil.loadPng("/icons/add.png", 24));
         btnUpdate.setIcon(IconUtil.loadPng("/icons/edit.png", 24));
         btnLock.setIcon(IconUtil.loadPng("/icons/lock.png", 24));
+        btnReset.setIcon(IconUtil.loadPng("/icons/refresh.png", 24));
         btnClear.setIcon(IconUtil.loadPng("/icons/refresh.png", 24));
 
         int gap = 4;
         btnAdd.setIconTextGap(gap);
         btnUpdate.setIconTextGap(gap);
         btnLock.setIconTextGap(gap);
+        btnReset.setIconTextGap(gap);
         btnClear.setIconTextGap(gap);
 
         styleActionButton(btnAdd, "success");
         styleActionButton(btnUpdate, "default");
         styleActionButton(btnLock, "danger");
+        styleActionButton(btnReset, "default");
         styleActionButton(btnClear, "default");
 
         btnAdd.addActionListener(e -> add());
         btnUpdate.addActionListener(e -> update());
         btnLock.addActionListener(e -> lock());
+        btnReset.addActionListener(e -> resetPass());
         btnClear.addActionListener(e -> clear());
 
         pnlButtons.add(btnAdd);
         pnlButtons.add(btnUpdate);
         pnlButtons.add(btnLock);
+        pnlButtons.add(btnReset);
         pnlButtons.add(btnClear);
 
         formWrapper.add(scroll, BorderLayout.CENTER);
@@ -312,6 +318,11 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
 
         if (list != null) {
             for (NhanVienDTO nv : list) {
+                // Ẩn tài khoản Super Admin khỏi danh sách quản lý
+                if ("NV001".equals(nv.getMaNV())) {
+                    continue;
+                }
+
                 if ("Hoạt động".equals(tt) && nv.getTrangThai() != 1) {
                     continue;
                 }
@@ -588,6 +599,15 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
             return;
         }
 
+        int modelRow = table.convertRowIndexToModel(viewRow);
+        String ma = String.valueOf(tableModel.getValueAt(modelRow, 0));
+        if ("NV001".equals(ma)) {
+            JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this),
+                    "Hành động bị từ chối!\nKhông thể can thiệp vào tài khoản Quản trị viên tối cao (Super Admin).",
+                    "Bảo mật hệ thống", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         NhanVienDTO nv = readForm();
         if (nv == null) {
             return;
@@ -651,6 +671,13 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
 
         int modelRow = table.convertRowIndexToModel(viewRow);
         String ma = String.valueOf(tableModel.getValueAt(modelRow, 0));
+        if ("NV001".equals(ma)) {
+            JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this),
+                    "Hành động bị từ chối!\nKhông thể can thiệp vào tài khoản Quản trị viên tối cao (Super Admin).",
+                    "Bảo mật hệ thống", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         String ho = String.valueOf(tableModel.getValueAt(modelRow, 1));
         String ten = String.valueOf(tableModel.getValueAt(modelRow, 2));
 
@@ -677,6 +704,57 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                         "Lỗi",
                         JOptionPane.ERROR_MESSAGE);
             }
+        }
+    }
+
+    private void resetPass() {
+        int viewRow = table.getSelectedRow();
+        if (viewRow < 0) {
+            JOptionPane.showMessageDialog(
+                    SwingUtilities.getWindowAncestor(this),
+                    "Vui lòng chọn nhân viên cần reset mật khẩu!",
+                    "Cảnh báo",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int modelRow = table.convertRowIndexToModel(viewRow);
+        String ma = String.valueOf(tableModel.getValueAt(modelRow, 0));
+        if ("NV001".equals(ma)) {
+            JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this),
+                    "Hành động bị từ chối!\nKhông thể can thiệp vào tài khoản Quản trị viên tối cao (Super Admin).",
+                    "Bảo mật hệ thống", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        String ho = String.valueOf(tableModel.getValueAt(modelRow, 1));
+        String ten = String.valueOf(tableModel.getValueAt(modelRow, 2));
+
+        int confirm = JOptionPane.showConfirmDialog(
+                SwingUtilities.getWindowAncestor(this),
+                "Bạn có chắc chắn muốn đặt lại mật khẩu cho nhân viên [" + ho + " " + ten + "] về mặc định (123456)?",
+                "Xác nhận reset mật khẩu",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        if (nhanVienBUS.resetPassword(ma)) {
+            JOptionPane.showMessageDialog(
+                    SwingUtilities.getWindowAncestor(this),
+                    "Reset mật khẩu thành công!",
+                    "Thông báo",
+                    JOptionPane.INFORMATION_MESSAGE);
+            loadTable();
+            clear();
+        } else {
+            JOptionPane.showMessageDialog(
+                    SwingUtilities.getWindowAncestor(this),
+                    "Reset mật khẩu thất bại!",
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
