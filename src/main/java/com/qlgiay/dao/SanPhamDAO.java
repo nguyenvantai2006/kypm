@@ -104,6 +104,20 @@ public class SanPhamDAO {
         }
     }
 
+    public SanPhamDTO findById(Connection c, String maSP) {
+        String sql = SELECT_ALL + " WHERE MaSP = ?";
+
+        try (PreparedStatement ps = c.prepareStatement(sql)) {
+            ps.setString(1, maSP);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return mapRow(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public SanPhamDTO findByIdActive(String maSP) {
         String sql = SELECT_ALL + " WHERE MaSP = ? AND TrangThai = 1";
 
@@ -365,7 +379,7 @@ public class SanPhamDAO {
         sp.setGiaNhap(rs.getBigDecimal("GiaNhap"));
         java.math.BigDecimal loiNhuan = rs.getBigDecimal("PhanTramLoiNhuan");
         sp.setPhanTramLoiNhuan(loiNhuan == null ? java.math.BigDecimal.valueOf(20) : loiNhuan);
-        sp.setDonGia(SanPhamDTO.tinhGiaBan(sp.getGiaNhap(), sp.getPhanTramLoiNhuan()));
+        sp.setDonGia(rs.getBigDecimal("DonGia"));
         sp.setMauSac(rs.getString("MauSac"));
         sp.setSize(rs.getString("Size"));
         sp.setChatLieu(rs.getString("ChatLieu"));

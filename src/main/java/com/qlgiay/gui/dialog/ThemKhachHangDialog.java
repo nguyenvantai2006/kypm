@@ -87,6 +87,16 @@ public class ThemKhachHangDialog extends JDialog {
             return;
         }
 
+        int confirm = javax.swing.JOptionPane.showConfirmDialog(
+                this,
+                "Bạn có chắc chắn muốn thực hiện thao tác này?",
+                "Xác nhận",
+                javax.swing.JOptionPane.YES_NO_OPTION,
+                javax.swing.JOptionPane.QUESTION_MESSAGE);
+        if (confirm != javax.swing.JOptionPane.YES_OPTION) {
+            return;
+        }
+
         KhachHangDTO customer = new KhachHangDTO(nextCustomerId(), ten, sdt, "", 0, 1);
         if (!khachHangBUS.addCustomer(customer)) {
             JOptionPane.showMessageDialog(this,

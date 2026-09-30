@@ -219,6 +219,14 @@ public class LoginFrame extends JFrame {
                         return;
                     }
 
+                    if ("123456".equals(matKhau) && !session.getQuyen().getMaQuyen().equalsIgnoreCase("Q01")) {
+                        boolean changed = showForceChangePasswordDialog(session);
+                        if (!changed) {
+                            setEnabledForm(true);
+                            return;
+                        }
+                    }
+
                     dispose();
                     new MainFrame(session).setVisible(true);
 
@@ -240,6 +248,50 @@ public class LoginFrame extends JFrame {
         pnlLogin.setCursor(enabled ? Cursor.getPredefinedCursor(Cursor.HAND_CURSOR) : Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 
         pnlLogin.setBackground(Color.BLACK);
+    }
+
+    private boolean showForceChangePasswordDialog(AuthSession session) {
+        JPasswordField pfNew = new JPasswordField();
+        JPasswordField pfConfirm = new JPasswordField();
+        Object[] message = {
+                "Mật khẩu của bạn đang là mặc định (123456).",
+                "Để bảo đảm an toàn, vui lòng đổi mật khẩu trước khi vào hệ thống!",
+                "Mật khẩu mới (tối thiểu 6 ký tự):", pfNew,
+                "Xác nhận mật khẩu:", pfConfirm
+        };
+
+        while (true) {
+            int option = JOptionPane.showConfirmDialog(this, message, "Yêu cầu đổi mật khẩu", JOptionPane.OK_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
+            if (option != JOptionPane.OK_OPTION) {
+                return false;
+            }
+
+            String pass = new String(pfNew.getPassword());
+            String confirm = new String(pfConfirm.getPassword());
+
+            if (pass.length() < 6) {
+                JOptionPane.showMessageDialog(this, "Mật khẩu mới phải có ít nhất 6 ký tự!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                continue;
+            }
+            if (!pass.equals(confirm)) {
+                JOptionPane.showMessageDialog(this, "Mật khẩu xác nhận không khớp!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                continue;
+            }
+            if (pass.equals("123456")) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn mật khẩu khác với mật khẩu mặc định!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                continue;
+            }
+
+            com.qlgiay.dto.NhanVienDTO nv = session.getNhanVien();
+            nv.setMatKhau(pass);
+            if (new com.qlgiay.bus.NhanVienBUS().updateNhanVien(nv)) {
+                JOptionPane.showMessageDialog(this, "Đổi mật khẩu thành công! Chào mừng bạn.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                return true;
+            } else {
+                JOptionPane.showMessageDialog(this, "Lỗi cập nhật mật khẩu!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                return false;
+            }
+        }
     }
 
     private void showForgotDialog() {

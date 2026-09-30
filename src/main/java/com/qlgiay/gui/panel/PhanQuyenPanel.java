@@ -31,8 +31,9 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
     private JCheckBox chkKhachHang;
     private JCheckBox chkSanPham;
     private JCheckBox chkNhapHang;
-    private JCheckBox chkNhanVien;
     private JCheckBox chkThongKe;
+    private JCheckBox chkQLVoucher;
+    private JCheckBox chkQLDoiTra;
 
     private int hoverRow = -1;
 
@@ -98,7 +99,7 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
     private JPanel createTablePanel() {
         String[] cols = {
                 "Mã quyền", "Tên quyền", "Bán hàng", "Khách hàng",
-                "Sản phẩm", "Nhập hàng", "Nhân viên", "Thống kê"
+                "Sản phẩm", "Nhập hàng", "Thống kê", "Voucher", "Đổi trả"
         };
 
         tableModel = new DefaultTableModel(cols, 0) {
@@ -119,13 +120,14 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
         table = new JTable(tableModel);
 
         table.getColumnModel().getColumn(0).setPreferredWidth(80);
-        table.getColumnModel().getColumn(1).setPreferredWidth(170);
-        table.getColumnModel().getColumn(2).setPreferredWidth(80);
-        table.getColumnModel().getColumn(3).setPreferredWidth(90);
+        table.getColumnModel().getColumn(1).setPreferredWidth(150);
+        table.getColumnModel().getColumn(2).setPreferredWidth(85);
+        table.getColumnModel().getColumn(3).setPreferredWidth(95);
         table.getColumnModel().getColumn(4).setPreferredWidth(85);
         table.getColumnModel().getColumn(5).setPreferredWidth(85);
         table.getColumnModel().getColumn(6).setPreferredWidth(85);
-        table.getColumnModel().getColumn(7).setPreferredWidth(85);
+        table.getColumnModel().getColumn(7).setPreferredWidth(80);
+        table.getColumnModel().getColumn(8).setPreferredWidth(80);
 
         table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
         table.setAutoCreateRowSorter(true);
@@ -172,8 +174,10 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
                 buildPermissionPanel("Quản lý khách hàng", chkKhachHang));
         addGridRow(contentPanel, gbc, row++, buildPermissionPanel("Quản lý sản phẩm", chkSanPham),
                 buildPermissionPanel("Quản lý nhập hàng", chkNhapHang));
-        addGridRow(contentPanel, gbc, row++, buildPermissionPanel("Quản lý nhân viên", chkNhanVien),
-                buildPermissionPanel("Quản lý thống kê", chkThongKe));
+        addGridRow(contentPanel, gbc, row++, buildPermissionPanel("Quản lý thống kê", chkThongKe),
+                buildPermissionPanel("Quản lý Voucher", chkQLVoucher));
+        addGridRow(contentPanel, gbc, row++, buildPermissionPanel("Quản lý đổi trả", chkQLDoiTra),
+                emptyPanel());
 
         JPanel alignTopPanel = new JPanel(new BorderLayout());
         alignTopPanel.setOpaque(false);
@@ -234,8 +238,9 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
         chkKhachHang = createPermissionCheckBox();
         chkSanPham = createPermissionCheckBox();
         chkNhapHang = createPermissionCheckBox();
-        chkNhanVien = createPermissionCheckBox();
         chkThongKe = createPermissionCheckBox();
+        chkQLVoucher = createPermissionCheckBox();
+        chkQLDoiTra = createPermissionCheckBox();
     }
 
     private JCheckBox createPermissionCheckBox() {
@@ -286,6 +291,12 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
         return p;
     }
 
+    private JPanel emptyPanel() {
+        JPanel p = new JPanel();
+        p.setOpaque(false);
+        return p;
+    }
+
     private void loadTable() {
         String keyword = txtSearch.getText();
         if (keyword == null) {
@@ -298,6 +309,11 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
 
         if (list != null) {
             for (QuyenDTO q : list) {
+                // Bảo vệ quyền Admin gốc khỏi việc bị chỉnh sửa định nghĩa
+                if ("Q01".equalsIgnoreCase(q.getMaQuyen())) {
+                    continue;
+                }
+
                 tableModel.addRow(new Object[] {
                         q.getMaQuyen(),
                         q.getTenQuyen(),
@@ -305,8 +321,9 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
                         q.getQlKhachHang() == 1,
                         q.getQlSanPham() == 1,
                         q.getQlNhapHang() == 1,
-                        q.getQlNhanVien() == 1,
-                        q.getQlThongKe() == 1
+                        q.getQlThongKe() == 1,
+                        q.getQlVoucher() == 1,
+                        q.getQlDoiTra() == 1
                 });
             }
         }
@@ -333,8 +350,9 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
         chkKhachHang.setSelected(q.getQlKhachHang() == 1);
         chkSanPham.setSelected(q.getQlSanPham() == 1);
         chkNhapHang.setSelected(q.getQlNhapHang() == 1);
-        chkNhanVien.setSelected(q.getQlNhanVien() == 1);
         chkThongKe.setSelected(q.getQlThongKe() == 1);
+        chkQLVoucher.setSelected(q.getQlVoucher() == 1);
+        chkQLDoiTra.setSelected(q.getQlDoiTra() == 1);
 
         txtMa.setEnabled(false);
     }
@@ -348,8 +366,11 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
         q.setQlKhachHang(chkKhachHang.isSelected() ? 1 : 0);
         q.setQlSanPham(chkSanPham.isSelected() ? 1 : 0);
         q.setQlNhapHang(chkNhapHang.isSelected() ? 1 : 0);
-        q.setQlNhanVien(chkNhanVien.isSelected() ? 1 : 0);
+        q.setQlNhanVien(0);
         q.setQlThongKe(chkThongKe.isSelected() ? 1 : 0);
+        q.setQlVoucher(chkQLVoucher.isSelected() ? 1 : 0);
+        q.setQlDoiTra(chkQLDoiTra.isSelected() ? 1 : 0);
+        q.setQlPhanQuyen(0);
 
         return q;
     }
@@ -448,6 +469,18 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
             return;
         }
 
+        {
+            int confirm = javax.swing.JOptionPane.showConfirmDialog(
+                    this,
+                    "Bạn có chắc chắn muốn thực hiện thao tác này?",
+                    "Xác nhận",
+                    javax.swing.JOptionPane.YES_NO_OPTION,
+                    javax.swing.JOptionPane.QUESTION_MESSAGE);
+            if (confirm != javax.swing.JOptionPane.YES_OPTION) {
+                return;
+            }
+        }
+
         if (quyenBUS.updateQuyen(q)) {
             JOptionPane.showMessageDialog(
                     SwingUtilities.getWindowAncestor(this),
@@ -525,8 +558,9 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
         chkKhachHang.setSelected(false);
         chkSanPham.setSelected(false);
         chkNhapHang.setSelected(false);
-        chkNhanVien.setSelected(false);
         chkThongKe.setSelected(false);
+        chkQLVoucher.setSelected(false);
+        chkQLDoiTra.setSelected(false);
 
         hoverRow = -1;
         table.clearSelection();

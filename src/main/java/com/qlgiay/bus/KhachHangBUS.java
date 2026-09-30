@@ -80,6 +80,13 @@ public class KhachHangBUS {
         return khachHangDAO.softDelete(maKH.trim());
     }
 
+    public boolean restoreCustomer(String maKH) {
+        if (maKH == null || maKH.trim().isEmpty())
+            return false;
+
+        return khachHangDAO.restore(maKH.trim());
+    }
+
     public List<KhachHangDTO> search(String keyword) {
         return khachHangDAO.search(keyword);
     }

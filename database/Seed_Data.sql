@@ -24,21 +24,18 @@ BEGIN TRY
     DELETE FROM dbo.KHACH_HANG;
     DELETE FROM dbo.NHA_CUNG_CAP;
     
-    -- Xóa các danh mục nội bộ (Chỉ dọn dẹp để insert lại, không thay đổi data gốc của bạn)
+    -- Xóa các danh mục nội bộ để nạp lại dữ liệu tham chiếu chuẩn
     DELETE FROM dbo.NHAN_VIEN;
     DELETE FROM dbo.QUYEN;
 
     -- ==============================================================================
-    -- 2. DỮ LIỆU NỘI BỘ (Giữ nguyên tuyệt đối theo yêu cầu)
+    -- 2. DỮ LIỆU NỘI BỘ
     -- ==============================================================================
-    INSERT INTO dbo.QUYEN (MaQuyen, TenQuyen, QL_BanHang, QL_KhachHang, QL_SanPham, QL_NhapHang, QL_NhanVien, QL_ThongKe)
+    INSERT INTO dbo.QUYEN (MaQuyen, TenQuyen, QL_BanHang, QL_KhachHang, QL_SanPham, QL_NhapHang, QL_NhanVien, QL_ThongKe, QL_Voucher, QL_DoiTra, QL_PhanQuyen)
     VALUES
-        (N'Q01', N'Quản trị viên', 0, 0, 0, 0, 1, 0),
-        (N'Q02', N'Quản lý', 1, 1, 1, 1, 0, 1),
-        (N'Q03', N'Nhân viên', 1, 1, 1, 0, 0, 0),
-        (N'TQ001', N'Quản trị mẫu', 1, 1, 1, 1, 1, 1),
-        (N'TQ002', N'Quản lý mẫu', 1, 1, 1, 1, 0, 1),
-        (N'TQ003', N'Nhân viên mẫu', 1, 1, 1, 0, 0, 0);
+        (N'Q01', N'Quản trị viên', 0, 0, 0, 0, 1, 0, 0, 0, 1),
+        (N'Q02', N'Quản lý', 0, 1, 1, 1, 0, 1, 1, 1, 0),
+        (N'Q03', N'Nhân viên', 1, 1, 0, 0, 0, 0, 0, 1, 0);
 
     INSERT INTO dbo.NHAN_VIEN (MaNV, Ho, Ten, MaQuyen, TaiKhoan, MatKhau, Luong, TrangThai)
     VALUES
@@ -52,10 +49,7 @@ BEGIN TRY
         (N'NV008', N'Bùi', N'Long', N'Q03', N'long.bui', N'123456', 7800000, 1),
         (N'NV009', N'Vũ', N'Minh', N'Q02', N'minh.vu', N'123456', 9900000, 1),
         (N'NV010', N'Phan', N'Nam', N'Q03', N'nam.phan', N'123456', 8200000, 1),
-        (N'NV011', N'Ngô', N'Quang', N'Q02', N'quang.ngo', N'123456', 11000000, 1),
-        (N'TNV001', N'Nguyễn', N'Quản Trị', N'TQ001', N'test.admin', N'123456', 18000000, 1),
-        (N'TNV002', N'Trần', N'Bán Hàng', N'TQ002', N'test.manager', N'123456', 12000000, 1),
-        (N'TNV003', N'Lê', N'Kho Hàng', N'TQ003', N'test.staff', N'123456', 9000000, 1);
+        (N'NV011', N'Ngô', N'Quang', N'Q02', N'quang.ngo', N'123456', 11000000, 1);
 
 
     -- ==============================================================================
@@ -137,11 +131,11 @@ BEGIN TRY
     -- ==============================================================================
     INSERT INTO dbo.PHIEU_NHAP (MaPN, MaNV, MaNCC, NgayNhap, TongSoMatHang, TongTien)
     VALUES
-        (N'PN001', N'TNV003', N'NCC001', '2026-01-05', 4, 114000000), -- Nike
-        (N'PN002', N'TNV003', N'NCC002', '2026-01-10', 4, 185000000), -- Adidas & Khác
-        (N'PN003', N'TNV002', N'NCC003', '2026-01-15', 4, 102000000), -- Puma
-        (N'PN004', N'TNV002', N'NCC004', '2026-01-20', 4, 88000000),  -- Vans & Converse
-        (N'PN005', N'TNV003', N'NCC005', '2026-01-25', 4, 76000000);  -- Nội địa / Tây
+        (N'PN001', N'NV005', N'NCC001', '2026-01-05', 4, 114000000), -- Nike
+        (N'PN002', N'NV005', N'NCC002', '2026-01-10', 4, 185000000), -- Adidas & Khác
+        (N'PN003', N'NV003', N'NCC003', '2026-01-15', 4, 102000000), -- Puma
+        (N'PN004', N'NV003', N'NCC004', '2026-01-20', 4, 88000000),  -- Vans & Converse
+        (N'PN005', N'NV005', N'NCC005', '2026-01-25', 4, 76000000);  -- Nội địa / Tây
 
     -- Cập nhật Giá Nhập chân thực cho 20 Sản phẩm
     INSERT INTO dbo.CHI_TIET_PHIEU_NHAP (MaPN, MaSP, SoLuong, GiaNhap)
@@ -176,26 +170,26 @@ BEGIN TRY
     -- ==============================================================================
     INSERT INTO dbo.HOA_DON (MaHD, MaNV, MaKH, MaVoucher, NgayLap, TongTien)
     VALUES
-        (N'HD001', N'TNV002', N'KH001', N'WELCOME20', '2026-03-01 09:15:00', 1920000), 
-        (N'HD002', N'TNV002', N'KH002', NULL, '2026-03-02 10:30:00', 3600000), 
-        (N'HD003', N'TNV001', N'KH003', N'GIAM50K', '2026-03-03 14:45:00', 910000), 
-        (N'HD004', N'TNV002', N'KH004', NULL, '2026-03-04 11:20:00', 1320000), 
-        (N'HD005', N'TNV002', N'KH005', N'WELCOME20', '2026-03-05 16:10:00', 1620000), 
-        (N'HD006', N'TNV001', N'KH006', NULL, '2026-03-06 08:30:00', 720000), 
-        (N'HD007', N'TNV002', N'KH007', NULL, '2026-03-07 19:45:00', 3000000), 
-        (N'HD008', N'TNV002', N'KH008', N'GIAM50K', '2026-03-08 20:00:00', 1390000), 
-        (N'HD009', N'TNV001', N'KH009', NULL, '2026-03-09 13:15:00', 1170000), 
-        (N'HD010', N'TNV002', N'KH010', N'WELCOME20', '2026-03-10 15:50:00', 728000), 
-        (N'HD011', N'TNV002', N'KH011', NULL, '2026-03-11 11:11:00', 2160000), 
-        (N'HD012', N'TNV001', N'KH012', NULL, '2026-03-12 14:22:00', 1800000), 
-        (N'HD013', N'TNV002', N'KH013', N'GIAM50K', '2026-03-13 18:30:00', 1630000), 
-        (N'HD014', N'TNV002', N'KH014', NULL, '2026-03-14 09:05:00', 2280000), 
-        (N'HD015', N'TNV001', N'KH015', N'WELCOME20', '2026-03-15 10:45:00', 2880000), 
-        (N'HD016', N'TNV002', N'KH016', NULL, '2026-03-16 12:15:00', 1440000), 
-        (N'HD017', N'TNV002', N'KH017', NULL, '2026-03-17 17:50:00', 1105000), 
-        (N'HD018', N'TNV001', N'KH018', N'GIAM50K', '2026-03-18 20:20:00', 1120000), 
-        (N'HD019', N'TNV002', N'KH019', NULL, '2026-03-19 14:10:00', 1560000), 
-        (N'HD020', N'TNV002', N'KH020', N'WELCOME20', '2026-03-20 16:30:00', 2688000);
+        (N'HD001', N'NV003', N'KH001', N'WELCOME20', '2026-03-01 09:15:00', 1920000), 
+        (N'HD002', N'NV003', N'KH002', NULL, '2026-03-02 10:30:00', 3600000), 
+        (N'HD003', N'NV001', N'KH003', N'GIAM50K', '2026-03-03 14:45:00', 910000), 
+        (N'HD004', N'NV003', N'KH004', NULL, '2026-03-04 11:20:00', 1320000), 
+        (N'HD005', N'NV003', N'KH005', N'WELCOME20', '2026-03-05 16:10:00', 1620000), 
+        (N'HD006', N'NV001', N'KH006', NULL, '2026-03-06 08:30:00', 720000), 
+        (N'HD007', N'NV003', N'KH007', NULL, '2026-03-07 19:45:00', 3000000), 
+        (N'HD008', N'NV003', N'KH008', N'GIAM50K', '2026-03-08 20:00:00', 1390000), 
+        (N'HD009', N'NV001', N'KH009', NULL, '2026-03-09 13:15:00', 1170000), 
+        (N'HD010', N'NV003', N'KH010', N'WELCOME20', '2026-03-10 15:50:00', 728000), 
+        (N'HD011', N'NV003', N'KH011', NULL, '2026-03-11 11:11:00', 2160000), 
+        (N'HD012', N'NV001', N'KH012', NULL, '2026-03-12 14:22:00', 1800000), 
+        (N'HD013', N'NV003', N'KH013', N'GIAM50K', '2026-03-13 18:30:00', 1630000), 
+        (N'HD014', N'NV003', N'KH014', NULL, '2026-03-14 09:05:00', 2280000), 
+        (N'HD015', N'NV001', N'KH015', N'WELCOME20', '2026-03-15 10:45:00', 2880000), 
+        (N'HD016', N'NV003', N'KH016', NULL, '2026-03-16 12:15:00', 1440000), 
+        (N'HD017', N'NV003', N'KH017', NULL, '2026-03-17 17:50:00', 1105000), 
+        (N'HD018', N'NV001', N'KH018', N'GIAM50K', '2026-03-18 20:20:00', 1120000), 
+        (N'HD019', N'NV003', N'KH019', NULL, '2026-03-19 14:10:00', 1560000), 
+        (N'HD020', N'NV003', N'KH020', N'WELCOME20', '2026-03-20 16:30:00', 2688000);
 
     INSERT INTO dbo.CHI_TIET_HOA_DON (MaHD, MaSP, SoLuong, DonGia)
     VALUES
@@ -225,8 +219,8 @@ BEGIN TRY
     -- ==============================================================================
     INSERT INTO dbo.DOI_TRA (MaDT, MaHD, MaNV, MaSP, NgayDoiTra, SoLuong, TongTienHoan, LyDo, TinhTrang)
     VALUES
-        (N'DT001', N'HD001', N'TNV002', N'SP001-42-DEN', '2026-03-05 10:00:00', 1, 2400000, N'Khách mang không vừa form', N'Đã hoàn tiền'),
-        (N'DT002', N'HD003', N'TNV001', N'SP003-40-DEN', '2026-03-08 11:30:00', 1, 960000, N'Sản phẩm bị lỗi keo viền', N'Đã đổi sản phẩm');
+        (N'DT001', N'HD001', N'NV003', N'SP001-42-DEN', '2026-03-05 10:00:00', 1, 2400000, N'Khách mang không vừa form', N'Đã hoàn tiền'),
+        (N'DT002', N'HD003', N'NV001', N'SP003-40-DEN', '2026-03-08 11:30:00', 1, 960000, N'Sản phẩm bị lỗi keo viền', N'Đã đổi sản phẩm');
 
     INSERT INTO dbo.PHIEU_BAO_HANH (MaPBH, MaHD, MaSP, MaKH, NgayNhan, NgayTraDuKien, LoiCanBaoHanh, ChiPhiPhatSinh, TrangThai)
     VALUES
@@ -238,7 +232,7 @@ BEGIN TRY
     -- ==============================================================================
     INSERT INTO dbo.PHIEU_TRA_NCC (MaPT, MaPN, MaNV, MaNCC, NgayTao, TongSoMatHang, TongTien, LyDo, TrangThai, NgayXuLy, NguoiXuLy)
     VALUES
-        (N'PT001', N'PN004', N'TNV003', N'NCC004', '2026-02-05', 1, 800000, N'Lô hàng Vans bị móp hộp diện rộng', N'Đã duyệt', '2026-02-06', N'TNV002');
+        (N'PT001', N'PN004', N'NV005', N'NCC004', '2026-02-05', 1, 800000, N'Lô hàng Vans bị móp hộp diện rộng', N'Đã duyệt', '2026-02-06', N'NV003');
 
     INSERT INTO dbo.CHI_TIET_TRA_NCC (MaPT, MaSP, SoLuong, GiaNhap)
     VALUES

@@ -867,6 +867,18 @@ public class BanHangPanel extends JPanel implements IRefreshable {
     }
 
     private void checkout() {
+        {
+            int confirm = javax.swing.JOptionPane.showConfirmDialog(
+                    this,
+                    "Bạn có chắc chắn muốn thực hiện thao tác này?",
+                    "Xác nhận",
+                    javax.swing.JOptionPane.YES_NO_OPTION,
+                    javax.swing.JOptionPane.QUESTION_MESSAGE);
+            if (confirm != javax.swing.JOptionPane.YES_OPTION) {
+                return;
+            }
+        }
+
         if (cartModel.getRowCount() == 0) {
             JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this), "Giỏ hàng đang trống!", "Lỗi",
                     JOptionPane.WARNING_MESSAGE);

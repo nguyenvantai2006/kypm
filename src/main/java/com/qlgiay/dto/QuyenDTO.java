@@ -9,10 +9,15 @@ public class QuyenDTO {
     private int qlNhapHang;
     private int qlNhanVien;
     private int qlThongKe;
+    private int qlVoucher;
+    private int qlDoiTra;
+    private int qlPhanQuyen;
 
-    public QuyenDTO() {}
+    public QuyenDTO() {
+    }
 
-    public QuyenDTO(String maQuyen, String tenQuyen, int qlBanHang, int qlKhachHang, int qlSanPham, int qlNhapHang, int qlNhanVien, int qlThongKe) {
+    public QuyenDTO(String maQuyen, String tenQuyen, int qlBanHang, int qlKhachHang, int qlSanPham, int qlNhapHang,
+            int qlNhanVien, int qlThongKe, int qlVoucher, int qlDoiTra, int qlPhanQuyen) {
         this.maQuyen = maQuyen;
         this.tenQuyen = tenQuyen;
         this.qlBanHang = qlBanHang;
@@ -21,6 +26,9 @@ public class QuyenDTO {
         this.qlNhapHang = qlNhapHang;
         this.qlNhanVien = qlNhanVien;
         this.qlThongKe = qlThongKe;
+        this.qlVoucher = qlVoucher;
+        this.qlDoiTra = qlDoiTra;
+        this.qlPhanQuyen = qlPhanQuyen;
     }
 
     public String getMaQuyen() {
@@ -87,8 +95,35 @@ public class QuyenDTO {
         this.qlThongKe = qlThongKe;
     }
 
+    public int getQlVoucher() {
+        return qlVoucher;
+    }
+
+    public void setQlVoucher(int qlVoucher) {
+        this.qlVoucher = qlVoucher;
+    }
+
+    public int getQlDoiTra() {
+        return qlDoiTra;
+    }
+
+    public void setQlDoiTra(int qlDoiTra) {
+        this.qlDoiTra = qlDoiTra;
+    }
+
+    public int getQlPhanQuyen() {
+        return qlPhanQuyen;
+    }
+
+    public void setQlPhanQuyen(int qlPhanQuyen) {
+        this.qlPhanQuyen = qlPhanQuyen;
+    }
+
     @Override
     public String toString() {
-        return "QuyenDTO{" + "maQuyen='" + maQuyen + '\'' + ", tenQuyen='" + tenQuyen + '\'' + ", qlBanHang=" + qlBanHang + ", qlKhachHang=" + qlKhachHang + ", qlSanPham=" + qlSanPham + ", qlNhapHang=" + qlNhapHang + ", qlNhanVien=" + qlNhanVien + ", qlThongKe=" + qlThongKe + '}';
+        return "QuyenDTO{" + "maQuyen='" + maQuyen + '\'' + ", tenQuyen='" + tenQuyen + '\'' + ", qlBanHang="
+                + qlBanHang + ", qlKhachHang=" + qlKhachHang + ", qlSanPham=" + qlSanPham + ", qlNhapHang=" + qlNhapHang
+                + ", qlNhanVien=" + qlNhanVien + ", qlThongKe=" + qlThongKe + ", qlVoucher=" + qlVoucher + ", qlDoiTra="
+                + qlDoiTra + ", qlPhanQuyen=" + qlPhanQuyen + '}';
     }
 }

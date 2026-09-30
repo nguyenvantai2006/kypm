@@ -511,6 +511,18 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
             return;
         }
 
+        {
+            int confirm = javax.swing.JOptionPane.showConfirmDialog(
+                    this,
+                    "Bạn có chắc chắn muốn thực hiện thao tác này?",
+                    "Xác nhận",
+                    javax.swing.JOptionPane.YES_NO_OPTION,
+                    javax.swing.JOptionPane.QUESTION_MESSAGE);
+            if (confirm != javax.swing.JOptionPane.YES_OPTION) {
+                return;
+            }
+        }
+
         if (nhaCungCapBUS.addSupplier(ncc)) {
             JOptionPane.showMessageDialog(
                     SwingUtilities.getWindowAncestor(this),
@@ -544,6 +556,18 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
             return;
         }
 
+        {
+            int confirm = javax.swing.JOptionPane.showConfirmDialog(
+                    this,
+                    "Bạn có chắc chắn muốn thực hiện thao tác này?",
+                    "Xác nhận",
+                    javax.swing.JOptionPane.YES_NO_OPTION,
+                    javax.swing.JOptionPane.QUESTION_MESSAGE);
+            if (confirm != javax.swing.JOptionPane.YES_OPTION) {
+                return;
+            }
+        }
+
         if (nhaCungCapBUS.updateSupplier(ncc)) {
             JOptionPane.showMessageDialog(
                     SwingUtilities.getWindowAncestor(this),
@@ -570,6 +594,18 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                     "Cảnh báo",
                     JOptionPane.WARNING_MESSAGE);
             return;
+        }
+
+        {
+            int confirm = javax.swing.JOptionPane.showConfirmDialog(
+                    this,
+                    "Bạn có chắc chắn muốn thực hiện thao tác này?",
+                    "Xác nhận",
+                    javax.swing.JOptionPane.YES_NO_OPTION,
+                    javax.swing.JOptionPane.QUESTION_MESSAGE);
+            if (confirm != javax.swing.JOptionPane.YES_OPTION) {
+                return;
+            }
         }
 
         int modelRow = table.convertRowIndexToModel(viewRow);
