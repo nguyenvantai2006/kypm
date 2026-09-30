@@ -298,6 +298,11 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
 
         if (list != null) {
             for (QuyenDTO q : list) {
+                // Bảo vệ quyền Admin gốc khỏi việc bị chỉnh sửa định nghĩa
+                if ("Q01".equalsIgnoreCase(q.getMaQuyen())) {
+                    continue;
+                }
+
                 tableModel.addRow(new Object[] {
                         q.getMaQuyen(),
                         q.getTenQuyen(),

@@ -3,6 +3,7 @@ package com.qlgiay.gui.panel;
 import com.formdev.flatlaf.FlatClientProperties;
 import com.qlgiay.bus.NhanVienBUS;
 import com.qlgiay.bus.QuyenBUS;
+import com.qlgiay.dto.AuthSession;
 import com.qlgiay.dto.NhanVienDTO;
 import com.qlgiay.dto.QuyenDTO;
 import com.qlgiay.util.IconUtil;
@@ -28,6 +29,7 @@ import java.util.List;
 public class NhanVienPanel extends JPanel implements IRefreshable {
     private final NhanVienBUS nhanVienBUS = new NhanVienBUS();
     private final QuyenBUS quyenBUS = new QuyenBUS();
+    private final AuthSession session;
 
     private final java.util.Map<String, String> quyenMap = new java.util.HashMap<>();
 
@@ -49,6 +51,11 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
     private int hoverRow = -1;
 
     public NhanVienPanel() {
+        this(null);
+    }
+
+    public NhanVienPanel(AuthSession session) {
+        this.session = session;
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(new Color(240, 243, 245));
@@ -268,11 +275,18 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
     private void loadQuyenCombo() {
         DefaultComboBoxModel<QuyenItem> model = new DefaultComboBoxModel<>();
         quyenMap.clear();
+        String currentUser = session == null || session.getNhanVien() == null
+                ? ""
+                : session.getNhanVien().getMaNV();
 
         List<QuyenDTO> list = quyenBUS.getAll();
 
         if (list != null) {
             for (QuyenDTO q : list) {
+                if ("Q01".equalsIgnoreCase(q.getMaQuyen()) && !"NV001".equals(currentUser)) {
+                    continue;
+                }
+
                 model.addElement(new QuyenItem(q.getMaQuyen(), q.getTenQuyen()));
                 quyenMap.put(q.getMaQuyen(), q.getTenQuyen());
             }
@@ -610,6 +624,21 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
 
         NhanVienDTO nv = readForm();
         if (nv == null) {
+            return;
+        }
+
+        String currentUser = session == null || session.getNhanVien() == null
+                ? ""
+                : session.getNhanVien().getMaNV();
+        NhanVienDTO currentEmployee = nhanVienBUS.findById(ma);
+        if (currentEmployee != null
+                && "Q01".equalsIgnoreCase(currentEmployee.getMaQuyen())
+                && !"NV001".equals(currentUser)) {
+            JOptionPane.showMessageDialog(
+                    SwingUtilities.getWindowAncestor(this),
+                    "Hành động bị từ chối!\nKhông thể thay đổi quyền của tài khoản Quản trị viên.",
+                    "Bảo mật hệ thống",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
 

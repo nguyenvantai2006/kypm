@@ -70,8 +70,7 @@ public class MainFrame extends JFrame {
 
         sidebar.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createMatteBorder(0, 0, 0, 1, new Color(225, 225, 225)),
-                new EmptyBorder(12, 12, 12, 12)
-        ));
+                new EmptyBorder(12, 12, 12, 12)));
 
         JPanel brandBox = new JPanel();
         brandBox.setOpaque(false);
@@ -115,8 +114,7 @@ public class MainFrame extends JFrame {
                         "margin:8,14,8,14;" +
                         "background:null;" +
                         "hoverBackground:#EAEAEC;" +
-                        "pressedBackground:#DCE8FC;"
-        );
+                        "pressedBackground:#DCE8FC;");
         btnAccount.addActionListener(e -> new ThongTinTaiKhoanDialog(this, session).setVisible(true));
 
         JButton btnLogout = new JButton("Đăng xuất");
@@ -132,8 +130,7 @@ public class MainFrame extends JFrame {
                         "background:null;" +
                         "hoverBackground:#FF0000;" +
                         "hoverForeground:#FFFFFF;" +
-                        "pressedBackground:#FCD7D7;"
-        );
+                        "pressedBackground:#FCD7D7;");
         btnLogout.addActionListener(e -> logout());
 
         JPanel bottomActions = new JPanel();
@@ -203,7 +200,8 @@ public class MainFrame extends JFrame {
     }
 
     static Permission permissionForKey(String key) {
-        if (key == null) return Permission.ALWAYS;
+        if (key == null)
+            return Permission.ALWAYS;
 
         return switch (key) {
             case "HOME" -> Permission.ALWAYS;
@@ -219,7 +217,8 @@ public class MainFrame extends JFrame {
     }
 
     private void buildNav() {
-        if (pnlNav == null) return;
+        if (pnlNav == null)
+            return;
 
         navItems.clear();
         navGroup.clearSelection();
@@ -308,8 +307,7 @@ public class MainFrame extends JFrame {
                         "background:null;" +
                         "hoverBackground:#EAEAEC;" +
                         "selectedBackground:#E8F0FE;" +
-                        "selectedForeground:#005A9E"
-        );
+                        "selectedForeground:#005A9E");
 
         btn.addActionListener(e -> showView(key));
 
@@ -337,7 +335,7 @@ public class MainFrame extends JFrame {
             case "KHACHHANG" -> new KhachHangPanel();
             case "NHACUNGCAP" -> new NhaCungCapPanel();
             case "VOUCHER" -> new VoucherPanel();
-            case "NHANVIEN" -> new NhanVienPanel();
+            case "NHANVIEN" -> new NhanVienPanel(session);
             case "PHANQUYEN" -> new PhanQuyenPanel();
             case "THONGKE" -> new ThongKePanel();
             default -> createPlaceholderPanel("Tính năng " + key);
@@ -368,8 +366,10 @@ public class MainFrame extends JFrame {
     }
 
     public void setPanel(String key, JPanel panel) {
-        if (key == null || key.trim().isEmpty()) return;
-        if (panel == null) return;
+        if (key == null || key.trim().isEmpty())
+            return;
+        if (panel == null)
+            return;
 
         String k = key.trim().toUpperCase();
 
@@ -388,7 +388,8 @@ public class MainFrame extends JFrame {
     }
 
     public void refreshView(String key) {
-        if (key == null || key.isBlank()) return;
+        if (key == null || key.isBlank())
+            return;
 
         JPanel panel = viewMap.get(key.trim().toUpperCase());
         if (panel instanceof IRefreshable refreshable) {
@@ -466,8 +467,10 @@ public class MainFrame extends JFrame {
     }
 
     private boolean hasPermission(QuyenDTO q, Permission p) {
-        if (p == Permission.ALWAYS) return true;
-        if (q == null) return false;
+        if (p == Permission.ALWAYS)
+            return true;
+        if (q == null)
+            return false;
 
         return switch (p) {
             case QL_BANHANG -> q.getQlBanHang() == 1;
@@ -481,10 +484,12 @@ public class MainFrame extends JFrame {
     }
 
     private ImageIcon loadIcon(String path) {
-        if (path == null) return null;
+        if (path == null)
+            return null;
 
         URL url = getClass().getResource(path);
-        if (url == null) return null;
+        if (url == null)
+            return null;
 
         return new ImageIcon(url);
     }
