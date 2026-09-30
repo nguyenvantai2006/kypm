@@ -33,6 +33,9 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
     private JCheckBox chkNhapHang;
     private JCheckBox chkNhanVien;
     private JCheckBox chkThongKe;
+    private JCheckBox chkQLVoucher;
+    private JCheckBox chkQLDoiTra;
+    private JCheckBox chkQLPhanQuyen;
 
     private int hoverRow = -1;
 
@@ -98,7 +101,8 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
     private JPanel createTablePanel() {
         String[] cols = {
                 "Mã quyền", "Tên quyền", "Bán hàng", "Khách hàng",
-                "Sản phẩm", "Nhập hàng", "Nhân viên", "Thống kê"
+                "Sản phẩm", "Nhập hàng", "Nhân viên", "Thống kê",
+                "Voucher", "Đổi trả", "Phân quyền"
         };
 
         tableModel = new DefaultTableModel(cols, 0) {
@@ -126,6 +130,9 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
         table.getColumnModel().getColumn(5).setPreferredWidth(85);
         table.getColumnModel().getColumn(6).setPreferredWidth(85);
         table.getColumnModel().getColumn(7).setPreferredWidth(85);
+        table.getColumnModel().getColumn(8).setPreferredWidth(80);
+        table.getColumnModel().getColumn(9).setPreferredWidth(80);
+        table.getColumnModel().getColumn(10).setPreferredWidth(90);
 
         table.setAutoResizeMode(JTable.AUTO_RESIZE_SUBSEQUENT_COLUMNS);
         table.setAutoCreateRowSorter(true);
@@ -174,6 +181,10 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
                 buildPermissionPanel("Quản lý nhập hàng", chkNhapHang));
         addGridRow(contentPanel, gbc, row++, buildPermissionPanel("Quản lý nhân viên", chkNhanVien),
                 buildPermissionPanel("Quản lý thống kê", chkThongKe));
+        addGridRow(contentPanel, gbc, row++, buildPermissionPanel("Quản lý Voucher", chkQLVoucher),
+                buildPermissionPanel("Quản lý đổi trả", chkQLDoiTra));
+        addGridRow(contentPanel, gbc, row++, buildPermissionPanel("Quản lý phân quyền", chkQLPhanQuyen),
+                emptyPanel());
 
         JPanel alignTopPanel = new JPanel(new BorderLayout());
         alignTopPanel.setOpaque(false);
@@ -236,6 +247,9 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
         chkNhapHang = createPermissionCheckBox();
         chkNhanVien = createPermissionCheckBox();
         chkThongKe = createPermissionCheckBox();
+        chkQLVoucher = createPermissionCheckBox();
+        chkQLDoiTra = createPermissionCheckBox();
+        chkQLPhanQuyen = createPermissionCheckBox();
     }
 
     private JCheckBox createPermissionCheckBox() {
@@ -286,6 +300,12 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
         return p;
     }
 
+    private JPanel emptyPanel() {
+        JPanel p = new JPanel();
+        p.setOpaque(false);
+        return p;
+    }
+
     private void loadTable() {
         String keyword = txtSearch.getText();
         if (keyword == null) {
@@ -311,7 +331,10 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
                         q.getQlSanPham() == 1,
                         q.getQlNhapHang() == 1,
                         q.getQlNhanVien() == 1,
-                        q.getQlThongKe() == 1
+                        q.getQlThongKe() == 1,
+                        q.getQlVoucher() == 1,
+                        q.getQlDoiTra() == 1,
+                        q.getQlPhanQuyen() == 1
                 });
             }
         }
@@ -340,6 +363,9 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
         chkNhapHang.setSelected(q.getQlNhapHang() == 1);
         chkNhanVien.setSelected(q.getQlNhanVien() == 1);
         chkThongKe.setSelected(q.getQlThongKe() == 1);
+        chkQLVoucher.setSelected(q.getQlVoucher() == 1);
+        chkQLDoiTra.setSelected(q.getQlDoiTra() == 1);
+        chkQLPhanQuyen.setSelected(q.getQlPhanQuyen() == 1);
 
         txtMa.setEnabled(false);
     }
@@ -355,6 +381,9 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
         q.setQlNhapHang(chkNhapHang.isSelected() ? 1 : 0);
         q.setQlNhanVien(chkNhanVien.isSelected() ? 1 : 0);
         q.setQlThongKe(chkThongKe.isSelected() ? 1 : 0);
+        q.setQlVoucher(chkQLVoucher.isSelected() ? 1 : 0);
+        q.setQlDoiTra(chkQLDoiTra.isSelected() ? 1 : 0);
+        q.setQlPhanQuyen(chkQLPhanQuyen.isSelected() ? 1 : 0);
 
         return q;
     }
@@ -544,6 +573,9 @@ public class PhanQuyenPanel extends JPanel implements IRefreshable {
         chkNhapHang.setSelected(false);
         chkNhanVien.setSelected(false);
         chkThongKe.setSelected(false);
+        chkQLVoucher.setSelected(false);
+        chkQLDoiTra.setSelected(false);
+        chkQLPhanQuyen.setSelected(false);
 
         hoverRow = -1;
         table.clearSelection();

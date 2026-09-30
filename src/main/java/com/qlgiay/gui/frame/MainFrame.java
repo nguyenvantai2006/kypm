@@ -205,12 +205,15 @@ public class MainFrame extends JFrame {
 
         return switch (key) {
             case "HOME" -> Permission.ALWAYS;
-            case "BANHANG", "HOADON", "DOITRA", "BAOHANH" -> Permission.QL_BANHANG;
+            case "BANHANG", "HOADON", "BAOHANH" -> Permission.QL_BANHANG;
+            case "DOITRA" -> Permission.QL_DOITRA;
             case "NHAPHANG" -> Permission.QL_NHAPHANG;
             case "SANPHAM" -> Permission.QL_SANPHAM;
-            case "KHACHHANG", "VOUCHER" -> Permission.QL_KHACHHANG;
+            case "KHACHHANG" -> Permission.QL_KHACHHANG;
+            case "VOUCHER" -> Permission.QL_VOUCHER;
             case "NHACUNGCAP" -> Permission.QL_NHAPHANG;
-            case "NHANVIEN", "PHANQUYEN" -> Permission.QL_NHANVIEN;
+            case "NHANVIEN" -> Permission.QL_NHANVIEN;
+            case "PHANQUYEN" -> Permission.QL_PHANQUYEN;
             case "THONGKE" -> Permission.QL_THONGKE;
             default -> Permission.ALWAYS;
         };
@@ -429,19 +432,11 @@ public class MainFrame extends JFrame {
             String key = e.getKey();
             boolean allow = hasPermission(q, e.getValue().permission);
 
-            if (key.equals("PHANQUYEN")) {
-                if (q != null && (q.getMaQuyen().equalsIgnoreCase("ADMIN") || q.getMaQuyen().equalsIgnoreCase("Q01"))) {
-                    allow = true;
-                } else {
-                    allow = false;
-                }
-            }
-
             e.getValue().button.setVisible(allow);
             e.getValue().button.setEnabled(allow);
 
             if (first == null && allow) {
-                first = e.getKey();
+                first = key;
             }
         }
 
@@ -479,6 +474,9 @@ public class MainFrame extends JFrame {
             case QL_NHAPHANG -> q.getQlNhapHang() == 1;
             case QL_NHANVIEN -> q.getQlNhanVien() == 1;
             case QL_THONGKE -> q.getQlThongKe() == 1;
+            case QL_VOUCHER -> q.getQlVoucher() == 1;
+            case QL_DOITRA -> q.getQlDoiTra() == 1;
+            case QL_PHANQUYEN -> q.getQlPhanQuyen() == 1;
             default -> false;
         };
     }
@@ -543,6 +541,9 @@ public class MainFrame extends JFrame {
         QL_SANPHAM,
         QL_NHAPHANG,
         QL_NHANVIEN,
-        QL_THONGKE
+        QL_THONGKE,
+        QL_VOUCHER,
+        QL_DOITRA,
+        QL_PHANQUYEN
     }
 }

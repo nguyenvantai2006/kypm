@@ -31,11 +31,11 @@ BEGIN TRY
     -- ==============================================================================
     -- 2. DỮ LIỆU NỘI BỘ
     -- ==============================================================================
-    INSERT INTO dbo.QUYEN (MaQuyen, TenQuyen, QL_BanHang, QL_KhachHang, QL_SanPham, QL_NhapHang, QL_NhanVien, QL_ThongKe)
+    INSERT INTO dbo.QUYEN (MaQuyen, TenQuyen, QL_BanHang, QL_KhachHang, QL_SanPham, QL_NhapHang, QL_NhanVien, QL_ThongKe, QL_Voucher, QL_DoiTra, QL_PhanQuyen)
     VALUES
-        (N'Q01', N'Quản trị viên', 0, 0, 0, 0, 1, 0),
-        (N'Q02', N'Quản lý', 0, 1, 1, 1, 0, 1),
-        (N'Q03', N'Nhân viên', 1, 1, 0, 0, 0, 0);
+        (N'Q01', N'Quản trị viên', 0, 0, 0, 0, 1, 0, 0, 0, 1),
+        (N'Q02', N'Quản lý', 0, 1, 1, 1, 0, 1, 1, 1, 0),
+        (N'Q03', N'Nhân viên', 1, 1, 0, 0, 0, 0, 0, 1, 0);
 
     INSERT INTO dbo.NHAN_VIEN (MaNV, Ho, Ten, MaQuyen, TaiKhoan, MatKhau, Luong, TrangThai)
     VALUES
