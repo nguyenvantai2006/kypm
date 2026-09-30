@@ -68,7 +68,8 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
     private JTextField txtTenNCC;
     private JTextField txtSDT;
     private JTextArea txtDiaChi;
-    private JComboBox<String> cboTrangThai;
+    private JTextField txtTrangThai;
+    private JButton btnLock;
 
     private JTable productTable;
     private DefaultTableModel productTableModel;
@@ -296,7 +297,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
         int row = 0;
 
         addGridRow(contentPanel, gbc, row++, field("Mã nhà cung cấp", txtMaNCC), field("Tên nhà cung cấp", txtTenNCC));
-        addGridRow(contentPanel, gbc, row++, field("Số điện thoại", txtSDT), field("Trạng thái", cboTrangThai));
+        addGridRow(contentPanel, gbc, row++, field("Số điện thoại", txtSDT), field("Trạng thái", txtTrangThai));
 
         gbc.gridx = 0;
         gbc.gridy = row++;
@@ -320,33 +321,33 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
 
         JButton btnAdd = new JButton("Thêm");
         JButton btnUpdate = new JButton("Sửa");
-        JButton btnDelete = new JButton("Xóa");
+        btnLock = new JButton("Khóa");
         JButton btnClear = new JButton("Làm mới");
 
         btnAdd.setIcon(IconUtil.loadPng("/icons/add.png", 24));
         btnUpdate.setIcon(IconUtil.loadPng("/icons/edit.png", 24));
-        btnDelete.setIcon(IconUtil.loadPng("/icons/delete.png", 24));
+        btnLock.setIcon(IconUtil.loadPng("/icons/lock.png", 24));
         btnClear.setIcon(IconUtil.loadPng("/icons/refresh.png", 24));
 
         int gap = 4;
         btnAdd.setIconTextGap(gap);
         btnUpdate.setIconTextGap(gap);
-        btnDelete.setIconTextGap(gap);
+        btnLock.setIconTextGap(gap);
         btnClear.setIconTextGap(gap);
 
         styleActionButton(btnAdd, "success");
         styleActionButton(btnUpdate, "default");
-        styleActionButton(btnDelete, "danger");
+        styleActionButton(btnLock, "danger");
         styleActionButton(btnClear, "default");
 
         btnAdd.addActionListener(e -> add());
         btnUpdate.addActionListener(e -> update());
-        btnDelete.addActionListener(e -> delete());
+        btnLock.addActionListener(e -> toggleLock());
         btnClear.addActionListener(e -> clear());
 
         pnlButtons.add(btnAdd);
         pnlButtons.add(btnUpdate);
-        pnlButtons.add(btnDelete);
+        pnlButtons.add(btnLock);
         pnlButtons.add(btnClear);
 
         formWrapper.add(scroll, BorderLayout.CENTER);
@@ -364,11 +365,8 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
         txtDiaChi.setLineWrap(true);
         txtDiaChi.setWrapStyleWord(true);
 
-        cboTrangThai = new JComboBox<>(new String[] {
-                "Hoạt động", "Ngừng hoạt động"
-        });
-
-        styleComboBox(cboTrangThai);
+        txtTrangThai = new JTextField("Hoạt động");
+        txtTrangThai.setEditable(false);
     }
 
     private void addGridRow(JPanel parent, GridBagConstraints gbc, int row, JComponent left, JComponent right) {
@@ -457,7 +455,14 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
         txtTenNCC.setText(ncc.getTenNCC());
         txtSDT.setText(ncc.getSdt());
         txtDiaChi.setText(ncc.getDiaChi());
-        cboTrangThai.setSelectedIndex(ncc.getTrangThai() == 1 ? 0 : 1);
+        txtTrangThai.setText(ncc.getTrangThai() == 1 ? "Hoạt động" : "Ngừng hoạt động");
+        if (ncc.getTrangThai() == 1) {
+            btnLock.setText("Khóa");
+            btnLock.setIcon(IconUtil.loadPng("/icons/lock.png", 24));
+        } else {
+            btnLock.setText("Mở khóa");
+            btnLock.setIcon(IconUtil.loadPng("/icons/unlock.png", 24));
+        }
         loadSupplierProducts(ncc.getMaNCC());
 
         txtMaNCC.setEnabled(false);
@@ -491,7 +496,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
         ncc.setTenNCC(ten);
         ncc.setSdt(sdt);
         ncc.setDiaChi(txtDiaChi.getText().trim());
-        ncc.setTrangThai(cboTrangThai.getSelectedIndex() == 0 ? 1 : 0);
+        ncc.setTrangThai(txtTrangThai.getText().equals("Hoạt động") ? 1 : 0);
 
         return ncc;
     }
@@ -585,56 +590,52 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
         }
     }
 
-    private void delete() {
+    private void toggleLock() {
         int viewRow = table.getSelectedRow();
         if (viewRow < 0) {
             JOptionPane.showMessageDialog(
                     SwingUtilities.getWindowAncestor(this),
-                    "Vui lòng chọn nhà cung cấp cần xóa!",
+                    "Vui lòng chọn nhà cung cấp cần thao tác!",
                     "Cảnh báo",
                     JOptionPane.WARNING_MESSAGE);
             return;
-        }
-
-        {
-            int confirm = javax.swing.JOptionPane.showConfirmDialog(
-                    this,
-                    "Bạn có chắc chắn muốn thực hiện thao tác này?",
-                    "Xác nhận",
-                    javax.swing.JOptionPane.YES_NO_OPTION,
-                    javax.swing.JOptionPane.QUESTION_MESSAGE);
-            if (confirm != javax.swing.JOptionPane.YES_OPTION) {
-                return;
-            }
         }
 
         int modelRow = table.convertRowIndexToModel(viewRow);
         String ma = String.valueOf(tableModel.getValueAt(modelRow, 0));
         String ten = String.valueOf(tableModel.getValueAt(modelRow, 1));
 
+        boolean isLocking = txtTrangThai.getText().equals("Hoạt động");
+        String actionName = isLocking ? "khóa" : "mở khóa";
         int confirm = JOptionPane.showConfirmDialog(
                 SwingUtilities.getWindowAncestor(this),
-                "Bạn có chắc chắn muốn xóa nhà cung cấp [" + ten + "] không?",
-                "Xác nhận xóa",
+                "Bạn có chắc chắn muốn " + actionName + " nhà cung cấp [" + ten + "] không?",
+                "Xác nhận " + actionName,
                 JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE);
+                JOptionPane.QUESTION_MESSAGE);
 
-        if (confirm == JOptionPane.YES_OPTION) {
-            if (nhaCungCapBUS.deleteSupplier(ma)) {
-                JOptionPane.showMessageDialog(
-                        SwingUtilities.getWindowAncestor(this),
-                        "Đã xóa nhà cung cấp thành công!",
-                        "Thông báo",
-                        JOptionPane.INFORMATION_MESSAGE);
-                loadTable();
-                clear();
-            } else {
-                JOptionPane.showMessageDialog(
-                        SwingUtilities.getWindowAncestor(this),
-                        "Xóa nhà cung cấp thất bại!",
-                        "Lỗi",
-                        JOptionPane.ERROR_MESSAGE);
-            }
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        boolean success = isLocking
+                ? nhaCungCapBUS.deleteSupplier(ma)
+                : nhaCungCapBUS.restoreSupplier(ma);
+
+        if (success) {
+            JOptionPane.showMessageDialog(
+                    SwingUtilities.getWindowAncestor(this),
+                    "Đã " + actionName + " thành công!",
+                    "Thông báo",
+                    JOptionPane.INFORMATION_MESSAGE);
+            loadTable();
+            clear();
+        } else {
+            JOptionPane.showMessageDialog(
+                    SwingUtilities.getWindowAncestor(this),
+                    "Thao tác thất bại!",
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -644,7 +645,9 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
         txtTenNCC.setText("");
         txtSDT.setText("");
         txtDiaChi.setText("");
-        cboTrangThai.setSelectedIndex(0);
+        txtTrangThai.setText("Hoạt động");
+        btnLock.setText("Khóa");
+        btnLock.setIcon(IconUtil.loadPng("/icons/lock.png", 24));
 
         hoverRow = -1;
         table.clearSelection();
