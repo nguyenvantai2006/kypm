@@ -2,6 +2,8 @@ package com.qlgiay.gui.panel;
 
 import com.formdev.flatlaf.FlatClientProperties;
 import com.qlgiay.bus.KhachHangBUS;
+import com.qlgiay.bus.LichSuBUS;
+import com.qlgiay.dto.AuthSession;
 import com.qlgiay.dto.KhachHangDTO;
 import com.qlgiay.util.IconUtil;
 import org.apache.commons.text.similarity.LevenshteinDistance;
@@ -27,11 +29,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.text.Normalizer;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class KhachHangPanel extends JPanel implements IRefreshable {
     private final KhachHangBUS khachHangBUS = new KhachHangBUS();
+    private final LichSuBUS lichSuBUS = new LichSuBUS();
+    private final AuthSession session;
 
     private JTable table;
     private DefaultTableModel tableModel;
@@ -52,6 +57,11 @@ public class KhachHangPanel extends JPanel implements IRefreshable {
     private final LevenshteinDistance fuzzyDistance = LevenshteinDistance.getDefaultInstance();
 
     public KhachHangPanel() {
+        this(null);
+    }
+
+    public KhachHangPanel(AuthSession session) {
+        this.session = session;
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(new Color(240, 243, 245));
@@ -511,6 +521,27 @@ public class KhachHangPanel extends JPanel implements IRefreshable {
             return;
         }
 
+        KhachHangDTO oldKH = khachHangBUS.findById(kh.getMaKH());
+        StringBuilder changes = new StringBuilder();
+        if (oldKH != null) {
+            if (oldKH.getDiemTichLuy() != kh.getDiemTichLuy()) {
+                changes.append("Điểm tích lũy: ").append(oldKH.getDiemTichLuy()).append(" -> ")
+                        .append(kh.getDiemTichLuy()).append("; ");
+            }
+            if (!Objects.equals(oldKH.getSdt(), kh.getSdt())) {
+                changes.append("Số điện thoại: ").append(oldKH.getSdt()).append(" -> ").append(kh.getSdt())
+                        .append("; ");
+            }
+            if (!Objects.equals(oldKH.getDiaChi(), kh.getDiaChi())) {
+                changes.append("Địa chỉ: ").append(oldKH.getDiaChi()).append(" -> ").append(kh.getDiaChi())
+                        .append("; ");
+            }
+            if (oldKH.getTrangThai() != kh.getTrangThai()) {
+                changes.append("Trạng thái: ").append(oldKH.getTrangThai()).append(" -> ").append(kh.getTrangThai())
+                        .append("; ");
+            }
+        }
+
         {
             int confirm = javax.swing.JOptionPane.showConfirmDialog(
                     this,
@@ -524,6 +555,12 @@ public class KhachHangPanel extends JPanel implements IRefreshable {
         }
 
         if (khachHangBUS.updateCustomer(kh)) {
+            lichSuBUS.ghiNhatKy(
+                    getCurrentEmployeeId(),
+                    "DANH_MUC",
+                    "Cập nhật Khách hàng",
+                    "Khách hàng " + kh.getMaKH(),
+                    changes.length() == 0 ? "Cập nhật thông tin cơ bản" : changes.toString());
             JOptionPane.showMessageDialog(
                     null,
                     "Cập nhật khách hàng thành công!",
@@ -538,6 +575,13 @@ public class KhachHangPanel extends JPanel implements IRefreshable {
                     "Lỗi",
                     JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private String getCurrentEmployeeId() {
+        if (session == null || session.getNhanVien() == null || session.getNhanVien().getMaNV() == null) {
+            return "";
+        }
+        return session.getNhanVien().getMaNV().trim();
     }
 
     private void toggleLock() {

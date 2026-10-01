@@ -11,6 +11,20 @@ public class LichSuDTO {
     private LocalDateTime thoiGian;
     private String chiTiet;
 
+    public LichSuDTO() {
+    }
+
+    public LichSuDTO(int maLog, String maNV, String phanLoai, String hanhDong,
+            String doiTuong, LocalDateTime thoiGian, String chiTiet) {
+        this.maLog = maLog;
+        this.maNV = maNV;
+        this.phanLoai = phanLoai;
+        this.hanhDong = hanhDong;
+        this.doiTuong = doiTuong;
+        this.thoiGian = thoiGian;
+        this.chiTiet = chiTiet;
+    }
+
     public int getMaLog() {
         return maLog;
     }

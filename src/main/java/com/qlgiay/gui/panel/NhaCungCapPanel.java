@@ -21,6 +21,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -47,8 +48,10 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
 import com.formdev.flatlaf.FlatClientProperties;
+import com.qlgiay.bus.LichSuBUS;
 import com.qlgiay.bus.NhaCungCapBUS;
 import com.qlgiay.bus.SanPhamBUS;
+import com.qlgiay.dto.AuthSession;
 import com.qlgiay.dto.NhaCungCapDTO;
 import com.qlgiay.dto.SanPhamDTO;
 import com.qlgiay.gui.frame.MainFrame;
@@ -56,7 +59,9 @@ import com.qlgiay.util.IconUtil;
 
 public class NhaCungCapPanel extends JPanel implements IRefreshable {
     private final NhaCungCapBUS nhaCungCapBUS = new NhaCungCapBUS();
+    private final LichSuBUS lichSuBUS = new LichSuBUS();
     private final SanPhamBUS sanPhamBUS = new SanPhamBUS();
+    private final AuthSession session;
 
     private JTable table;
     private DefaultTableModel tableModel;
@@ -78,6 +83,11 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
     private int hoverRow = -1;
 
     public NhaCungCapPanel() {
+        this(null);
+    }
+
+    public NhaCungCapPanel(AuthSession session) {
+        this.session = session;
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(new Color(240, 243, 245));
@@ -565,6 +575,23 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
             return;
         }
 
+        NhaCungCapDTO oldNCC = nhaCungCapBUS.findById(ncc.getMaNCC());
+        StringBuilder changes = new StringBuilder();
+        if (oldNCC != null) {
+            if (!Objects.equals(oldNCC.getSdt(), ncc.getSdt())) {
+                changes.append("Số điện thoại: ").append(oldNCC.getSdt()).append(" -> ").append(ncc.getSdt())
+                        .append("; ");
+            }
+            if (!Objects.equals(oldNCC.getDiaChi(), ncc.getDiaChi())) {
+                changes.append("Địa chỉ: ").append(oldNCC.getDiaChi()).append(" -> ").append(ncc.getDiaChi())
+                        .append("; ");
+            }
+            if (oldNCC.getTrangThai() != ncc.getTrangThai()) {
+                changes.append("Trạng thái: ").append(oldNCC.getTrangThai()).append(" -> ").append(ncc.getTrangThai())
+                        .append("; ");
+            }
+        }
+
         {
             int confirm = javax.swing.JOptionPane.showConfirmDialog(
                     this,
@@ -578,6 +605,12 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
         }
 
         if (nhaCungCapBUS.updateSupplier(ncc)) {
+            lichSuBUS.ghiNhatKy(
+                    getCurrentEmployeeId(),
+                    "DANH_MUC",
+                    "Cập nhật Nhà cung cấp",
+                    "Nhà cung cấp " + ncc.getMaNCC(),
+                    changes.length() == 0 ? "Cập nhật thông tin cơ bản" : changes.toString());
             JOptionPane.showMessageDialog(
                     SwingUtilities.getWindowAncestor(this),
                     "Cập nhật nhà cung cấp thành công!",
@@ -592,6 +625,13 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                     "Lỗi",
                     JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private String getCurrentEmployeeId() {
+        if (session == null || session.getNhanVien() == null || session.getNhanVien().getMaNV() == null) {
+            return "";
+        }
+        return session.getNhanVien().getMaNV().trim();
     }
 
     private void toggleLock() {

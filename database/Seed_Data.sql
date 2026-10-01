@@ -27,6 +27,8 @@ BEGIN TRY
     -- Xóa các danh mục nội bộ để nạp lại dữ liệu tham chiếu chuẩn
     DELETE FROM dbo.NHAN_VIEN;
     DELETE FROM dbo.QUYEN;
+    --Xóa lịch sử hoạt động để tránh trùng lặp dữ liệu
+    DELETE FROM dbo.LICH_SU_HOAT_DONG;
 
     -- ==============================================================================
     -- 2. DỮ LIỆU NỘI BỘ
@@ -238,8 +240,34 @@ BEGIN TRY
     VALUES
         (N'PT001', N'SP003-40-DEN', 5, 800000);
 
+    -- ===============================================================================
+    -- 11. LỊCH SỬ HOẠT ĐỘNG
+    -- ===============================================================================
+    INSERT INTO dbo.LICH_SU_HOAT_DONG (MaNV, PhanLoai, HanhDong, DoiTuong, ThoiGian, ChiTiet)
+    VALUES
+    -- TAB: HỆ THỐNG (Quản trị viên thao tác)
+    (N'NV001', N'HE_THONG', N'Cấp quyền', N'Nhân viên NV007', '2026-01-02 08:30:00', N'Cấp quyền Q02 (Quản lý) cho Đặng Khoa'),
+    (N'NV001', N'HE_THONG', N'Tạo tài khoản', N'Nhân viên NV011', '2026-01-03 09:15:00', N'Tạo tài khoản mới quang.ngo'),
+    (N'NV001', N'HE_THONG', N'Reset mật khẩu', N'Nhân viên NV008', '2026-01-10 14:20:00', N'Đưa mật khẩu về mặc định 123456'),
+
+    -- TAB: DANH MUC (Quản lý thao tác)
+    (N'NV003', N'DANH_MUC', N'Thêm sản phẩm', N'Sản phẩm SP001-42-DEN', '2026-01-04 10:00:00', N'Thêm mới Nike Air Force 1 size 42'),
+    (N'NV004', N'DANH_MUC', N'Thêm sản phẩm', N'Sản phẩm SP002-41-TRANG', '2026-01-04 10:30:00', N'Thêm mới Adidas Ultraboost 22 size 41'),
+    (N'NV003', N'DANH_MUC', N'Khóa Voucher', N'Voucher BLACKFRIDAY', '2026-02-01 11:00:00', N'Tạm dừng voucher do hết ngân sách khuyến mãi'),
+    (N'NV007', N'DANH_MUC', N'Cập nhật giá', N'Sản phẩm SP015-43-DO', '2026-02-15 15:45:00', N'Cập nhật lợi nhuận từ 15% lên 20%'),
+    (N'NV004', N'DANH_MUC', N'Thêm khách hàng', N'Khách hàng KH001', '2026-02-20 09:30:00', N'Đăng ký thành viên mới Nguyễn Văn A'),
+
+    -- TAB: GIAO DICH (Thu ngân và Quản lý kho thao tác)
+    (N'NV005', N'GIAO_DICH', N'Lập phiếu nhập', N'Phiếu nhập PN001', '2026-01-05 08:15:00', N'Nhập hàng từ NCC001, tổng tiền 114,000,000đ'),
+    (N'NV003', N'GIAO_DICH', N'Lập phiếu nhập', N'Phiếu nhập PN003', '2026-01-15 13:20:00', N'Nhập hàng từ NCC003, tổng tiền 102,000,000đ'),
+    (N'NV005', N'GIAO_DICH', N'Trả hàng NCC', N'Phiếu trả PT001', '2026-02-05 10:10:00', N'Lập phiếu hoàn trả hàng móp hộp cho NCC004'),
+    (N'NV003', N'GIAO_DICH', N'Lập hóa đơn', N'Hóa đơn HD001', '2026-03-01 09:15:00', N'Thanh toán thành công 1,920,000đ, áp dụng WELCOME20'),
+    (N'NV003', N'GIAO_DICH', N'Lập hóa đơn', N'Hóa đơn HD002', '2026-03-02 10:30:00', N'Thanh toán thành công 3,600,000đ'),
+    (N'NV001', N'GIAO_DICH', N'Lập hóa đơn', N'Hóa đơn HD003', '2026-03-03 14:45:00', N'Thanh toán thành công 910,000đ, áp dụng GIAM50K'),
+    (N'NV003', N'GIAO_DICH', N'Hoàn tiền đổi trả', N'Phiếu đổi trả DT001', '2026-03-05 10:00:00', N'Hoàn trả 2,400,00０đ cho khách hàng (form không vừa)');
+
     -- ==============================================================================
-    -- 11. CẬP NHẬT TỰ ĐỘNG GIÁ BÁN THEO CÔNG THỨC: GIÁ NHẬP + (GIÁ NHẬP * % LỢI NHUẬN)
+    -- 12. CẬP NHẬT TỰ ĐỘNG GIÁ BÁN THEO CÔNG THỨC: GIÁ NHẬP + (GIÁ NHẬP * % LỢI NHUẬN)
     -- ==============================================================================
     UPDATE sp
     SET sp.DonGia = ROUND(ct.GiaNhap * (1 + sp.PhanTramLoiNhuan / 100.0), 2)

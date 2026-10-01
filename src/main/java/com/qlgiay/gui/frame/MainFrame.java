@@ -22,7 +22,6 @@ public class MainFrame extends JFrame {
     private JPanel mainContent;
     private CardLayout cardLayout;
     private JPanel pnlNav;
-
     private JLabel lblUser;
     private JLabel lblRole;
 
@@ -337,10 +336,10 @@ public class MainFrame extends JFrame {
             case "NHAPHANG" -> new NhapHangPanel(session);
             case "DOITRA" -> new DoiTraPanel(session);
             case "BAOHANH" -> new BaoHanhPanel();
-            case "SANPHAM" -> new SanPhamPanel();
-            case "KHACHHANG" -> new KhachHangPanel();
-            case "NHACUNGCAP" -> new NhaCungCapPanel();
-            case "VOUCHER" -> new VoucherPanel();
+            case "SANPHAM" -> new SanPhamPanel(session);
+            case "KHACHHANG" -> new KhachHangPanel(session);
+            case "NHACUNGCAP" -> new NhaCungCapPanel(session);
+            case "VOUCHER" -> new VoucherPanel(session);
             case "NHANVIEN" -> new NhanVienPanel(session);
             case "PHANQUYEN" -> new PhanQuyenPanel();
             case "LICHSU" -> new LichSuPanel();

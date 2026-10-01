@@ -30,6 +30,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -71,11 +72,15 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.formdev.flatlaf.FlatClientProperties;
 import com.qlgiay.bus.SanPhamBUS;
+import com.qlgiay.bus.LichSuBUS;
+import com.qlgiay.dto.AuthSession;
 import com.qlgiay.dto.SanPhamDTO;
 import com.qlgiay.util.IconUtil;
 
 public class SanPhamPanel extends JPanel implements IRefreshable {
     private final SanPhamBUS sanPhamBUS = new SanPhamBUS();
+    private final LichSuBUS lichSuBUS = new LichSuBUS();
+    private final AuthSession session;
 
     private JTable table;
     private DefaultTableModel tableModel;
@@ -114,6 +119,11 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
     private static final int THUMBNAIL_SIZE = 35;
 
     public SanPhamPanel() {
+        this(null);
+    }
+
+    public SanPhamPanel(AuthSession session) {
+        this.session = session;
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(new Color(240, 243, 245));
@@ -938,6 +948,27 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
             return;
         }
 
+        SanPhamDTO oldSP = sanPhamBUS.findById(sp.getMaSP());
+        StringBuilder changes = new StringBuilder();
+        if (oldSP != null) {
+            if (!Objects.equals(oldSP.getDonGia(), sp.getDonGia())) {
+                changes.append("Đơn giá: ").append(oldSP.getDonGia()).append(" -> ").append(sp.getDonGia())
+                        .append("; ");
+            }
+            if (!Objects.equals(oldSP.getPhanTramLoiNhuan(), sp.getPhanTramLoiNhuan())) {
+                changes.append("% lợi nhuận: ").append(oldSP.getPhanTramLoiNhuan()).append(" -> ")
+                        .append(sp.getPhanTramLoiNhuan()).append("; ");
+            }
+            if (oldSP.getSoLuong() != sp.getSoLuong()) {
+                changes.append("Số lượng: ").append(oldSP.getSoLuong()).append(" -> ").append(sp.getSoLuong())
+                        .append("; ");
+            }
+            if (oldSP.getTrangThai() != sp.getTrangThai()) {
+                changes.append("Trạng thái: ").append(oldSP.getTrangThai()).append(" -> ").append(sp.getTrangThai())
+                        .append("; ");
+            }
+        }
+
         {
             int confirm = javax.swing.JOptionPane.showConfirmDialog(
                     this,
@@ -951,6 +982,12 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         }
 
         if (sanPhamBUS.updateProduct(sp)) {
+            lichSuBUS.ghiNhatKy(
+                    getCurrentEmployeeId(),
+                    "DANH_MUC",
+                    "Cập nhật Sản phẩm",
+                    "Sản phẩm " + sp.getMaSP(),
+                    changes.length() == 0 ? "Cập nhật thông tin cơ bản" : changes.toString());
             JOptionPane.showMessageDialog(
                     null,
                     "Cập nhật sản phẩm thành công!",
@@ -965,6 +1002,13 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                     "Lỗi",
                     JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private String getCurrentEmployeeId() {
+        if (session == null || session.getNhanVien() == null || session.getNhanVien().getMaNV() == null) {
+            return "";
+        }
+        return session.getNhanVien().getMaNV().trim();
     }
 
     private void toggleLock() {

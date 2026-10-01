@@ -37,7 +37,7 @@ public class LichSuDAO {
         }
     }
 
-    public List<LichSuDTO> findByPhanLoai(String phanLoai, LocalDate tuNgay, LocalDate denNgay) {
+    public List<LichSuDTO> findByPhanLoaiAndDate(String phanLoai, LocalDate tuNgay, LocalDate denNgay) {
         List<LichSuDTO> list = new ArrayList<>();
         String sql = """
                 SELECT MaLog, MaNV, PhanLoai, HanhDong, DoiTuong, ThoiGian, ChiTiet
