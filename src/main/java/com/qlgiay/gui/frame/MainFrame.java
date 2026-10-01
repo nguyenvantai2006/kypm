@@ -340,7 +340,7 @@ public class MainFrame extends JFrame {
             case "SANPHAM" -> new SanPhamPanel();
             case "KHACHHANG" -> new KhachHangPanel();
             case "NHACUNGCAP" -> new NhaCungCapPanel();
-            case "VOUCHER" -> new VoucherPanel();
+            case "VOUCHER" -> new VoucherPanel(session);
             case "NHANVIEN" -> new NhanVienPanel(session);
             case "PHANQUYEN" -> new PhanQuyenPanel();
             case "LICHSU" -> new LichSuPanel();

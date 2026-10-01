@@ -3,6 +3,8 @@ package com.qlgiay.gui.panel;
 import com.formdev.flatlaf.FlatClientProperties;
 import com.github.lgooddatepicker.components.DatePicker;
 import com.qlgiay.bus.VoucherBUS;
+import com.qlgiay.bus.LichSuBUS;
+import com.qlgiay.dto.AuthSession;
 import com.qlgiay.dto.VoucherDTO;
 import com.qlgiay.util.IconUtil;
 import org.apache.commons.text.similarity.LevenshteinDistance;
@@ -31,6 +33,8 @@ import java.util.List;
 
 public class VoucherPanel extends JPanel implements IRefreshable {
     private final VoucherBUS voucherBUS = new VoucherBUS();
+    private final LichSuBUS lichSuBUS = new LichSuBUS();
+    private final AuthSession session;
 
     private JTable table;
     private DefaultTableModel tableModel;
@@ -55,6 +59,11 @@ public class VoucherPanel extends JPanel implements IRefreshable {
     private final LevenshteinDistance fuzzyDistance = LevenshteinDistance.getDefaultInstance();
 
     public VoucherPanel() {
+        this(null);
+    }
+
+    public VoucherPanel(AuthSession session) {
+        this.session = session;
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(new Color(240, 243, 245));
@@ -680,6 +689,12 @@ public class VoucherPanel extends JPanel implements IRefreshable {
         }
 
         if (voucherBUS.addVoucher(v)) {
+            lichSuBUS.ghiNhatKy(
+                    getCurrentEmployeeId(),
+                    "DANH_MUC",
+                    "Thêm Voucher",
+                    "Voucher " + v.getMaVoucher(),
+                    "Tạo mới Voucher");
             JOptionPane.showMessageDialog(
                     SwingUtilities.getWindowAncestor(this),
                     "Thêm voucher thành công!",
@@ -729,6 +744,12 @@ public class VoucherPanel extends JPanel implements IRefreshable {
         }
 
         if (voucherBUS.updateVoucher(v)) {
+            lichSuBUS.ghiNhatKy(
+                    getCurrentEmployeeId(),
+                    "DANH_MUC",
+                    "Cập nhật Voucher",
+                    "Voucher " + v.getMaVoucher(),
+                    "Thay đổi thông tin / ngày hạn Voucher");
             JOptionPane.showMessageDialog(
                     SwingUtilities.getWindowAncestor(this),
                     "Cập nhật voucher thành công!",
@@ -793,6 +814,12 @@ public class VoucherPanel extends JPanel implements IRefreshable {
         if (v != null) {
             v.setTrangThai(isLocking ? 3 : 1);
             if (voucherBUS.updateVoucher(v)) {
+                lichSuBUS.ghiNhatKy(
+                        getCurrentEmployeeId(),
+                        "DANH_MUC",
+                        actionName.substring(0, 1).toUpperCase() + actionName.substring(1) + " Voucher",
+                        "Voucher " + ma,
+                        "Thay đổi trạng thái hoạt động");
                 JOptionPane.showMessageDialog(
                         SwingUtilities.getWindowAncestor(this),
                         "Thao tác thành công!",
@@ -808,6 +835,14 @@ public class VoucherPanel extends JPanel implements IRefreshable {
                         JOptionPane.ERROR_MESSAGE);
             }
         }
+    }
+
+    private String getCurrentEmployeeId() {
+        if (session == null || session.getNhanVien() == null
+                || session.getNhanVien().getMaNV() == null) {
+            return "";
+        }
+        return session.getNhanVien().getMaNV().trim();
     }
 
     private void clear() {

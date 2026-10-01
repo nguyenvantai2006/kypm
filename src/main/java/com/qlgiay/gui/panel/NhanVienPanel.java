@@ -266,7 +266,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
 
         cboQuyen = new JComboBox<>();
         styleComboBox(cboQuyen);
-        loadQuyenCombo();
+        loadRoleOptions();
 
         cboTrangThai = new JComboBox<>(new String[] {
                 "Hoạt động", "Ngừng hoạt động"
@@ -274,7 +274,8 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
         styleComboBox(cboTrangThai);
     }
 
-    private void loadQuyenCombo() {
+    private void loadRoleOptions() {
+        cboQuyen.removeAllItems();
         DefaultComboBoxModel<QuyenItem> model = new DefaultComboBoxModel<>();
         quyenMap.clear();
         String currentUser = session == null || session.getNhanVien() == null
@@ -790,6 +791,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
     }
 
     private void clear() {
+        loadRoleOptions();
         txtMa.setEnabled(true);
         txtTaiKhoan.setEnabled(true);
 
@@ -978,6 +980,7 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
 
     @Override
     public void refreshData() {
+        loadRoleOptions();
         loadTable();
         clear();
     }

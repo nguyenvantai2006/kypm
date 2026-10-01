@@ -34,9 +34,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class LichSuPanel extends JPanel implements IRefreshable {
-    private static final String GIAO_DICH = "Giao dịch";
-    private static final String DANH_MUC = "Danh mục";
-    private static final String HE_THONG = "Hệ thống";
+    private static final String GIAO_DICH = "GIAO_DICH";
+    private static final String DANH_MUC = "DANH_MUC";
+    private static final String HE_THONG = "HE_THONG";
     private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     private final LichSuBUS lichSuBUS = new LichSuBUS();
@@ -106,16 +106,16 @@ public class LichSuPanel extends JPanel implements IRefreshable {
         modelHeThong = createTableModel();
 
         JTabbedPane tabs = new JTabbedPane();
-        tabs.addTab(GIAO_DICH, createTableScrollPane(modelGiaoDich));
-        tabs.addTab(DANH_MUC, createTableScrollPane(modelDanhMuc));
-        tabs.addTab(HE_THONG, createTableScrollPane(modelHeThong));
+        tabs.addTab("Giao dịch", createTableScrollPane(modelGiaoDich));
+        tabs.addTab("Danh mục", createTableScrollPane(modelDanhMuc));
+        tabs.addTab("Hệ thống", createTableScrollPane(modelHeThong));
         return tabs;
     }
 
     private DefaultTableModel createTableModel() {
         String[] columns = {
-                "Mã log", "Mã NV", "Phân loại", "Hành động",
-                "Đối tượng", "Thời gian", "Chi tiết"
+                "Mã Log", "Nhân viên", "Hành động", "Đối tượng",
+                "Thời gian", "Chi tiết"
         };
         return new DefaultTableModel(columns, 0) {
             @Override
@@ -135,7 +135,7 @@ public class LichSuPanel extends JPanel implements IRefreshable {
         table.setAutoResizeMode(JTable.AUTO_RESIZE_LAST_COLUMN);
         table.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        int[] widths = { 65, 75, 100, 120, 125, 150, 300 };
+        int[] widths = { 65, 85, 130, 140, 150, 350 };
         for (int i = 0; i < widths.length; i++) {
             table.getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
         }
@@ -166,12 +166,11 @@ public class LichSuPanel extends JPanel implements IRefreshable {
 
     private void loadCategory(String category, DefaultTableModel model, LocalDate tuNgay, LocalDate denNgay) {
         model.setRowCount(0);
-        List<LichSuDTO> logs = lichSuBUS.findByPhanLoai(category, tuNgay, denNgay);
+        List<LichSuDTO> logs = lichSuBUS.findByPhanLoaiAndDate(category, tuNgay, denNgay);
         for (LichSuDTO log : logs) {
             model.addRow(new Object[] {
                     log.getMaLog(),
                     log.getMaNV(),
-                    log.getPhanLoai(),
                     log.getHanhDong(),
                     log.getDoiTuong(),
                     formatDateTime(log.getThoiGian()),
@@ -196,7 +195,7 @@ public class LichSuPanel extends JPanel implements IRefreshable {
 
     private void loadDefaultFilter() {
         LocalDate now = LocalDate.now();
-        dpTuNgay.setDate(now.minusDays(7));
+        dpTuNgay.setDate(now.withDayOfMonth(1));
         dpDenNgay.setDate(now);
     }
 

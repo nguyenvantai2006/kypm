@@ -17,11 +17,23 @@ public class LichSuBUS {
         return lichSuDAO.insert(log);
     }
 
-    public List<LichSuDTO> findByPhanLoai(String phanLoai, LocalDate tuNgay, LocalDate denNgay) {
+    public boolean ghiNhatKy(String maNV, String phanLoai, String hanhDong,
+            String doiTuong, String chiTiet) {
+        LichSuDTO log = new LichSuDTO();
+        log.setMaNV(maNV);
+        log.setPhanLoai(phanLoai);
+        log.setHanhDong(hanhDong);
+        log.setDoiTuong(doiTuong);
+        log.setThoiGian(java.time.LocalDateTime.now());
+        log.setChiTiet(chiTiet);
+        return insert(log);
+    }
+
+    public List<LichSuDTO> findByPhanLoaiAndDate(String phanLoai, LocalDate tuNgay, LocalDate denNgay) {
         if (phanLoai == null || phanLoai.isBlank() || tuNgay == null || denNgay == null
                 || tuNgay.isAfter(denNgay)) {
             return List.of();
         }
-        return lichSuDAO.findByPhanLoai(phanLoai.trim(), tuNgay, denNgay);
+        return lichSuDAO.findByPhanLoaiAndDate(phanLoai.trim(), tuNgay, denNgay);
     }
 }
