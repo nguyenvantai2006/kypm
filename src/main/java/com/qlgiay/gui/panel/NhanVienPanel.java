@@ -1,6 +1,7 @@
 package com.qlgiay.gui.panel;
 
 import com.formdev.flatlaf.FlatClientProperties;
+import com.qlgiay.bus.LichSuBUS;
 import com.qlgiay.bus.NhanVienBUS;
 import com.qlgiay.bus.QuyenBUS;
 import com.qlgiay.dto.AuthSession;
@@ -25,9 +26,11 @@ import java.awt.event.MouseEvent;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Objects;
 
 public class NhanVienPanel extends JPanel implements IRefreshable {
     private final NhanVienBUS nhanVienBUS = new NhanVienBUS();
+    private final LichSuBUS lichSuBUS = new LichSuBUS();
     private final QuyenBUS quyenBUS = new QuyenBUS();
     private final AuthSession session;
 
@@ -649,6 +652,22 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
             return;
         }
 
+        StringBuilder changes = new StringBuilder();
+        if (currentEmployee != null) {
+            if (!Objects.equals(currentEmployee.getMaQuyen(), nv.getMaQuyen())) {
+                changes.append("Quyền: ").append(currentEmployee.getMaQuyen()).append(" -> ").append(nv.getMaQuyen())
+                        .append("; ");
+            }
+            if (!Objects.equals(currentEmployee.getLuong(), nv.getLuong())) {
+                changes.append("Lương: ").append(currentEmployee.getLuong()).append(" -> ").append(nv.getLuong())
+                        .append("; ");
+            }
+            if (currentEmployee.getTrangThai() != nv.getTrangThai()) {
+                changes.append("Trạng thái: ").append(currentEmployee.getTrangThai()).append(" -> ")
+                        .append(nv.getTrangThai()).append("; ");
+            }
+        }
+
         {
             int confirm = javax.swing.JOptionPane.showConfirmDialog(
                     this,
@@ -662,6 +681,12 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
         }
 
         if (nhanVienBUS.updateNhanVien(nv)) {
+            lichSuBUS.ghiNhatKy(
+                    getCurrentEmployeeId(),
+                    "HE_THONG",
+                    "Cập nhật Nhân viên",
+                    "Nhân viên " + nv.getMaNV(),
+                    changes.length() == 0 ? "Cập nhật thông tin cơ bản" : changes.toString());
             JOptionPane.showMessageDialog(
                     SwingUtilities.getWindowAncestor(this),
                     "Cập nhật nhân viên thành công!",
@@ -676,6 +701,13 @@ public class NhanVienPanel extends JPanel implements IRefreshable {
                     "Lỗi",
                     JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private String getCurrentEmployeeId() {
+        if (session == null || session.getNhanVien() == null || session.getNhanVien().getMaNV() == null) {
+            return "";
+        }
+        return session.getNhanVien().getMaNV().trim();
     }
 
     private void lock() {

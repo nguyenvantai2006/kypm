@@ -30,6 +30,7 @@ import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 public class VoucherPanel extends JPanel implements IRefreshable {
     private final VoucherBUS voucherBUS = new VoucherBUS();
@@ -731,6 +732,27 @@ public class VoucherPanel extends JPanel implements IRefreshable {
             return;
         }
 
+        VoucherDTO oldV = voucherBUS.findById(v.getMaVoucher());
+        StringBuilder changes = new StringBuilder();
+        if (oldV != null) {
+            if (oldV.getPhanTramGiam() != v.getPhanTramGiam()) {
+                changes.append("% giảm: ").append(oldV.getPhanTramGiam()).append(" -> ").append(v.getPhanTramGiam())
+                        .append("; ");
+            }
+            if (!Objects.equals(oldV.getSoTienGiam(), v.getSoTienGiam())) {
+                changes.append("Tiền giảm: ").append(oldV.getSoTienGiam()).append(" -> ").append(v.getSoTienGiam())
+                        .append("; ");
+            }
+            if (!Objects.equals(oldV.getNgayBatDau(), v.getNgayBatDau())) {
+                changes.append("Ngày BĐ: ").append(oldV.getNgayBatDau()).append(" -> ").append(v.getNgayBatDau())
+                        .append("; ");
+            }
+            if (!Objects.equals(oldV.getNgayKetThuc(), v.getNgayKetThuc())) {
+                changes.append("Ngày KT: ").append(oldV.getNgayKetThuc()).append(" -> ").append(v.getNgayKetThuc())
+                        .append("; ");
+            }
+        }
+
         {
             int confirm = javax.swing.JOptionPane.showConfirmDialog(
                     this,
@@ -749,7 +771,7 @@ public class VoucherPanel extends JPanel implements IRefreshable {
                     "DANH_MUC",
                     "Cập nhật Voucher",
                     "Voucher " + v.getMaVoucher(),
-                    "Thay đổi thông tin / ngày hạn Voucher");
+                    changes.length() == 0 ? "Cập nhật thông tin cơ bản" : changes.toString());
             JOptionPane.showMessageDialog(
                     SwingUtilities.getWindowAncestor(this),
                     "Cập nhật voucher thành công!",
