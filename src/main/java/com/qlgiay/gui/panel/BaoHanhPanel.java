@@ -286,16 +286,19 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
         txtLoiCanBaoHanh.setLineWrap(true);
         txtLoiCanBaoHanh.setWrapStyleWord(true);
 
-        // KHÓA TOÀN BỘ READ ONLY
+        setFormEditable(false);
+    }
+
+    private void setFormEditable(boolean editable) {
         txtMaPBH.setEnabled(false);
-        txtNgayNhan.setEnabled(false);
-        txtMaHD.setEnabled(false);
-        txtNgayTraDuKien.setEnabled(false);
-        txtMaSP.setEnabled(false);
-        txtMaKH.setEnabled(false);
-        txtChiPhiPhatSinh.setEnabled(false);
-        cboTrangThai.setEnabled(false);
-        txtLoiCanBaoHanh.setEnabled(false);
+        txtNgayNhan.setEnabled(editable);
+        txtMaHD.setEnabled(editable);
+        txtNgayTraDuKien.setEnabled(editable);
+        txtMaSP.setEnabled(editable);
+        txtMaKH.setEnabled(editable);
+        txtChiPhiPhatSinh.setEnabled(editable);
+        cboTrangThai.setEnabled(editable);
+        txtLoiCanBaoHanh.setEnabled(editable);
     }
 
     private void initFormData() {
@@ -405,6 +408,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
             return;
         }
 
+        setFormEditable(true);
         txtMaPBH.setText(pbh.getMaPBH());
         txtNgayNhan.setText(String.valueOf(pbh.getNgayNhan()));
         txtMaHD.setText(pbh.getMaHD());
@@ -586,8 +590,20 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
             return false;
         }
 
-        if (pbh.getNgayNhan() != null && pbh.getNgayTraDuKien() != null
-                && pbh.getNgayTraDuKien().isBefore(pbh.getNgayNhan())) {
+        if (pbh.getNgayTraDuKien() == null
+            || (pbh.getTrangThai() != 1 && !pbh.getNgayTraDuKien().isAfter(LocalDate.now()))) {
+            JOptionPane.showMessageDialog(
+                SwingUtilities.getWindowAncestor(this),
+            pbh.getNgayTraDuKien() == null
+                ? "Ngày trả dự kiến không được để trống!"
+                : "Ngày trả dự kiến phải sau ngày hiện tại nếu phiếu chưa hoàn thành!",
+                "Cảnh báo",
+                JOptionPane.WARNING_MESSAGE);
+            txtNgayTraDuKien.requestFocus();
+            return false;
+        }
+
+        if (pbh.getNgayNhan() != null && pbh.getNgayTraDuKien().isBefore(pbh.getNgayNhan())) {
             JOptionPane.showMessageDialog(
                     SwingUtilities.getWindowAncestor(this),
                     "Ngày trả dự kiến không được trước ngày nhận!",
@@ -738,6 +754,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
     }
 
     private void clear() {
+        setFormEditable(false);
         txtMaPBH.setText(generateWarrantyId());
         txtNgayNhan.setText(LocalDate.now().toString());
         txtMaHD.setText("");

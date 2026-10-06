@@ -800,7 +800,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                 sp.setChatLieu(txtChatLieu.getText().trim());
                 sp.setThuongHieu(txtThuongHieu.getText().trim());
                 sp.setNuocSanXuat(txtNuocSX.getText().trim());
-                sp.setNgaySanXuat(LocalDate.now());
+                sp.setNgaySanXuat(LocalDate.now().minusDays(1));
                 sp.setMoTa(txtMoTa.getText().trim());
                 sp.setMaNCC(selectedSupplierId);
                 sp.setHinhAnh(copyImage(txtAnh.getText().trim()));
@@ -809,7 +809,7 @@ public class NhaCungCapPanel extends JPanel implements IRefreshable {
                 if (sp.getMaSP().isEmpty() || sp.getTenSP().isEmpty()) {
                     throw new IllegalArgumentException();
                 }
-                if (!sanPhamBUS.addProduct(sp)) {
+                if (!sanPhamBUS.addProductWithoutPrice(sp)) {
                     JOptionPane.showMessageDialog(this, "Mã sản phẩm đã tồn tại hoặc dữ liệu không hợp lệ!", "Lỗi",
                             JOptionPane.ERROR_MESSAGE);
                     return;

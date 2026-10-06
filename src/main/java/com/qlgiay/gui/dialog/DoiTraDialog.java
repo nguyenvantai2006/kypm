@@ -30,26 +30,27 @@ public class DoiTraDialog extends JDialog {
     private final DoiTraBUS doiTraBUS = new DoiTraBUS();
     private final ChiTietHoaDonDAO chiTietDAO = new ChiTietHoaDonDAO();
     private final SanPhamDAO spDAO = new SanPhamDAO();
+    private final HoaDonDAO hoaDonDAO = new HoaDonDAO();
 
     private String maHD;
     private String maNV;
 
+    private JComboBox<String> cboHoaDon;
     private JComboBox<ProductComboItem> cboSanPham;
     private JTextField txtSoLuong;
+    private JLabel lblSoLuongToiDa;
     private JTextField txtTongHoan;
     private JComboBox<String> cboTinhTrang;
     private JTextArea txtLyDo;
+    private boolean loadingInvoices;
 
     public DoiTraDialog(Window owner, String maHD) {
         super(owner, "Tạo Phiếu Đổi Trả", ModalityType.APPLICATION_MODAL);
         this.maHD = maHD;
 
-        HoaDonDTO hd = new HoaDonDAO().findById(maHD);
-        this.maNV = hd != null ? hd.getMaNV() : "";
-
         initUI();
-        loadProductsFromInvoice();
-        setSize(450, 500);
+        loadInvoices(maHD);
+        setSize(450, 560);
         setLocationRelativeTo(owner);
     }
 
@@ -62,8 +63,10 @@ public class DoiTraDialog extends JDialog {
         gbc.insets = new Insets(5, 5, 5, 5);
         gbc.weightx = 1.0;
 
+        cboHoaDon = new JComboBox<>();
         cboSanPham = new JComboBox<>();
         txtSoLuong = new JTextField();
+        lblSoLuongToiDa = new JLabel("Số lượng tối đa là 0");
         txtTongHoan = new JTextField("0đ");
         txtTongHoan.setEditable(false);
         cboTinhTrang = new JComboBox<>(new String[] { "Còn nguyên", "Lỗi nhẹ", "Lỗi nặng" });
@@ -86,7 +89,9 @@ public class DoiTraDialog extends JDialog {
 
         int row = 0;
         gbc.gridy = row++;
-        pnl.add(new JLabel("Hóa đơn: " + maHD), gbc);
+        pnl.add(new JLabel("Mã hóa đơn:"), gbc);
+        gbc.gridy = row++;
+        pnl.add(cboHoaDon, gbc);
         gbc.gridy = row++;
         pnl.add(new JLabel("Sản phẩm đổi/trả:"), gbc);
         gbc.gridy = row++;
@@ -95,6 +100,8 @@ public class DoiTraDialog extends JDialog {
         pnl.add(new JLabel("Số lượng:"), gbc);
         gbc.gridy = row++;
         pnl.add(txtSoLuong, gbc);
+        gbc.gridy = row++;
+        pnl.add(lblSoLuongToiDa, gbc);
         gbc.gridy = row++;
         pnl.add(new JLabel("Tình trạng:"), gbc);
         gbc.gridy = row++;
@@ -124,7 +131,15 @@ public class DoiTraDialog extends JDialog {
                 calc();
             }
         });
-        cboSanPham.addActionListener(e -> calc());
+        cboHoaDon.addActionListener(e -> {
+            if (!loadingInvoices) {
+                loadProductsFromInvoice();
+            }
+        });
+        cboSanPham.addActionListener(e -> {
+            updateQuantityLimit();
+            calc();
+        });
 
         JButton btnSave = new JButton("Xác nhận");
         btnSave.putClientProperty(FlatClientProperties.STYLE, "background:#E8F5E9;foreground:#2E7D32;arc:8;");
@@ -137,8 +152,34 @@ public class DoiTraDialog extends JDialog {
         add(pnlBot, BorderLayout.SOUTH);
     }
 
+    private void loadInvoices(String selectedMaHD) {
+        loadingInvoices = true;
+        try {
+            List<HoaDonDTO> invoices = hoaDonDAO.findAll();
+            if (invoices != null) {
+                for (HoaDonDTO invoice : invoices) {
+                    cboHoaDon.addItem(invoice.getMaHD());
+                }
+            }
+            if (selectedMaHD != null) {
+                cboHoaDon.setSelectedItem(selectedMaHD);
+            }
+        } finally {
+            loadingInvoices = false;
+        }
+        loadProductsFromInvoice();
+    }
+
     private void loadProductsFromInvoice() {
-        List<ChiTietHoaDonDTO> items = chiTietDAO.findByMaHD(maHD);
+        Object selectedInvoice = cboHoaDon.getSelectedItem();
+        maHD = selectedInvoice == null ? null : selectedInvoice.toString();
+        HoaDonDTO invoice = maHD == null ? null : hoaDonDAO.findById(maHD);
+        maNV = invoice == null ? "" : invoice.getMaNV();
+
+        cboSanPham.removeAllItems();
+        txtSoLuong.setText("");
+
+        List<ChiTietHoaDonDTO> items = maHD == null ? null : chiTietDAO.findByMaHD(maHD);
         if (items != null) {
             for (ChiTietHoaDonDTO ct : items) {
                 SanPhamDTO sp = spDAO.findById(ct.getMaSP());
@@ -146,6 +187,14 @@ public class DoiTraDialog extends JDialog {
                     cboSanPham.addItem(new ProductComboItem(ct, sp));
             }
         }
+        updateQuantityLimit();
+        calc();
+    }
+
+    private void updateQuantityLimit() {
+        ProductComboItem item = (ProductComboItem) cboSanPham.getSelectedItem();
+        int maxQuantity = item == null ? 0 : item.ct.getSoLuong();
+        lblSoLuongToiDa.setText("Số lượng tối đa là " + maxQuantity);
     }
 
     private void calc() {
@@ -172,14 +221,15 @@ public class DoiTraDialog extends JDialog {
     private void submit() {
         ProductComboItem item = (ProductComboItem) cboSanPham.getSelectedItem();
         String qtyText = txtSoLuong.getText().trim();
-        if (item == null || qtyText.isEmpty() || txtLyDo.getText().trim().isEmpty()) {
+        if (maHD == null || item == null || qtyText.isEmpty() || txtLyDo.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng nhập đủ thông tin!");
             return;
         }
 
         int qty = Integer.parseInt(qtyText);
         if (qty <= 0 || qty > item.ct.getSoLuong()) {
-            JOptionPane.showMessageDialog(this, "Số lượng không hợp lệ!");
+            JOptionPane.showMessageDialog(this,
+                    "Số lượng phải từ 1 đến " + item.ct.getSoLuong() + "!");
             return;
         }
 
@@ -212,7 +262,7 @@ public class DoiTraDialog extends JDialog {
 
         @Override
         public String toString() {
-            return sp.getTenSP() + " (SL mua: " + ct.getSoLuong() + ")";
+            return sp.getMaSP() + " - " + sp.getTenSP() + " (SL mua: " + ct.getSoLuong() + ")";
         }
     }
 }

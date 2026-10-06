@@ -57,7 +57,7 @@ public class SanPhamDTO {
         }
 
         BigDecimal giaBanMoi = tinhGiaBan(giaNhapMoi, phanTramLoiNhuan);
-        return giaBanMoi == null ? giaBanHienTai : giaBanMoi;
+        return giaBanMoi == null ? giaBanHienTai : giaBanMoi.max(giaBanHienTai);
     }
 
     public SanPhamDTO() {}

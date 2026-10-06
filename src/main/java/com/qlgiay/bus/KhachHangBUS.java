@@ -15,7 +15,7 @@ public class KhachHangBUS {
         if (kh.getMaKH() == null || kh.getMaKH().trim().isEmpty())
             return false;
 
-        if (kh.getTenKH() == null || kh.getTenKH().trim().isEmpty())
+        if (!isValidCustomerName(kh.getTenKH()))
             return false;
 
         String sdt = kh.getSdt() != null ? kh.getSdt().trim() : "";
@@ -29,6 +29,10 @@ public class KhachHangBUS {
         kh.setSdt(sdt);
 
         return true;
+    }
+
+    public static boolean isValidCustomerName(String name) {
+        return name != null && name.trim().matches("[\\p{L}\\p{M}]+(?: +[\\p{L}\\p{M}]+)*");
     }
 
     public List<KhachHangDTO> getAll() {

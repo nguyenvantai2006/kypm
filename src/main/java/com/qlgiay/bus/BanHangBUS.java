@@ -17,9 +17,9 @@ import com.qlgiay.dto.VoucherDTO;
 import com.qlgiay.util.DBConnect;
 
 public class BanHangBUS {
-    private static final BigDecimal DIEM_TO_VND = new BigDecimal("1000");
     private static final BigDecimal VND_PER_POINT = new BigDecimal("10000");
-    private static final BigDecimal MAX_POINT_DISCOUNT_RATE = new BigDecimal("0.30");
+    private static final BigDecimal PERCENT_BASE = new BigDecimal("100");
+    private static final int MAX_POINTS_PER_INVOICE = 30;
 
     private final HoaDonDAO hoaDonDAO = new HoaDonDAO();
     private final ChiTietHoaDonDAO chiTietHoaDonDAO = new ChiTietHoaDonDAO();
@@ -39,6 +39,23 @@ public class BanHangBUS {
         try {
             c = DBConnect.getConnection();
             c.setAutoCommit(false);
+
+            for (ChiTietHoaDonDTO ct : items) {
+                if (ct == null || ct.getMaSP() == null || ct.getMaSP().trim().isEmpty() || ct.getSoLuong() <= 0) {
+                    c.rollback();
+                    return false;
+                }
+
+                String maSP = ct.getMaSP().trim();
+                var sanPham = sanPhamDAO.findById(c, maSP);
+                if (sanPham == null || sanPham.getDonGia() == null
+                        || sanPham.getDonGia().compareTo(BigDecimal.ZERO) < 0) {
+                    c.rollback();
+                    return false;
+                }
+                ct.setMaSP(maSP);
+                ct.setDonGia(sanPham.getDonGia());
+            }
 
             BigDecimal tamTinh = calcSubTotal(items);
             if (tamTinh.compareTo(BigDecimal.ZERO) <= 0) {
@@ -67,18 +84,13 @@ public class BanHangBUS {
             String maKH = (hd.getMaKH() == null || hd.getMaKH().trim().isEmpty()) ? null : hd.getMaKH().trim();
             if (maKH != null && diemMuonDung > 0) {
                 int diemHienCo = khachHangDAO.getPoints(c, maKH);
-                int diemYeuCau = Math.max(0, diemMuonDung);
-
-                BigDecimal maxGiamTheoDiem = tongSauVoucher.multiply(MAX_POINT_DISCOUNT_RATE)
-                        .setScale(0, RoundingMode.FLOOR);
-
-                int diemToiDaTheo30 = maxGiamTheoDiem
-                        .divide(DIEM_TO_VND, 0, RoundingMode.FLOOR)
-                        .intValue();
-
-                diemThucTeDung = Math.min(diemYeuCau, Math.min(diemHienCo, diemToiDaTheo30));
+                int diemToiDaTheoSoTienConLai = tongSauVoucher.multiply(PERCENT_BASE)
+                        .divide(tamTinh, 0, RoundingMode.FLOOR).intValue();
+                diemThucTeDung = Math.min(diemMuonDung,
+                        Math.min(diemHienCo, Math.min(MAX_POINTS_PER_INVOICE, diemToiDaTheoSoTienConLai)));
                 if (diemThucTeDung > 0) {
-                    giamDiem = new BigDecimal(diemThucTeDung).multiply(DIEM_TO_VND);
+                    BigDecimal tyLeGiamDiem = new BigDecimal(diemThucTeDung).divide(PERCENT_BASE);
+                    giamDiem = tamTinh.multiply(tyLeGiamDiem).setScale(0, RoundingMode.FLOOR);
                 }
             }
 

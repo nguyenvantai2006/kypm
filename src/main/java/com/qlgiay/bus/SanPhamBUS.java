@@ -2,6 +2,7 @@ package com.qlgiay.bus;
 
 import java.math.BigDecimal;
 import java.text.Normalizer;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 
@@ -12,6 +13,10 @@ public class SanPhamBUS {
     private final SanPhamDAO sanPhamDAO = new SanPhamDAO();
 
     private boolean isValid(SanPhamDTO sp) {
+        return isValid(sp, false);
+    }
+
+    private boolean isValid(SanPhamDTO sp, boolean allowMissingSellingPrice) {
         if (sp == null)
             return false;
 
@@ -20,18 +25,22 @@ public class SanPhamBUS {
                 || sp.getPhanTramLoiNhuan().compareTo(BigDecimal.valueOf(100)) > 0) {
             return false;
         }
-        if (sp.getGiaNhap() == null) {
-            sp.setDonGia(null);
-        } else {
-            if (sp.getGiaNhap().compareTo(BigDecimal.ZERO) <= 0)
+        if (sp.getGiaNhap() != null && sp.getGiaNhap().compareTo(BigDecimal.ZERO) <= 0)
+            return false;
+        if (sp.getDonGia() == null) {
+            if (!allowMissingSellingPrice || sp.getGiaNhap() != null)
                 return false;
-            sp.setDonGia(SanPhamDTO.tinhGiaBan(sp.getGiaNhap(), sp.getPhanTramLoiNhuan()));
+        } else if (sp.getDonGia().compareTo(BigDecimal.ZERO) <= 0) {
+            return false;
         }
 
         if (sp.getMaSP() == null || sp.getMaSP().trim().isEmpty())
             return false;
 
         if (sp.getTenSP() == null || sp.getTenSP().trim().isEmpty())
+            return false;
+
+        if (sp.getNgaySanXuat() == null || !sp.getNgaySanXuat().isBefore(LocalDate.now()))
             return false;
 
         if (sp.getSoLuong() < 0)
@@ -66,6 +75,7 @@ public class SanPhamBUS {
             return false;
 
         syncImportPrice(sp);
+        sp.setDonGia(SanPhamDTO.tinhGiaBan(sp.getGiaNhap(), sp.getPhanTramLoiNhuan()));
         if (!isValid(sp))
             return false;
 
@@ -77,8 +87,39 @@ public class SanPhamBUS {
         return sanPhamDAO.insert(sp);
     }
 
+    public boolean addProductWithoutPrice(SanPhamDTO sp) {
+        if (!prepareNewSku(sp) || !isValid(sp, true))
+            return false;
+
+        sp.setMaSP(sp.getMaSP().trim());
+
+        if (findById(sp.getMaSP()) != null)
+            return false;
+
+        return sanPhamDAO.insert(sp);
+    }
+
     public boolean updateProduct(SanPhamDTO sp) {
+        if (sp == null || sp.getMaSP() == null || sp.getMaSP().trim().isEmpty())
+            return false;
+
+        SanPhamDTO existing = findById(sp.getMaSP().trim());
+        if (existing == null)
+            return false;
+
         syncImportPrice(sp);
+        boolean giaNhapGiam = existing.getGiaNhap() != null && sp.getGiaNhap() != null
+                && sp.getGiaNhap().compareTo(existing.getGiaNhap()) < 0;
+        boolean loiNhuanThayDoi = existing.getPhanTramLoiNhuan() == null
+                || existing.getPhanTramLoiNhuan().compareTo(sp.getPhanTramLoiNhuan()) != 0;
+        if (giaNhapGiam) {
+            sp.setDonGia(existing.getDonGia());
+        } else if (loiNhuanThayDoi) {
+            sp.setDonGia(SanPhamDTO.tinhGiaBan(sp.getGiaNhap(), sp.getPhanTramLoiNhuan()));
+        } else {
+            sp.setDonGia(SanPhamDTO.tinhGiaBanTheoChinhSachGiaNhap(
+                    existing.getGiaNhap(), sp.getGiaNhap(), existing.getDonGia(), sp.getPhanTramLoiNhuan()));
+        }
         if (!isValid(sp))
             return false;
 

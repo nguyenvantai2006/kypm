@@ -164,6 +164,22 @@ public class DoiTraDAO {
         }
     }
 
+    public boolean updateTinhTrang(String maDT, String tinhTrang) {
+        String sql = "UPDATE DOI_TRA SET TinhTrang = ? WHERE MaDT = ?";
+
+        try (Connection c = DBConnect.getConnection();
+             PreparedStatement ps = c.prepareStatement(sql)) {
+
+            ps.setString(1, tinhTrang);
+            ps.setString(2, maDT);
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
     private DoiTraDTO mapRow(ResultSet rs) throws SQLException {
         DoiTraDTO dt = new DoiTraDTO();
 

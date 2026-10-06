@@ -440,6 +440,15 @@ public class KhachHangPanel extends JPanel implements IRefreshable {
             return null;
         }
 
+        if (!KhachHangBUS.isValidCustomerName(ten)) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Tên khách hàng chỉ được chứa chữ cái và dấu cách, không chứa số hoặc ký tự đặc biệt.",
+                    "Cảnh báo",
+                    JOptionPane.WARNING_MESSAGE);
+            return null;
+        }
+
         if (sdt.isEmpty() || !sdt.matches("^0\\d{9}$")) {
             JOptionPane.showMessageDialog(
                     null,

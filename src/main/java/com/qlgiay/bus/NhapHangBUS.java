@@ -72,39 +72,25 @@ public class NhapHangBUS {
             }
 
             for (ChiTietPhieuNhapDTO ct : items) {
-                // TÍNH BÌNH QUÂN GIA QUYỀN & LÀM TRÒN GIÁ BÁN
+                // Cập nhật giá bán chính thức theo thay đổi giá nhập.
                 com.qlgiay.dto.SanPhamDTO spCu = sanPhamDAO.findById(c, ct.getMaSP().trim());
                 if (spCu != null) {
-                    int tonKhoCu = spCu.getSoLuong();
                     BigDecimal phanTramLoiNhuan = spCu.getPhanTramLoiNhuan() != null
                             ? spCu.getPhanTramLoiNhuan()
                             : new BigDecimal("20");
-                    BigDecimal tyLeLoiNhuan = BigDecimal.ONE.add(
-                            phanTramLoiNhuan.divide(new BigDecimal("100"), 4, RoundingMode.HALF_UP));
-
-                    // Tính giá vốn cũ
-                    BigDecimal giaVonCu = BigDecimal.ZERO;
-                    if (tonKhoCu > 0 && spCu.getDonGia() != null
-                            && spCu.getDonGia().compareTo(BigDecimal.ZERO) > 0) {
-                        giaVonCu = spCu.getDonGia().divide(tyLeLoiNhuan, 2, RoundingMode.HALF_UP);
+                    BigDecimal giaBanMoi;
+                    if (spCu.getGiaNhap() == null || spCu.getDonGia() == null) {
+                        giaBanMoi = com.qlgiay.dto.SanPhamDTO.tinhGiaBan(ct.getGiaNhap(), phanTramLoiNhuan);
+                    } else {
+                        giaBanMoi = com.qlgiay.dto.SanPhamDTO.tinhGiaBanTheoChinhSachGiaNhap(
+                                spCu.getGiaNhap(), ct.getGiaNhap(), spCu.getDonGia(), phanTramLoiNhuan);
+                    }
+                    if (giaBanMoi == null) {
+                        c.rollback();
+                        return false;
                     }
 
-                    // Tính trung bình gia quyền
-                    int tongTonKhoMoi = tonKhoCu + ct.getSoLuong();
-                    BigDecimal tongGiaTriCu = giaVonCu.multiply(new BigDecimal(tonKhoCu));
-                    BigDecimal tongGiaTriMoiNhap = ct.getGiaNhap().multiply(new BigDecimal(ct.getSoLuong()));
-
-                    BigDecimal giaVonTrungBinh = tongGiaTriCu.add(tongGiaTriMoiNhap)
-                            .divide(new BigDecimal(tongTonKhoMoi), 2, RoundingMode.HALF_UP);
-
-                    // Tính giá bán lý thuyết
-                    BigDecimal giaBanLyThuyet = giaVonTrungBinh.multiply(tyLeLoiNhuan);
-
-                    // THUẬT TOÁN LÀM TRÒN ĐẾN 50.000đ GẦN NHẤT
-                    long rounded = Math.round(giaBanLyThuyet.doubleValue() / 50000.0) * 50000L;
-                    BigDecimal giaBanMoi = new BigDecimal(rounded);
-
-                    // Lưu giá bán đã làm tròn đẹp mắt vào Database
+                    // Lưu giá bán chính thức theo chính sách giá nhập.
                     String sqlUpdatePrice = "UPDATE SAN_PHAM SET DonGia = ? WHERE MaSP = ?";
                     try (java.sql.PreparedStatement psPrice = c.prepareStatement(sqlUpdatePrice)) {
                         psPrice.setBigDecimal(1, giaBanMoi);

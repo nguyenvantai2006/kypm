@@ -47,8 +47,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class BanHangPanel extends JPanel implements IRefreshable {
-    private static final BigDecimal DIEM_TO_VND = new BigDecimal("1000");
-    private static final BigDecimal MAX_POINT_DISCOUNT_RATE = new BigDecimal("0.30");
+    private static final BigDecimal PERCENT_BASE = new BigDecimal("100");
+    private static final int MAX_POINTS_PER_INVOICE = 30;
 
     private final AuthSession session;
     private final SanPhamBUS sanPhamBUS = new SanPhamBUS();
@@ -578,7 +578,8 @@ public class BanHangPanel extends JPanel implements IRefreshable {
         }
 
         int maxPoints = customer.getDiemTichLuy();
-        txtDiemDung.putClientProperty("JTextField.placeholderText", "Tối đa là " + maxPoints + " điểm");
+        txtDiemDung.putClientProperty("JTextField.placeholderText",
+            "Tối đa " + Math.min(maxPoints, MAX_POINTS_PER_INVOICE) + " điểm");
     }
 
     private boolean validatePointsInput(boolean showWarning) {
@@ -610,6 +611,15 @@ public class BanHangPanel extends JPanel implements IRefreshable {
             if (showWarning) {
                 JOptionPane.showMessageDialog(this,
                         "Số điểm sử dụng vượt quá số điểm hiện có: " + customer.getDiemTichLuy(),
+                        "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            }
+            return false;
+        }
+
+        if (points > MAX_POINTS_PER_INVOICE) {
+            if (showWarning) {
+                JOptionPane.showMessageDialog(this,
+                        "Mỗi hóa đơn chỉ được sử dụng tối đa " + MAX_POINTS_PER_INVOICE + " điểm.",
                         "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             }
             return false;
@@ -659,6 +669,12 @@ public class BanHangPanel extends JPanel implements IRefreshable {
         }
 
         if (sl <= 0) {
+            JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this),
+                    "Số lượng không được bé hơn 1!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (sl == 0) {
             return;
         }
 
@@ -731,7 +747,13 @@ public class BanHangPanel extends JPanel implements IRefreshable {
             return;
         }
 
-        if (sl <= 0) {
+        if (sl < 0) {
+            JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this),
+                    "Số lượng không được bé hơn 0!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        if (sl == 0) {
             removeProduct();
             return;
         }
@@ -743,10 +765,35 @@ public class BanHangPanel extends JPanel implements IRefreshable {
             return;
         }
 
-        BigDecimal gia = (BigDecimal) cartModel.getValueAt(r, 3);
+        BigDecimal gia = sp.getDonGia();
+        if (gia == null || gia.compareTo(BigDecimal.ZERO) < 0) {
+            JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this),
+                    "Không tìm thấy giá bán hợp lệ của sản phẩm!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         cartModel.setValueAt(sl, r, 2);
+        cartModel.setValueAt(gia, r, 3);
         cartModel.setValueAt(gia.multiply(new BigDecimal(sl)), r, 4);
         calculateTotals();
+    }
+
+    private boolean refreshCartPrices() {
+        for (int i = 0; i < cartModel.getRowCount(); i++) {
+            String maSP = (String) cartModel.getValueAt(i, 0);
+            SanPhamDTO sp = sanPhamBUS.findById(maSP);
+            if (sp == null || sp.getDonGia() == null || sp.getDonGia().compareTo(BigDecimal.ZERO) < 0) {
+                JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this),
+                        "Không tìm thấy giá bán hợp lệ cho sản phẩm " + maSP + ".",
+                        "Cảnh báo", JOptionPane.WARNING_MESSAGE);
+                return false;
+            }
+
+            int soLuong = (int) cartModel.getValueAt(i, 2);
+            cartModel.setValueAt(sp.getDonGia(), i, 3);
+            cartModel.setValueAt(sp.getDonGia().multiply(BigDecimal.valueOf(soLuong)), i, 4);
+        }
+        calculateTotals();
+        return true;
     }
 
     private void removeProduct() {
@@ -760,7 +807,7 @@ public class BanHangPanel extends JPanel implements IRefreshable {
         calculateTotals();
     }
 
-    private BigDecimal calculatePointDiscountPreview(BigDecimal tongSauVoucher) {
+    private BigDecimal calculatePointDiscountPreview(BigDecimal tamTinh, BigDecimal tongSauVoucher) {
         String inputKH = getComboText(txtMaKH);
         String diemStr = txtDiemDung.getText().trim();
 
@@ -783,15 +830,15 @@ public class BanHangPanel extends JPanel implements IRefreshable {
             return BigDecimal.ZERO;
         }
 
-        BigDecimal tienDiem = new BigDecimal(diemKhachNhap).multiply(DIEM_TO_VND);
-        BigDecimal max = tongSauVoucher.multiply(MAX_POINT_DISCOUNT_RATE).setScale(0, RoundingMode.FLOOR);
-        if (diemKhachNhap > kh.getDiemTichLuy()) {
+        if (diemKhachNhap > kh.getDiemTichLuy() || diemKhachNhap > MAX_POINTS_PER_INVOICE) {
             return BigDecimal.ZERO;
         }
 
-        if (tienDiem.compareTo(max) > 0) {
-            tienDiem = max;
-        }
+        int diemToiDaTheoSoTienConLai = tongSauVoucher.multiply(PERCENT_BASE)
+            .divide(tamTinh, 0, RoundingMode.FLOOR).intValue();
+        int diemThucTe = Math.min(diemKhachNhap, diemToiDaTheoSoTienConLai);
+        BigDecimal tyLeGiamDiem = new BigDecimal(diemThucTe).divide(PERCENT_BASE);
+        BigDecimal tienDiem = tamTinh.multiply(tyLeGiamDiem).setScale(0, RoundingMode.FLOOR);
         if (tienDiem.compareTo(tongSauVoucher) > 0) {
             tienDiem = tongSauVoucher;
         }
@@ -811,7 +858,7 @@ public class BanHangPanel extends JPanel implements IRefreshable {
             tongSauVoucher = BigDecimal.ZERO;
         }
 
-        BigDecimal giamDiem = calculatePointDiscountPreview(tongSauVoucher);
+        BigDecimal giamDiem = calculatePointDiscountPreview(tamTinh, tongSauVoucher);
         BigDecimal giamGia = giamVoucher.add(giamDiem);
 
         BigDecimal thanhTien = tongSauVoucher.subtract(giamDiem);
@@ -887,6 +934,10 @@ public class BanHangPanel extends JPanel implements IRefreshable {
             return;
         }
 
+        if (!refreshCartPrices()) {
+            return;
+        }
+
         if (!validatePointsInput(true)) {
             txtDiemDung.requestFocusInWindow();
             return;
@@ -933,8 +984,9 @@ public class BanHangPanel extends JPanel implements IRefreshable {
 
         BigDecimal giamVoucher = calculateVoucherDiscountPreview(tamTinh);
         BigDecimal tongSauVoucher = tamTinh.subtract(giamVoucher).max(BigDecimal.ZERO);
-        BigDecimal giamDiem = calculatePointDiscountPreview(tongSauVoucher);
-        int diemThucTe = giamDiem.divide(DIEM_TO_VND, 0, RoundingMode.FLOOR).intValue();
+        BigDecimal giamDiem = calculatePointDiscountPreview(tamTinh, tongSauVoucher);
+        String diemNhap = txtDiemDung.getText().trim();
+        int diemThucTe = diemNhap.isEmpty() ? 0 : Integer.parseInt(diemNhap);
         BigDecimal tongTien = tongSauVoucher.subtract(giamDiem).max(BigDecimal.ZERO);
         hd.setTongTien(tongTien);
 
