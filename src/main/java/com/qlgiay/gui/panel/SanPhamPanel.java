@@ -799,15 +799,51 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
             sp.setMaNCC(nhaCungCap == null ? null : nhaCungCap.getMaNCC());
             sp.setLoaiSP((String) cboLoai.getSelectedItem());
             sp.setDonViTinh(txtDonVi.getText().trim());
-            sp.setSoLuong(Integer.parseInt(txtSoLuong.getText().trim()));
 
-            BigDecimal giaNhap = txtGiaNhap.getText().trim().isEmpty() ? null
-                    : new BigDecimal(txtGiaNhap.getText().trim().replace(".", "").replace(",", ""));
+            // --- XỬ LÝ SỐ LƯỢNG AN TOÀN ---
+            String soLuongStr = txtSoLuong.getText().trim();
+            int soLuong = 0;
+            if (!soLuongStr.isEmpty()) {
+                try {
+                    soLuong = Integer.parseInt(soLuongStr);
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, "Số lượng phải là số nguyên hợp lệ!", "Cảnh báo",
+                            JOptionPane.WARNING_MESSAGE);
+                    txtSoLuong.requestFocus();
+                    return null;
+                }
+            }
+            sp.setSoLuong(soLuong);
+
+            // --- XỬ LÝ GIÁ NHẬP AN TOÀN ---
+            BigDecimal giaNhap = null;
+            String giaNhapStr = txtGiaNhap.getText().trim().replace(".", "").replace(",", "");
+            if (!giaNhapStr.isEmpty()) {
+                try {
+                    giaNhap = new BigDecimal(giaNhapStr);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null, "Giá nhập không đúng định dạng số!", "Cảnh báo",
+                            JOptionPane.WARNING_MESSAGE);
+                    txtGiaNhap.requestFocus();
+                    return null;
+                }
+            }
+
+            // --- XỬ LÝ % LỢI NHUẬN AN TOÀN ---
             String ptStr = String.valueOf(cboPhanTramLoiNhuan.getSelectedItem()).trim();
-            BigDecimal ptLoiNhuan = ptStr.isEmpty() ? new BigDecimal("20") : new BigDecimal(ptStr);
+            BigDecimal ptLoiNhuan = new BigDecimal("20");
+            if (!ptStr.isEmpty()) {
+                try {
+                    ptLoiNhuan = new BigDecimal(ptStr);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null, "% Lợi nhuận phải là số hợp lệ!", "Cảnh báo",
+                            JOptionPane.WARNING_MESSAGE);
+                    cboPhanTramLoiNhuan.requestFocus();
+                    return null;
+                }
+            }
 
-            if (ptLoiNhuan.compareTo(BigDecimal.ZERO) <= 0
-                    || ptLoiNhuan.compareTo(BigDecimal.valueOf(100)) > 0) {
+            if (ptLoiNhuan.compareTo(BigDecimal.ZERO) <= 0 || ptLoiNhuan.compareTo(BigDecimal.valueOf(100)) > 0) {
                 JOptionPane.showMessageDialog(
                         null,
                         "% lợi nhuận phải lớn hơn 0% và không vượt quá 100%.",
@@ -896,8 +932,11 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
             txtSoLuong.requestFocus();
             return false;
         }
+        if (sp.getDonGia() == null) {
+            sp.setDonGia(BigDecimal.ZERO);
+        }
 
-        if (sp.getDonGia() == null || sp.getDonGia().compareTo(BigDecimal.ZERO) <= 0) {
+        if (sp.getDonGia().compareTo(BigDecimal.ZERO) < 0) {
             JOptionPane.showMessageDialog(
                     null,
                     "Đơn giá phải lớn hơn 0!",
