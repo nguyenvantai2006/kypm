@@ -6,13 +6,13 @@ import java.sql.SQLException;
 
 public class DBConnect {
 
-    private static final String URL = "jdbc:sqlserver://localhost:1434;" +
+    private static final String URL = "jdbc:sqlserver://localhost:1433;" +
             "databaseName=QuanLyCuaHangGiay;" +
             "encrypt=true;" +
             "trustServerCertificate=true;";
 
     private static final String USER = "sa";
-    private static final String PASS = "123456";
+    private static final String PASS = "123";
 
     public static Connection getConnection() throws SQLException {
         Connection connection = DriverManager.getConnection(URL, USER, PASS);
@@ -63,8 +63,7 @@ public class DBConnect {
         try (var statement = connection.createStatement()) {
             statement.execute(sql);
         } catch (SQLException ignored) {
-            // Keep connection errors visible to the DAO while allowing existing databases
-            // to open.
+            
         }
     }
 

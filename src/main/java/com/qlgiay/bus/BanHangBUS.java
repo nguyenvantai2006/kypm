@@ -168,19 +168,20 @@ public class BanHangBUS {
     }
 
     private BigDecimal calcSubTotal(List<ChiTietHoaDonDTO> items) {
-        BigDecimal sum = BigDecimal.ZERO;
-        for (ChiTietHoaDonDTO ct : items) {
-            if (ct == null)
-                continue;
-            if (ct.getDonGia() == null)
-                continue;
-            if (ct.getSoLuong() <= 0)
-                continue;
+    BigDecimal sum = BigDecimal.ZERO;
+    int i = 0;
+    
+    while (i < items.size()) {
+        ChiTietHoaDonDTO ct = items.get(i);
+        if (ct != null && ct.getDonGia() != null && ct.getSoLuong() > 0) {
             sum = sum.add(ct.getDonGia().multiply(new BigDecimal(ct.getSoLuong())));
         }
-        return sum.setScale(0, RoundingMode.HALF_UP);
+        
+        i++; 
     }
-
+    
+    return sum.setScale(0, RoundingMode.HALF_UP);
+}
     private BigDecimal calcVoucherDiscount(VoucherDTO v, BigDecimal tamTinh) {
         if (v == null)
             return BigDecimal.ZERO;
