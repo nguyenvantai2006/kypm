@@ -136,4 +136,13 @@ public class NhanVienBUS {
     public List<NhanVienDTO> searchActive(String keyword) {
         return nhanVienDAO.searchActive(keyword);
     }
+
+    public boolean resetPassword(String maNV) {
+        NhanVienDTO nv = findById(maNV);
+        if (nv != null) {
+            nv.setMatKhau("123456");
+            return updateNhanVien(nv);
+        }
+        return false;
+    }
 }

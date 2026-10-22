@@ -242,6 +242,8 @@ public class LoginFrame extends JFrame {
         pnlLogin.setBackground(Color.BLACK);
     }
 
+    
+
     private void showForgotDialog() {
         JOptionPane.showMessageDialog(
                 LoginFrame.this,

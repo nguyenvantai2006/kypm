@@ -72,6 +72,36 @@ public class NhapHangBUS {
             }
 
             for (ChiTietPhieuNhapDTO ct : items) {
+                // Cập nhật giá bán chính thức theo thay đổi giá nhập.
+                com.qlgiay.dto.SanPhamDTO spCu = sanPhamDAO.findById(c, ct.getMaSP().trim());
+                if (spCu != null) {
+                    BigDecimal phanTramLoiNhuan = spCu.getPhanTramLoiNhuan() != null
+                            ? spCu.getPhanTramLoiNhuan()
+                            : new BigDecimal("20");
+                    BigDecimal giaBanMoi;
+                    if (spCu.getGiaNhap() == null || spCu.getDonGia() == null) {
+                        giaBanMoi = com.qlgiay.dto.SanPhamDTO.tinhGiaBan(ct.getGiaNhap(), phanTramLoiNhuan);
+                    } else {
+                        giaBanMoi = com.qlgiay.dto.SanPhamDTO.tinhGiaBanTheoChinhSachGiaNhap(
+                                spCu.getGiaNhap(), ct.getGiaNhap(), spCu.getDonGia(), phanTramLoiNhuan);
+                    }
+                    if (giaBanMoi == null) {
+                        c.rollback();
+                        return false;
+                    }
+
+                    // Lưu giá bán chính thức theo chính sách giá nhập.
+                    String sqlUpdatePrice = "UPDATE SAN_PHAM SET DonGia = ? WHERE MaSP = ?";
+                    try (java.sql.PreparedStatement psPrice = c.prepareStatement(sqlUpdatePrice)) {
+                        psPrice.setBigDecimal(1, giaBanMoi);
+                        psPrice.setString(2, ct.getMaSP().trim());
+                        if (psPrice.executeUpdate() <= 0) {
+                            c.rollback();
+                            return false;
+                        }
+                    }
+                }
+
                 if (ct.getMaPN() == null || ct.getMaPN().trim().isEmpty()) {
                     ct.setMaPN(pn.getMaPN());
                 }
@@ -83,12 +113,6 @@ public class NhapHangBUS {
                 }
 
                 ok = sanPhamDAO.increaseStock(c, ct.getMaSP().trim(), ct.getSoLuong());
-                if (!ok) {
-                    c.rollback();
-                    return false;
-                }
-
-                ok = sanPhamDAO.updateDerivedSalePrice(c, ct.getMaSP().trim(), ct.getGiaNhap());
                 if (!ok) {
                     c.rollback();
                     return false;

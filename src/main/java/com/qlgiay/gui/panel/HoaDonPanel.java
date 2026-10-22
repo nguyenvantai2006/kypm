@@ -166,49 +166,7 @@ public class HoaDonPanel extends JPanel implements IRefreshable {
                 loadTable();
             }
         });
-
-        btnCalendar = new JButton();
-        btnCalendar.setToolTipText("Chọn ngày hoặc khoảng thời gian");
-        Icon calendarIcon = IconUtil.loadPng("/icons/calendar.png", 20);
-        btnCalendar.setIcon(calendarIcon);
-        if (calendarIcon == null) {
-            btnCalendar.setText("Lịch");
-        }
-        btnCalendar.setPreferredSize(new Dimension(34, 32));
-        styleActionButton(btnCalendar, "default");
-        btnCalendar.addActionListener(e -> {
-            try {
-                openDatePickerDialog();
-            } catch (RuntimeException ex) {
-                ex.printStackTrace();
-                JOptionPane.showMessageDialog(
-                        SwingUtilities.getWindowAncestor(this),
-                        "Không thể mở bộ chọn ngày: " + ex.getMessage(),
-                        "Lỗi", JOptionPane.ERROR_MESSAGE);
-            }
-        });
-
-        cboClear = new JComboBox<>(new String[] { "Clear" });
-        styleComboBox(cboClear);
-        cboClear.setPreferredSize(new Dimension(45, 32));
-        cboClear.addActionListener(e -> clearDateFilter());
-
-        txtSelectedDate = new JTextField("Tất cả");
-        txtSelectedDate.setEditable(false);
-        txtSelectedDate.setFocusable(false);
-        txtSelectedDate.setHorizontalAlignment(SwingConstants.CENTER);
-        txtSelectedDate.setPreferredSize(new Dimension(150, 32));
-        txtSelectedDate.putClientProperty(FlatClientProperties.STYLE, "arc:8;focusWidth:0");
-
-        JPanel pnlFilters = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
-        pnlFilters.setOpaque(false);
-        pnlFilters.add(btnCalendar);
-        pnlFilters.add(cboClear);
-        pnlFilters.add(Box.createHorizontalStrut(5));
-        pnlFilters.add(txtSelectedDate);
-
         p.add(txtSearch, BorderLayout.CENTER);
-        p.add(pnlFilters, BorderLayout.EAST);
 
         return p;
     }
@@ -242,6 +200,7 @@ public class HoaDonPanel extends JPanel implements IRefreshable {
         });
 
         JScrollPane sp = new JScrollPane(tableHoaDon);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(sp);
         sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createCompoundBorder(
@@ -324,6 +283,7 @@ public class HoaDonPanel extends JPanel implements IRefreshable {
         scrollContent.add(pnlButtons, BorderLayout.SOUTH);
 
         JScrollPane scroll = new JScrollPane(scrollContent);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(scroll);
         scroll.setBorder(null);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
         scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -445,6 +405,7 @@ public class HoaDonPanel extends JPanel implements IRefreshable {
         styleTable(tableChiTiet, false);
 
         JScrollPane sp = new JScrollPane(tableChiTiet);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(sp);
         sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setPreferredSize(new Dimension(0, 180));
         sp.setBorder(BorderFactory.createCompoundBorder(
@@ -696,7 +657,7 @@ public class HoaDonPanel extends JPanel implements IRefreshable {
         if (list != null) {
             for (ChiTietHoaDonDTO ct : list) {
                 SanPhamDTO sp = sanPhamDAO.findById(ct.getMaSP());
-                String tenSP = sp != null ? sp.getTenSP() : ct.getMaSP();
+                String tenSP = ct.getMaSP() + " - " + (sp != null ? sp.getTenSP() : "");
                 BigDecimal thanhTien = ct.getDonGia().multiply(new BigDecimal(ct.getSoLuong()));
 
                 chiTietModel.addRow(new Object[] {

@@ -1,0 +1,53 @@
+modules:
+  - name: san-pham-persistence
+    kind: god-class
+    source_loc: "src/main/java/com/qlgiay/dao/SanPhamDAO.java:15"
+    used_by_units: [nhap-hang-page, ban-hang-page]
+    fields:
+      - name: increaseStock
+        type: "boolean increaseStock(Connection,String,int)"
+      - name: decreaseStock
+        type: "boolean decreaseStock(Connection,String,int)"
+      - name: updateDerivedSalePrice
+        type: "boolean updateDerivedSalePrice(Connection,String,BigDecimal)"
+      - name: findByIdActive
+        type: "SanPhamDTO findByIdActive(String)"
+      - name: findBySupplier
+        type: "List<SanPhamDTO> findBySupplier(String)"
+    god_class: true
+    split_candidate: true
+    migration_strategy: split
+    notes: "DAO vừa đọc catalog, vừa điều khiển tồn kho và giá bán; FIFO sẽ làm tăng trách nhiệm lô hàng."
+
+  - name: jdbc-transaction
+    kind: utility
+    source_loc: "src/main/java/com/qlgiay/util/DBConnect.java:1"
+    used_by_units: [nhap-hang-page, ban-hang-page]
+    fields:
+      - name: DBConnect.getConnection
+        type: "Connection getConnection()"
+      - name: setAutoCommit
+        type: "void Connection.setAutoCommit(boolean)"
+      - name: commit
+        type: "void Connection.commit()"
+      - name: rollback
+        type: "void Connection.rollback()"
+    god_class: false
+    split_candidate: false
+    migration_strategy: wrap
+    notes: "Hai BUS tự quản lý transaction JDBC trên cùng connection."
+
+  - name: voucher-persistence
+    kind: store
+    source_loc: "src/main/java/com/qlgiay/dao/VoucherDAO.java:1"
+    used_by_units: [ban-hang-page]
+    fields:
+      - name: findValidById
+        type: "VoucherDTO findValidById(Connection,String,BigDecimal)"
+      - name: decreaseQuantity
+        type: "boolean decreaseQuantity(Connection,String,int)"
+    god_class: false
+    split_candidate: false
+    migration_strategy: wrap
+    notes: "Voucher được kiểm tra và trừ số lượng trong transaction bán hàng."
+

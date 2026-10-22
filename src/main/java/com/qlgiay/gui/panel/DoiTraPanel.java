@@ -71,15 +71,18 @@ public class DoiTraPanel extends JPanel implements IRefreshable {
     private JTextField txtMaDT;
     private JTextField txtNgayDoiTra;
     private JTextField txtNhanVien;
-    private JTextField txtMaHD;
-    private JTextField txtMaSP;
+    private JComboBox<String> cboMaHD;
+    private JComboBox<String> cboMaSP;
     private JTextField txtSoLuong;
+    private JLabel lblSoLuongToiDa;
     private JTextField txtTongTienHoan;
     private JComboBox<String> cboTinhTrang;
     private JTextArea txtLyDo;
 
     private int hoverRow = -1;
     private boolean loadingTable = false;
+    private boolean loadingReturnOptions = false;
+    private List<ChiTietHoaDonDTO> selectedInvoiceDetails = List.of();
     private final LevenshteinDistance fuzzyDistance = LevenshteinDistance.getDefaultInstance();
 
     public DoiTraPanel(AuthSession session) {
@@ -140,30 +143,13 @@ public class DoiTraPanel extends JPanel implements IRefreshable {
             }
         });
 
-        btnCalendar = new JButton();
-        btnCalendar.setToolTipText("Chọn ngày hoặc khoảng thời gian");
-        Icon calendarIcon = IconUtil.loadPng("/icons/calendar.png", 20);
-        btnCalendar.setIcon(calendarIcon);
-        if (calendarIcon == null)
-            btnCalendar.setText("Lịch");
-        btnCalendar.setPreferredSize(new Dimension(34, 32));
-        styleActionButton(btnCalendar, "default");
-        btnCalendar.addActionListener(e -> openDatePickerDialog());
+       
 
-        cboClear = new JComboBox<>(new String[] { "Clear" });
-        styleComboBox(cboClear);
-        cboClear.setPreferredSize(new Dimension(45, 32));
-        cboClear.addActionListener(e -> clearDateFilter());
-
-        txtSelectedDate = new JTextField("Tất cả");
-        txtSelectedDate.setEditable(false);
-        txtSelectedDate.setFocusable(false);
-        txtSelectedDate.setHorizontalAlignment(SwingConstants.CENTER);
-        txtSelectedDate.setPreferredSize(new Dimension(66, 32));
-        txtSelectedDate.putClientProperty(FlatClientProperties.STYLE, "arc:8;focusWidth:0");
+       
 
         cboFilterTinhTrang = new JComboBox<>(new String[] {
-                "Tất cả tình trạng", "Còn nguyên", "Lỗi nhẹ", "Lỗi nặng"
+            "Tất cả tình trạng", "Còn nguyên", "Lỗi nhẹ", "Lỗi nặng",
+            "Đã đổi sản phẩm", "Đã hoàn tiền"
         });
         styleComboBox(cboFilterTinhTrang);
         cboFilterTinhTrang.setPreferredSize(new Dimension(140, 32));
@@ -171,10 +157,6 @@ public class DoiTraPanel extends JPanel implements IRefreshable {
 
         JPanel pnlFilters = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
         pnlFilters.setOpaque(false);
-        pnlFilters.add(btnCalendar);
-        pnlFilters.add(cboClear);
-        pnlFilters.add(Box.createHorizontalStrut(5));
-        pnlFilters.add(txtSelectedDate);
         pnlFilters.add(Box.createHorizontalStrut(10));
         pnlFilters.add(cboFilterTinhTrang);
 
@@ -217,6 +199,7 @@ public class DoiTraPanel extends JPanel implements IRefreshable {
         });
 
         JScrollPane sp = new JScrollPane(table);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(sp);
         sp.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(225, 225, 225)),
                 new EmptyBorder(2, 2, 2, 2)));
@@ -247,8 +230,15 @@ public class DoiTraPanel extends JPanel implements IRefreshable {
 
         addGridRow(contentPanel, gbc, row++, field("Mã đổi trả", txtMaDT), field("Ngày đổi trả", txtNgayDoiTra));
         addGridRow(contentPanel, gbc, row++, field("Nhân viên", txtNhanVien), field("Tình trạng", cboTinhTrang));
-        addGridRow(contentPanel, gbc, row++, field("Mã hóa đơn", txtMaHD), field("Mã sản phẩm", txtMaSP));
+        addGridRow(contentPanel, gbc, row++, field("Mã hóa đơn", cboMaHD), field("Mã sản phẩm", cboMaSP));
+
         addGridRow(contentPanel, gbc, row++, field("Số lượng", txtSoLuong), field("Tổng tiền hoàn", txtTongTienHoan));
+
+        gbc.gridx = 0;
+        gbc.gridy = row++;
+        gbc.gridwidth = 2;
+        gbc.insets = new Insets(0, 0, 8, 0);
+        contentPanel.add(lblSoLuongToiDa, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = row++;
@@ -261,33 +251,40 @@ public class DoiTraPanel extends JPanel implements IRefreshable {
         alignTopPanel.add(contentPanel, BorderLayout.NORTH);
 
         JScrollPane scroll = new JScrollPane(alignTopPanel);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(scroll);
         scroll.setBorder(null);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
         scroll.getViewport().setOpaque(false);
         scroll.setOpaque(false);
 
-        JPanel pnlButtons = new JPanel(new GridLayout(1, 2, 5, 0));
-        pnlButtons.setPreferredSize(new Dimension(0, 40));
+        JPanel pnlButtons = new JPanel(new GridLayout(2, 2, 5, 5));
+        pnlButtons.setPreferredSize(new Dimension(0, 85));
         pnlButtons.setOpaque(false);
 
         JButton btnAdd = new JButton("Thêm");
         JButton btnClear = new JButton("Làm mới");
+        JButton btnMarkExchanged = new JButton("Đã đổi sản phẩm");
+        JButton btnMarkRefunded = new JButton("Đã hoàn tiền");
 
-        btnAdd.setIcon(IconUtil.loadPng("/icons/add.png", 24));
         btnClear.setIcon(IconUtil.loadPng("/icons/refresh.png", 24));
 
         int gap = 4;
-        btnAdd.setIconTextGap(gap);
         btnClear.setIconTextGap(gap);
 
         styleActionButton(btnAdd, "success");
         styleActionButton(btnClear, "default");
+        styleActionButton(btnMarkExchanged, "default");
+        styleActionButton(btnMarkRefunded, "default");
 
         btnAdd.addActionListener(e -> add());
         btnClear.addActionListener(e -> clear());
+        btnMarkExchanged.addActionListener(e -> updateSelectedStatus("Đã đổi sản phẩm"));
+        btnMarkRefunded.addActionListener(e -> updateSelectedStatus("Đã hoàn tiền"));
 
         pnlButtons.add(btnAdd);
         pnlButtons.add(btnClear);
+        pnlButtons.add(btnMarkExchanged);
+        pnlButtons.add(btnMarkRefunded);
 
         formWrapper.add(scroll, BorderLayout.CENTER);
         formWrapper.add(pnlButtons, BorderLayout.SOUTH);
@@ -299,9 +296,10 @@ public class DoiTraPanel extends JPanel implements IRefreshable {
         txtMaDT = new JTextField();
         txtNgayDoiTra = new JTextField();
         txtNhanVien = new JTextField();
-        txtMaHD = new JTextField();
-        txtMaSP = new JTextField();
+        cboMaHD = new JComboBox<>();
+        cboMaSP = new JComboBox<>();
         txtSoLuong = new JTextField();
+        lblSoLuongToiDa = new JLabel("Số lượng tối đa là 0");
         txtTongTienHoan = new JTextField();
 
         txtNgayDoiTra.setEnabled(false);
@@ -309,8 +307,8 @@ public class DoiTraPanel extends JPanel implements IRefreshable {
         txtTongTienHoan.setEnabled(false);
         txtMaDT.setEnabled(false);
 
-        txtMaHD.putClientProperty("JTextField.placeholderText", "Nhập mã hóa đơn...");
-        txtMaSP.putClientProperty("JTextField.placeholderText", "Nhập mã sản phẩm...");
+        styleComboBox(cboMaHD);
+        styleComboBox(cboMaSP);
         txtSoLuong.putClientProperty("JTextField.placeholderText", "Nhập số lượng...");
 
         setNumberOnly(txtSoLuong);
@@ -341,8 +339,15 @@ public class DoiTraPanel extends JPanel implements IRefreshable {
             }
         };
 
-        txtMaHD.getDocument().addDocumentListener(previewListener);
-        txtMaSP.getDocument().addDocumentListener(previewListener);
+        cboMaHD.addActionListener(e -> {
+            if (!loadingReturnOptions) {
+                loadProductsForSelectedInvoice();
+            }
+        });
+        cboMaSP.addActionListener(e -> {
+            updateQuantityLimit();
+            calculateRefundPreview();
+        });
         txtSoLuong.getDocument().addDocumentListener(previewListener);
     }
 
@@ -351,6 +356,61 @@ public class DoiTraPanel extends JPanel implements IRefreshable {
         txtNgayDoiTra.setText(LocalDate.now().toString());
         txtNhanVien.setText(getNhanVienName());
         txtTongTienHoan.setText("0đ");
+        loadInvoiceOptions();
+    }
+
+    private void loadInvoiceOptions() {
+        loadingReturnOptions = true;
+        try {
+            cboMaHD.removeAllItems();
+            List<HoaDonDTO> invoices = hoaDonDAO.findAll();
+            if (invoices != null) {
+                for (HoaDonDTO invoice : invoices) {
+                    cboMaHD.addItem(invoice.getMaHD());
+                }
+            }
+        } finally {
+            loadingReturnOptions = false;
+        }
+        loadProductsForSelectedInvoice();
+    }
+
+    private void loadProductsForSelectedInvoice() {
+        Object selectedInvoice = cboMaHD.getSelectedItem();
+        String maHD = selectedInvoice == null ? null : selectedInvoice.toString();
+
+        cboMaSP.removeAllItems();
+        txtSoLuong.setText("");
+
+        List<ChiTietHoaDonDTO> details = maHD == null ? null : chiTietHoaDonDAO.findByMaHD(maHD);
+        selectedInvoiceDetails = details == null ? List.of() : details;
+        for (ChiTietHoaDonDTO detail : selectedInvoiceDetails) {
+            cboMaSP.addItem(detail.getMaSP());
+        }
+
+        updateQuantityLimit();
+        calculateRefundPreview();
+    }
+
+    private ChiTietHoaDonDTO getSelectedInvoiceDetail() {
+        Object selectedInvoice = cboMaHD.getSelectedItem();
+        Object selectedProduct = cboMaSP.getSelectedItem();
+        if (selectedInvoice == null || selectedProduct == null) {
+            return null;
+        }
+
+        for (ChiTietHoaDonDTO detail : selectedInvoiceDetails) {
+            if (detail.getMaSP() != null && detail.getMaSP().equals(selectedProduct.toString())) {
+                return detail;
+            }
+        }
+        return null;
+    }
+
+    private void updateQuantityLimit() {
+        ChiTietHoaDonDTO detail = getSelectedInvoiceDetail();
+        int maxQuantity = detail == null ? 0 : detail.getSoLuong();
+        lblSoLuongToiDa.setText("Số lượng tối đa là " + maxQuantity);
     }
 
     private void addGridRow(JPanel parent, GridBagConstraints gbc, int row, JComponent left, JComponent right) {
@@ -382,6 +442,7 @@ public class DoiTraPanel extends JPanel implements IRefreshable {
         p.add(new JLabel("Lý do"), BorderLayout.NORTH);
 
         JScrollPane sp = new JScrollPane(txtLyDo);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(sp);
         sp.setPreferredSize(new Dimension(0, 55));
         sp.putClientProperty(FlatClientProperties.STYLE, "arc: 8;");
 
@@ -580,18 +641,62 @@ public class DoiTraPanel extends JPanel implements IRefreshable {
         txtMaDT.setText(dt.getMaDT());
         txtNgayDoiTra.setText(String.valueOf(dt.getNgayDoiTra()));
         txtNhanVien.setText(dt.getMaNV());
-        txtMaHD.setText(dt.getMaHD());
-        txtMaSP.setText(dt.getMaSP());
+        cboMaHD.setSelectedItem(dt.getMaHD());
+        cboMaSP.setSelectedItem(dt.getMaSP());
         txtSoLuong.setText(String.valueOf(dt.getSoLuong()));
         txtTongTienHoan.setText(formatMoney(dt.getTongTienHoan()));
         txtLyDo.setText(dt.getLyDo());
         cboTinhTrang.setSelectedItem(dt.getTinhTrang());
 
-        txtMaHD.setEnabled(false);
-        txtMaSP.setEnabled(false);
+        cboMaHD.setEnabled(false);
+        cboMaSP.setEnabled(false);
         txtSoLuong.setEnabled(false);
         txtLyDo.setEnabled(false);
         cboTinhTrang.setEnabled(false);
+    }
+
+    private void updateSelectedStatus(String status) {
+        int viewRow = table.getSelectedRow();
+        if (viewRow < 0) {
+            JOptionPane.showMessageDialog(
+                    SwingUtilities.getWindowAncestor(this),
+                    "Vui lòng chọn phiếu đổi trả cần cập nhật tình trạng!",
+                    "Cảnh báo",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int modelRow = table.convertRowIndexToModel(viewRow);
+        String maDT = String.valueOf(tableModel.getValueAt(modelRow, 0));
+        int confirm = JOptionPane.showConfirmDialog(
+            SwingUtilities.getWindowAncestor(this),
+            "Bạn có chắc muốn cập nhật phiếu " + maDT + " thành \"" + status + "\" không?",
+            "Xác nhận cập nhật",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE);
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        if (doiTraDAO.updateTinhTrang(maDT, status)) {
+            if (!"Tất cả tình trạng".equals(cboFilterTinhTrang.getSelectedItem())) {
+                cboFilterTinhTrang.setSelectedIndex(0);
+            } else {
+                loadTable();
+            }
+            clear();
+            JOptionPane.showMessageDialog(
+                    SwingUtilities.getWindowAncestor(this),
+                    "Đã cập nhật tình trạng: " + status,
+                    "Thông báo",
+                    JOptionPane.INFORMATION_MESSAGE);
+        } else {
+            JOptionPane.showMessageDialog(
+                    SwingUtilities.getWindowAncestor(this),
+                    "Cập nhật tình trạng thất bại!",
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private DoiTraDTO readForm() {
@@ -605,8 +710,8 @@ public class DoiTraPanel extends JPanel implements IRefreshable {
                 dt.setMaNV(session.getNhanVien().getMaNV());
             }
 
-            dt.setMaHD(txtMaHD.getText().trim());
-            dt.setMaSP(txtMaSP.getText().trim());
+            dt.setMaHD(cboMaHD.getSelectedItem() == null ? "" : cboMaHD.getSelectedItem().toString());
+            dt.setMaSP(cboMaSP.getSelectedItem() == null ? "" : cboMaSP.getSelectedItem().toString());
             dt.setSoLuong(Integer.parseInt(txtSoLuong.getText().trim()));
             dt.setLyDo(txtLyDo.getText().trim());
             dt.setTinhTrang(String.valueOf(cboTinhTrang.getSelectedItem()));
@@ -647,7 +752,7 @@ public class DoiTraPanel extends JPanel implements IRefreshable {
                     "Mã hóa đơn không được để trống!",
                     "Cảnh báo",
                     JOptionPane.WARNING_MESSAGE);
-            txtMaHD.requestFocus();
+            cboMaHD.requestFocusInWindow();
             return false;
         }
 
@@ -658,7 +763,7 @@ public class DoiTraPanel extends JPanel implements IRefreshable {
                     "Không tìm thấy hóa đơn này!",
                     "Cảnh báo",
                     JOptionPane.WARNING_MESSAGE);
-            txtMaHD.requestFocus();
+            cboMaHD.requestFocusInWindow();
             return false;
         }
 
@@ -668,7 +773,7 @@ public class DoiTraPanel extends JPanel implements IRefreshable {
                     "Mã sản phẩm không được để trống!",
                     "Cảnh báo",
                     JOptionPane.WARNING_MESSAGE);
-            txtMaSP.requestFocus();
+            cboMaSP.requestFocusInWindow();
             return false;
         }
 
@@ -679,7 +784,7 @@ public class DoiTraPanel extends JPanel implements IRefreshable {
                     "Không tìm thấy sản phẩm này!",
                     "Cảnh báo",
                     JOptionPane.WARNING_MESSAGE);
-            txtMaSP.requestFocus();
+            cboMaSP.requestFocusInWindow();
             return false;
         }
 
@@ -700,7 +805,7 @@ public class DoiTraPanel extends JPanel implements IRefreshable {
                     "Sản phẩm này không tồn tại trong hóa đơn đã nhập!",
                     "Cảnh báo",
                     JOptionPane.WARNING_MESSAGE);
-            txtMaSP.requestFocus();
+            cboMaSP.requestFocusInWindow();
             return false;
         }
 
@@ -877,8 +982,8 @@ public class DoiTraPanel extends JPanel implements IRefreshable {
     private void clear() {
         txtMaDT.setEnabled(false);
 
-        txtMaHD.setEnabled(true);
-        txtMaSP.setEnabled(true);
+        cboMaHD.setEnabled(true);
+        cboMaSP.setEnabled(true);
         txtSoLuong.setEnabled(true);
         txtLyDo.setEnabled(true);
         cboTinhTrang.setEnabled(true);
@@ -886,8 +991,9 @@ public class DoiTraPanel extends JPanel implements IRefreshable {
         txtMaDT.setText(generateReturnId());
         txtNgayDoiTra.setText(LocalDate.now().toString());
         txtNhanVien.setText(getNhanVienName());
-        txtMaHD.setText("");
-        txtMaSP.setText("");
+        if (cboMaHD.getItemCount() > 0) {
+            cboMaHD.setSelectedIndex(0);
+        }
         txtSoLuong.setText("");
         txtTongTienHoan.setText("0đ");
         txtLyDo.setText("");
@@ -897,15 +1003,14 @@ public class DoiTraPanel extends JPanel implements IRefreshable {
         table.clearSelection();
         table.repaint();
 
-        txtMaHD.requestFocus();
+        cboMaHD.requestFocusInWindow();
     }
 
     private void calculateRefundPreview() {
-        String maHD = txtMaHD.getText().trim();
-        String maSP = txtMaSP.getText().trim();
         String soLuongText = txtSoLuong.getText().trim();
 
-        if (maHD.isEmpty() || maSP.isEmpty() || soLuongText.isEmpty()) {
+        ChiTietHoaDonDTO detail = getSelectedInvoiceDetail();
+        if (detail == null || soLuongText.isEmpty()) {
             txtTongTienHoan.setText("0đ");
             return;
         }
@@ -923,21 +1028,13 @@ public class DoiTraPanel extends JPanel implements IRefreshable {
             return;
         }
 
-        List<ChiTietHoaDonDTO> list = chiTietHoaDonDAO.findByMaHD(maHD);
-        if (list == null || list.isEmpty()) {
-            txtTongTienHoan.setText("0đ");
+        if (soLuong > detail.getSoLuong()) {
+            txtTongTienHoan.setText("Vượt quá SL mua!");
             return;
         }
 
-        for (ChiTietHoaDonDTO ct : list) {
-            if (ct.getMaSP() != null && ct.getMaSP().equalsIgnoreCase(maSP) && ct.getDonGia() != null) {
-                BigDecimal tongTien = ct.getDonGia().multiply(new BigDecimal(soLuong));
-                txtTongTienHoan.setText(formatMoney(tongTien));
-                return;
-            }
-        }
-
-        txtTongTienHoan.setText("0đ");
+        BigDecimal tongTien = detail.getDonGia().multiply(new BigDecimal(soLuong));
+        txtTongTienHoan.setText(formatMoney(tongTien));
     }
 
     private String generateReturnId() {

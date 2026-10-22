@@ -13,9 +13,7 @@ import java.awt.event.MouseEvent;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -25,10 +23,8 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.SpinnerDateModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -45,6 +41,8 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
 
 import com.formdev.flatlaf.FlatClientProperties;
+import com.github.lgooddatepicker.components.DatePicker;
+import com.github.lgooddatepicker.components.DatePickerSettings;
 import com.qlgiay.bus.ThongKeBUS;
 import com.qlgiay.dto.DoanhThuTheoNgayDTO;
 import com.qlgiay.dto.LoaiSanPhamThongKeDTO;
@@ -55,8 +53,8 @@ import com.qlgiay.dto.TopSanPhamDTO;
 public class ThongKePanel extends JPanel implements IRefreshable {
     private final ThongKeBUS thongKeBUS = new ThongKeBUS();
 
-    private JSpinner spTuNgay;
-    private JSpinner spDenNgay;
+    private DatePicker dpTuNgay;
+    private DatePicker dpDenNgay;
     private JButton btnThongKe;
     private JButton btnLamMoi;
     private JComboBox<String> cboThang;
@@ -82,6 +80,7 @@ public class ThongKePanel extends JPanel implements IRefreshable {
     private DefaultTableModel modelLoiNhuanQuy;
     private List<LoiNhuanTheoKyDTO> loiNhuanTheoThang = new ArrayList<>();
     private List<LoiNhuanTheoKyDTO> loiNhuanTheoQuy = new ArrayList<>();
+    private boolean isUpdatingCombos = false;
 
     private int hoverRowTopSP = -1;
     private int hoverRowTopKH = -1;
@@ -98,6 +97,7 @@ public class ThongKePanel extends JPanel implements IRefreshable {
         main.add(createCenterSection(), BorderLayout.CENTER);
 
         JScrollPane mainScrollPane = new JScrollPane(main);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(mainScrollPane);
         mainScrollPane.setBorder(BorderFactory.createEmptyBorder());
         mainScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         mainScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -126,34 +126,46 @@ public class ThongKePanel extends JPanel implements IRefreshable {
         JPanel left = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
         left.setOpaque(false);
 
-        spTuNgay = new JSpinner(new SpinnerDateModel());
-        spDenNgay = new JSpinner(new SpinnerDateModel());
+        DatePickerSettings fromSettings = new DatePickerSettings();
+        fromSettings.setFormatForDatesCommonEra("yyyy-MM-dd");
+        dpTuNgay = new DatePicker(fromSettings);
 
-        spTuNgay.setEditor(new JSpinner.DateEditor(spTuNgay, "yyyy-MM-dd"));
-        spDenNgay.setEditor(new JSpinner.DateEditor(spDenNgay, "yyyy-MM-dd"));
+        DatePickerSettings toSettings = new DatePickerSettings();
+        toSettings.setFormatForDatesCommonEra("yyyy-MM-dd");
+        dpDenNgay = new DatePicker(toSettings);
 
-        spTuNgay.putClientProperty(FlatClientProperties.STYLE, "arc:8; focusWidth:0;");
-        spDenNgay.putClientProperty(FlatClientProperties.STYLE, "arc:8; focusWidth:0;");
+        dpTuNgay.putClientProperty(FlatClientProperties.STYLE, "arc:8; focusWidth:0;");
+        dpDenNgay.putClientProperty(FlatClientProperties.STYLE, "arc:8; focusWidth:0;");
 
-        Dimension dateSize = new Dimension(120, 32);
-        spTuNgay.setPreferredSize(dateSize);
-        spDenNgay.setPreferredSize(dateSize);
+        Dimension dateSize = new Dimension(125, 32);
+        dpTuNgay.setPreferredSize(dateSize);
+        dpDenNgay.setPreferredSize(dateSize);
 
+        JComboBox<String> cboLocNhanh = new JComboBox<>(new String[] {
+                "Tùy chỉnh", "Hôm nay", "7 ngày qua", "Tháng này", "Năm nay"
+        });
+        cboLocNhanh.setPreferredSize(new Dimension(115, 32));
+        cboLocNhanh.putClientProperty(FlatClientProperties.STYLE, "arc:8; focusWidth:0;");
+        cboLocNhanh.addActionListener(e -> {
+            String selected = String.valueOf(cboLocNhanh.getSelectedItem());
+            LocalDate now = LocalDate.now();
+
+            switch (selected) {
+                case "Hôm nay" -> setDateRange(now, now);
+                case "7 ngày qua" -> setDateRange(now.minusDays(7), now);
+                case "Tháng này" -> setDateRange(now.withDayOfMonth(1), now);
+                case "Năm nay" -> setDateRange(now.withDayOfYear(1), now);
+                default -> {
+                }
+            }
+        });
+
+        left.add(new JLabel("Lọc nhanh"));
+        left.add(cboLocNhanh);
         left.add(new JLabel("Từ ngày"));
-        left.add(spTuNgay);
+        left.add(dpTuNgay);
         left.add(new JLabel("Đến ngày"));
-        left.add(spDenNgay);
-
-        cboThang = new JComboBox<>();
-        cboQuy = new JComboBox<>();
-        cboThang.setPreferredSize(new Dimension(110, 32));
-        cboQuy.setPreferredSize(new Dimension(110, 32));
-        cboThang.addActionListener(e -> updateProfitTables());
-        cboQuy.addActionListener(e -> updateProfitTables());
-        left.add(new JLabel("Tháng"));
-        left.add(cboThang);
-        left.add(new JLabel("Quý"));
-        left.add(cboQuy);
+        left.add(dpDenNgay);
 
         JPanel right = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         right.setOpaque(false);
@@ -222,6 +234,23 @@ public class ThongKePanel extends JPanel implements IRefreshable {
         JPanel wrapper = new JPanel(new BorderLayout(0, 10));
         wrapper.setOpaque(false);
 
+        cboThang = new JComboBox<>();
+        cboQuy = new JComboBox<>();
+        cboThang.setPreferredSize(new Dimension(110, 32));
+        cboQuy.setPreferredSize(new Dimension(110, 32));
+        cboThang.putClientProperty(FlatClientProperties.STYLE, "arc:8; focusWidth:0;");
+        cboQuy.putClientProperty(FlatClientProperties.STYLE, "arc:8; focusWidth:0;");
+        cboThang.addActionListener(e -> {
+            if (!isUpdatingCombos) {
+                updateProfitTables();
+            }
+        });
+        cboQuy.addActionListener(e -> {
+            if (!isUpdatingCombos) {
+                updateProfitTables();
+            }
+        });
+
         JPanel charts = new JPanel(new GridLayout(1, 2, 10, 0));
         charts.setOpaque(false);
         charts.setPreferredSize(new Dimension(0, 320));
@@ -286,19 +315,24 @@ public class ThongKePanel extends JPanel implements IRefreshable {
 
         p.add(createTopSanPhamCard());
         p.add(createTopKhachHangCard());
-        p.add(createProfitTableCard("Lợi nhuận theo tháng", true));
-        p.add(createProfitTableCard("Lợi nhuận theo quý", false));
+        p.add(createProfitTableCard("Lợi nhuận theo tháng", true, cboThang));
+        p.add(createProfitTableCard("Lợi nhuận theo quý", false, cboQuy));
 
         return p;
     }
 
-    private JPanel createProfitTableCard(String title, boolean monthly) {
+    private JPanel createProfitTableCard(String title, boolean monthly, JComboBox<String> comboBox) {
         JPanel card = new JPanel(new BorderLayout(0, 8));
         card.putClientProperty(FlatClientProperties.STYLE, "arc:15; background:#FFFFFF");
         card.setBorder(new EmptyBorder(15, 15, 15, 15));
 
         JLabel titleLabel = new JLabel(title);
         titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
+
+        JPanel topHeader = new JPanel(new BorderLayout());
+        topHeader.setOpaque(false);
+        topHeader.add(titleLabel, BorderLayout.WEST);
+        topHeader.add(comboBox, BorderLayout.EAST);
 
         String[] cols = { "Kỳ", "Doanh thu", "Tiền vốn", "Lợi nhuận" };
         DefaultTableModel model = new DefaultTableModel(cols, 0) {
@@ -318,9 +352,10 @@ public class ThongKePanel extends JPanel implements IRefreshable {
         }
 
         JScrollPane scrollPane = new JScrollPane(table);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(scrollPane);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(225, 225, 225)));
-        card.add(titleLabel, BorderLayout.NORTH);
+        card.add(topHeader, BorderLayout.NORTH);
         card.add(scrollPane, BorderLayout.CENTER);
         return card;
     }
@@ -346,6 +381,7 @@ public class ThongKePanel extends JPanel implements IRefreshable {
         styleTable(tblTopSanPham, true);
 
         JScrollPane sp = new JScrollPane(tblTopSanPham);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(sp);
         sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createLineBorder(new Color(225, 225, 225)));
 
@@ -376,6 +412,7 @@ public class ThongKePanel extends JPanel implements IRefreshable {
         styleTable(tblTopKhachHang, false);
 
         JScrollPane sp = new JScrollPane(tblTopKhachHang);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(sp);
         sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createLineBorder(new Color(225, 225, 225)));
 
@@ -387,20 +424,26 @@ public class ThongKePanel extends JPanel implements IRefreshable {
 
     private void loadDefaultFilter() {
         LocalDate now = LocalDate.now();
-        LocalDate firstDay = now.withDayOfMonth(1);
+        LocalDate firstDay = now.withDayOfYear(1);
 
-        spTuNgay.setValue(Date.from(firstDay.atStartOfDay(ZoneId.systemDefault()).toInstant()));
-        spDenNgay.setValue(Date.from(now.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+        dpTuNgay.setDate(firstDay);
+        dpDenNgay.setDate(now);
     }
 
     private LocalDate getTuNgay() {
-        Date d = (Date) spTuNgay.getValue();
-        return d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate date = dpTuNgay.getDate();
+        return date == null ? LocalDate.now() : date;
     }
 
     private LocalDate getDenNgay() {
-        Date d = (Date) spDenNgay.getValue();
-        return d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate date = dpDenNgay.getDate();
+        return date == null ? LocalDate.now() : date;
+    }
+
+    private void setDateRange(LocalDate from, LocalDate to) {
+        dpTuNgay.setDate(from);
+        dpDenNgay.setDate(to);
+        loadData();
     }
 
     private void loadData() {
@@ -439,16 +482,21 @@ public class ThongKePanel extends JPanel implements IRefreshable {
         loiNhuanTheoThang = thongKeBUS.getLoiNhuanTheoThang(tuNgay, denNgay);
         loiNhuanTheoQuy = thongKeBUS.getLoiNhuanTheoQuy(tuNgay, denNgay);
 
-        cboThang.removeAllItems();
-        cboThang.addItem("Tất cả");
-        for (LoiNhuanTheoKyDTO item : loiNhuanTheoThang) {
-            cboThang.addItem(formatThang(item));
-        }
+        isUpdatingCombos = true;
+        try {
+            cboThang.removeAllItems();
+            cboThang.addItem("Tất cả");
+            for (LoiNhuanTheoKyDTO item : loiNhuanTheoThang) {
+                cboThang.addItem(formatThang(item));
+            }
 
-        cboQuy.removeAllItems();
-        cboQuy.addItem("Tất cả");
-        for (LoiNhuanTheoKyDTO item : loiNhuanTheoQuy) {
-            cboQuy.addItem(formatQuy(item));
+            cboQuy.removeAllItems();
+            cboQuy.addItem("Tất cả");
+            for (LoiNhuanTheoKyDTO item : loiNhuanTheoQuy) {
+                cboQuy.addItem(formatQuy(item));
+            }
+        } finally {
+            isUpdatingCombos = false;
         }
 
         updateProfitTables();
@@ -465,7 +513,9 @@ public class ThongKePanel extends JPanel implements IRefreshable {
     private void fillProfitTable(DefaultTableModel model, List<LoiNhuanTheoKyDTO> data,
             JComboBox<String> comboBox, boolean monthly) {
         model.setRowCount(0);
-        String selected = comboBox.getSelectedItem() == null ? "Tất cả" : comboBox.getSelectedItem().toString();
+        String selected = comboBox.getSelectedItem() == null
+                ? "Tất cả"
+                : comboBox.getSelectedItem().toString();
         for (LoiNhuanTheoKyDTO item : data) {
             String period = monthly ? formatThang(item) : formatQuy(item);
             if (!"Tất cả".equals(selected) && !selected.equals(period)) {

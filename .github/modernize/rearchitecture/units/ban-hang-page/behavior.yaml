@@ -1,0 +1,48 @@
+unit: ban-hang-page
+side_effects:
+  - source_loc: "src/main/java/com/qlgiay/bus/BanHangBUS.java:91"
+    effect: "INSERT HOA_DON."
+    must_preserve: true
+  - source_loc: "src/main/java/com/qlgiay/bus/BanHangBUS.java:106"
+    effect: "INSERT từng CHI_TIET_HOA_DON với DonGia tại giỏ hàng."
+    must_preserve: true
+  - source_loc: "src/main/java/com/qlgiay/bus/BanHangBUS.java:112"
+    effect: "Trừ SAN_PHAM.SoLuong có điều kiện đủ tồn."
+    must_preserve: true
+  - source_loc: "src/main/java/com/qlgiay/bus/BanHangBUS.java:120"
+    effect: "Trừ số lượng voucher nếu có."
+    must_preserve: true
+  - source_loc: "src/main/java/com/qlgiay/bus/BanHangBUS.java:127"
+    effect: "Cộng điểm và trừ điểm khách hàng trong cùng transaction."
+    must_preserve: true
+branches:
+  - source_loc: "src/main/java/com/qlgiay/bus/BanHangBUS.java:30"
+    condition: "hóa đơn null, danh sách rỗng, MaNV/MaHD rỗng"
+    behavior: "return false."
+    must_preserve: true
+  - source_loc: "src/main/java/com/qlgiay/bus/BanHangBUS.java:50"
+    condition: "MaVoucher được nhập"
+    behavior: "tìm voucher hợp lệ theo mã và tạm tính; không hợp lệ thì rollback."
+    must_preserve: true
+  - source_loc: "src/main/java/com/qlgiay/bus/BanHangBUS.java:64"
+    condition: "khách hàng có điểm muốn dùng"
+    behavior: "giới hạn điểm theo điểm sở hữu và tối đa 30% tổng sau voucher."
+    must_preserve: true
+  - source_loc: "src/main/java/com/qlgiay/bus/BanHangBUS.java:98"
+    condition: "chi tiết không hợp lệ hoặc không đủ tồn"
+    behavior: "rollback toàn bộ hóa đơn."
+    must_preserve: true
+error_paths:
+  - source_loc: "src/main/java/com/qlgiay/bus/BanHangBUS.java:145"
+    trigger: "SQLException hoặc DAO trả false"
+    outcome: "rollback, in stack trace và return false."
+    contract: "boolean false; không ghi nhận bán dở dang."
+    must_preserve: true
+concurrency:
+  model: sync
+  tx_boundary:
+    source_loc: "src/main/java/com/qlgiay/bus/BanHangBUS.java:38"
+    scope: "tính giảm giá, ghi header/detail, trừ tồn, trừ voucher và cập nhật điểm."
+    isolation: "JDBC mặc định; UPDATE tồn dùng điều kiện SoLuong >= số bán."
+    must_preserve: true
+

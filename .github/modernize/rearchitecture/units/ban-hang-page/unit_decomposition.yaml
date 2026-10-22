@@ -1,0 +1,10 @@
+unit: ban-hang-page
+commit: false
+candidate_splits:
+  - id: "src/main/java/com/qlgiay/bus/BanHangBUS.java:30-160"
+    drivers: [concern_split, data_ownership_split]
+    rationale: >
+      Một transaction đang chứa tính giá/điểm/voucher, ghi hóa đơn và trừ tồn;
+      FIFO sẽ cần một bước phân bổ lô có kiểm soát lock và audit riêng.
+    source_slice: {file: "src/main/java/com/qlgiay/bus/BanHangBUS.java", lines: [30, 160]}
+

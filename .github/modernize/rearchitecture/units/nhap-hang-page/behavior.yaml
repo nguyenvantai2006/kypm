@@ -1,0 +1,41 @@
+unit: nhap-hang-page
+side_effects:
+  - source_loc: "src/main/java/com/qlgiay/bus/NhapHangBUS.java:68"
+    effect: "INSERT PHIEU_NHAP trong transaction."
+    must_preserve: true
+  - source_loc: "src/main/java/com/qlgiay/bus/NhapHangBUS.java:79"
+    effect: "INSERT từng CHI_TIET_PHIEU_NHAP."
+    must_preserve: true
+  - source_loc: "src/main/java/com/qlgiay/bus/NhapHangBUS.java:85"
+    effect: "Cộng tồn SAN_PHAM.SoLuong."
+    must_preserve: true
+  - source_loc: "src/main/java/com/qlgiay/bus/NhapHangBUS.java:91"
+    effect: "Cập nhật SAN_PHAM.DonGia theo GiaNhap và PhanTramLoiNhuan."
+    must_preserve: true
+branches:
+  - source_loc: "src/main/java/com/qlgiay/bus/NhapHangBUS.java:22"
+    condition: "phiếu null hoặc danh sách chi tiết rỗng"
+    behavior: "return false trước khi mở transaction."
+    must_preserve: true
+  - source_loc: "src/main/java/com/qlgiay/bus/NhapHangBUS.java:46"
+    condition: "MaSP rỗng, SoLuong <= 0 hoặc GiaNhap âm/null"
+    behavior: "rollback và return false."
+    must_preserve: true
+  - source_loc: "src/main/java/com/qlgiay/bus/NhapHangBUS.java:98"
+    condition: "mọi insert/update thành công"
+    behavior: "commit và return true."
+    must_preserve: true
+error_paths:
+  - source_loc: "src/main/java/com/qlgiay/bus/NhapHangBUS.java:101"
+    trigger: "SQLException hoặc DAO trả false"
+    outcome: "rollback, in stack trace và return false."
+    contract: "boolean false; không để lại phiếu nhập dở dang."
+    must_preserve: true
+concurrency:
+  model: sync
+  tx_boundary:
+    source_loc: "src/main/java/com/qlgiay/bus/NhapHangBUS.java:35"
+    scope: "insert header, insert details, tăng tồn và cập nhật giá bán."
+    isolation: "JDBC mặc định; không chỉ định isolation/lock."
+    must_preserve: true
+

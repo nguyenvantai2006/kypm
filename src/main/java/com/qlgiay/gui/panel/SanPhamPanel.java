@@ -28,10 +28,13 @@ import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -70,12 +73,19 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import com.formdev.flatlaf.FlatClientProperties;
+import com.qlgiay.bus.NhaCungCapBUS;
 import com.qlgiay.bus.SanPhamBUS;
+import com.qlgiay.bus.LichSuBUS;
+import com.qlgiay.dto.AuthSession;
+import com.qlgiay.dto.NhaCungCapDTO;
 import com.qlgiay.dto.SanPhamDTO;
 import com.qlgiay.util.IconUtil;
 
 public class SanPhamPanel extends JPanel implements IRefreshable {
     private final SanPhamBUS sanPhamBUS = new SanPhamBUS();
+    private final NhaCungCapBUS nhaCungCapBUS = new NhaCungCapBUS();
+    private final LichSuBUS lichSuBUS = new LichSuBUS();
+    private final AuthSession session;
 
     private JTable table;
     private DefaultTableModel tableModel;
@@ -91,16 +101,16 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
     private JTextField txtDonVi;
     private JTextField txtSoLuong;
     private JTextField txtGiaNhap;
-    private JTextField txtLoiNhuan;
-    private JComboBox<String> cboLoiNhuan;
+    private JComboBox<String> cboPhanTramLoiNhuan;
     private JTextField txtDonGia;
-    private JTextField txtGiaKhuyenMai;
     private JTextField txtMau;
     private JTextField txtSize;
     private JTextField txtChatLieu;
     private JTextField txtThuongHieu;
     private JTextField txtNuocSX;
-    private JComboBox<String> cboTrangThai;
+    private JTextField txtTrangThai;
+    private JComboBox<NhaCungCapDTO> cboNCC;
+    private JButton btnLock;
 
     private JSpinner spNgaySX;
     private JTextArea txtMoTa;
@@ -115,6 +125,11 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
     private static final int THUMBNAIL_SIZE = 35;
 
     public SanPhamPanel() {
+        this(null);
+    }
+
+    public SanPhamPanel(AuthSession session) {
+        this.session = session;
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(new Color(240, 243, 245));
@@ -243,6 +258,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         });
 
         JScrollPane sp = new JScrollPane(table);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(sp);
         sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(225, 225, 225)),
@@ -275,12 +291,11 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         addGridRow(contentPanel, gbc, row++, field("Mã sản phẩm", txtMa), field("Tên sản phẩm", txtTen));
         addGridRow(contentPanel, gbc, row++, field("Loại sản phẩm", cboLoai), field("Đơn vị", txtDonVi));
         addGridRow(contentPanel, gbc, row++, field("Số lượng", txtSoLuong), field("Giá nhập", txtGiaNhap));
-        addGridRow(contentPanel, gbc, row++, field("% lợi nhuận", createProfitInput()), field("Giá bán", txtDonGia));
-        addGridRow(contentPanel, gbc, row++, field("Giá khuyến mãi (số tiền giảm)", txtGiaKhuyenMai),
-                field("Màu sắc", txtMau));
-        addGridRow(contentPanel, gbc, row++, field("Size", txtSize), field("Chất liệu", txtChatLieu));
-        addGridRow(contentPanel, gbc, row++, field("Thương hiệu", txtThuongHieu), field("Nước sản xuất", txtNuocSX));
-        addGridRow(contentPanel, gbc, row++, field("Ngày sản xuất", spNgaySX), field("Trạng thái", cboTrangThai));
+        addGridRow(contentPanel, gbc, row++, field("% lợi nhuận", cboPhanTramLoiNhuan), field("Giá bán", txtDonGia));
+        addGridRow(contentPanel, gbc, row++, field("Màu sắc", txtMau), field("Size", txtSize));
+        addGridRow(contentPanel, gbc, row++, field("Chất liệu", txtChatLieu), field("Thương hiệu", txtThuongHieu));
+        addGridRow(contentPanel, gbc, row++, field("Nước sản xuất", txtNuocSX), field("Ngày sản xuất", spNgaySX));
+        addGridRow(contentPanel, gbc, row++, field("Trạng thái", txtTrangThai), field("Nhà cung cấp", cboNCC));
 
         gbc.gridx = 0;
         gbc.gridy = row++;
@@ -297,6 +312,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         alignTopPanel.add(contentPanel, BorderLayout.NORTH);
 
         JScrollPane scroll = new JScrollPane(alignTopPanel);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(scroll);
         scroll.setBorder(null);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
         scroll.getViewport().setOpaque(false);
@@ -308,33 +324,33 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
 
         JButton btnAdd = new JButton("Thêm");
         JButton btnUpdate = new JButton("Sửa");
-        JButton btnDelete = new JButton("Xóa");
+        btnLock = new JButton("Khóa");
         JButton btnClear = new JButton("Làm mới");
 
         btnAdd.setIcon(IconUtil.loadPng("/icons/add.png", 24));
         btnUpdate.setIcon(IconUtil.loadPng("/icons/edit.png", 24));
-        btnDelete.setIcon(IconUtil.loadPng("/icons/delete.png", 24));
+        btnLock.setIcon(IconUtil.loadPng("/icons/lock.png", 24));
         btnClear.setIcon(IconUtil.loadPng("/icons/refresh.png", 24));
 
         int gap = 4;
         btnAdd.setIconTextGap(gap);
         btnUpdate.setIconTextGap(gap);
-        btnDelete.setIconTextGap(gap);
+        btnLock.setIconTextGap(gap);
         btnClear.setIconTextGap(gap);
 
         styleActionButton(btnAdd, "success");
         styleActionButton(btnUpdate, "default");
-        styleActionButton(btnDelete, "danger");
+        styleActionButton(btnLock, "danger");
         styleActionButton(btnClear, "default");
 
         btnAdd.addActionListener(e -> add());
         btnUpdate.addActionListener(e -> update());
-        btnDelete.addActionListener(e -> delete());
+        btnLock.addActionListener(e -> toggleLock());
         btnClear.addActionListener(e -> clear());
 
         pnlButtons.add(btnAdd);
         pnlButtons.add(btnUpdate);
-        pnlButtons.add(btnDelete);
+        pnlButtons.add(btnLock);
         pnlButtons.add(btnClear);
 
         formWrapper.add(scroll, BorderLayout.CENTER);
@@ -346,25 +362,21 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         txtMa = new JTextField();
         txtTen = new JTextField();
         txtDonVi = new JTextField();
+        txtDonVi.setText("Đôi");
+        txtDonVi.setEditable(false);
         txtSoLuong = new JTextField();
+        txtSoLuong.setEditable(false);
         txtGiaNhap = new JTextField();
         txtGiaNhap.setEditable(false);
         txtGiaNhap.setToolTipText("Tự động lấy từ phiếu nhập hàng");
-        txtLoiNhuan = new JTextField();
-        txtLoiNhuan.setText("20");
-        cboLoiNhuan = new JComboBox<>(new String[] {
-                "Chọn mức", "10", "15", "20", "25", "30", "40", "50", "60", "70", "80", "90", "100"
+        cboPhanTramLoiNhuan = new JComboBox<>(new String[] {
+                "10", "20", "30", "40", "50", "60", "70", "80", "90", "100"
         });
-        cboLoiNhuan.setSelectedItem("20");
-        cboLoiNhuan.addActionListener(e -> {
-            if (cboLoiNhuan.getSelectedIndex() > 0) {
-                txtLoiNhuan.setText(String.valueOf(cboLoiNhuan.getSelectedItem()));
-            }
-        });
+        cboPhanTramLoiNhuan.setEditable(true);
+        cboPhanTramLoiNhuan.setSelectedItem("20");
         txtDonGia = new JTextField();
         txtDonGia.setEditable(false);
         txtDonGia.setToolTipText("Tự động tính từ giá nhập và % lợi nhuận");
-        txtGiaKhuyenMai = new JTextField();
         txtMau = new JTextField();
         txtSize = new JTextField();
         txtChatLieu = new JTextField();
@@ -372,13 +384,18 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         txtNuocSX = new JTextField();
 
         txtGiaNhap.getDocument().addDocumentListener(createPricingListener());
-        txtLoiNhuan.getDocument().addDocumentListener(createPricingListener());
+        ((JTextField) cboPhanTramLoiNhuan.getEditor().getEditorComponent())
+                .getDocument().addDocumentListener(createPricingListener());
+        cboPhanTramLoiNhuan.addActionListener(e -> recalcBasePrice());
 
         cboLoai = new JComboBox<>(new String[] {
                 "Giày Sneaker", "Giày Chạy Bộ"
         });
 
-        spNgaySX = new JSpinner(new SpinnerDateModel());
+        Date latestAllowedDate = Date.from(
+                LocalDate.now().minusDays(1).atStartOfDay(ZoneId.systemDefault()).toInstant());
+        spNgaySX = new JSpinner(
+                new SpinnerDateModel(latestAllowedDate, null, null, Calendar.DAY_OF_MONTH));
         spNgaySX.setEditor(new JSpinner.DateEditor(spNgaySX, "yyyy-MM-dd"));
         spNgaySX.putClientProperty(FlatClientProperties.STYLE, "arc:8; focusWidth:0;");
 
@@ -386,21 +403,23 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         txtMoTa.setLineWrap(true);
         txtMoTa.setWrapStyleWord(true);
 
-        cboTrangThai = new JComboBox<>(new String[] {
-                "Hoạt động", "Ngừng bán"
+        txtTrangThai = new JTextField("Hoạt động");
+        txtTrangThai.setEditable(false);
+        cboNCC = new JComboBox<>();
+        cboNCC.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(
+                    javax.swing.JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                setText(value instanceof NhaCungCapDTO supplier ? supplier.getTenNCC() : "");
+                return this;
+            }
         });
+        loadSupplierOptions();
 
         styleComboBox(cboLoai);
-        styleComboBox(cboTrangThai);
-        styleComboBox(cboLoiNhuan);
-    }
-
-    private JComponent createProfitInput() {
-        JPanel panel = new JPanel(new BorderLayout(5, 0));
-        panel.setOpaque(false);
-        panel.add(txtLoiNhuan, BorderLayout.CENTER);
-        panel.add(cboLoiNhuan, BorderLayout.EAST);
-        return panel;
+        styleComboBox(cboPhanTramLoiNhuan);
+        styleComboBox(cboNCC);
     }
 
     private void addGridRow(JPanel parent, GridBagConstraints gbc, int row, JComponent left, JComponent right) {
@@ -432,6 +451,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         p.add(new JLabel("Mô tả chi tiết"), BorderLayout.NORTH);
 
         JScrollPane sp = new JScrollPane(txtMoTa);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(sp);
         sp.setPreferredSize(new Dimension(0, 55));
         sp.putClientProperty(FlatClientProperties.STYLE, "arc: 8;");
 
@@ -483,6 +503,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         pnlThumbnails.setOpaque(false);
 
         JScrollPane scrollThumb = new JScrollPane(pnlThumbnails);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(scrollThumb);
         scrollThumb.setPreferredSize(new Dimension(0, THUMBNAIL_SIZE + 10));
         scrollThumb.setBorder(null);
         scrollThumb.setOpaque(false);
@@ -707,33 +728,34 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         txtMa.setText(sp.getMaSP());
         txtTen.setText(sp.getTenSP());
         cboLoai.setSelectedItem(sp.getLoaiSP());
-        txtDonVi.setText(sp.getDonViTinh());
+        txtDonVi.setText(sp.getDonViTinh() == null || sp.getDonViTinh().isBlank()
+                ? "Đôi"
+                : sp.getDonViTinh());
         txtSoLuong.setText(String.valueOf(sp.getSoLuong()));
         txtGiaNhap.setText(sp.getGiaNhap() == null ? "" : formatInputMoney(sp.getGiaNhap()));
         BigDecimal loiNhuan = sp.getPhanTramLoiNhuan() == null
                 ? BigDecimal.valueOf(20)
                 : sp.getPhanTramLoiNhuan();
-        txtLoiNhuan.setText(loiNhuan.stripTrailingZeros().toPlainString());
-        cboLoiNhuan.setSelectedItem(loiNhuan.stripTrailingZeros().toPlainString());
-        BigDecimal giaBan = SanPhamDTO.tinhGiaBan(sp.getGiaNhap(), loiNhuan);
+        cboPhanTramLoiNhuan.setSelectedItem(String.valueOf(loiNhuan.intValue()));
+        BigDecimal giaBan = sp.getDonGia();
         txtDonGia.setText(giaBan == null ? "" : formatInputMoney(giaBan));
-        BigDecimal mucGiam = sp.getDonGia() != null && sp.getGiaKhuyenMai() != null
-                ? sp.getDonGia().subtract(sp.getGiaKhuyenMai())
-                : null;
-        txtGiaKhuyenMai.setText(mucGiam == null || mucGiam.compareTo(BigDecimal.ZERO) <= 0
-                ? ""
-                : formatInputMoney(mucGiam));
         txtMau.setText(sp.getMauSac());
         txtSize.setText(sp.getSize());
         txtChatLieu.setText(sp.getChatLieu());
         txtThuongHieu.setText(sp.getThuongHieu());
         txtNuocSX.setText(sp.getNuocSanXuat());
         txtMoTa.setText(sp.getMoTa());
-        cboTrangThai.setSelectedIndex(sp.getTrangThai() == 1 ? 0 : 1);
+        txtTrangThai.setText(sp.getTrangThai() == 1 ? "Hoạt động" : "Ngừng bán");
+        selectSupplier(sp.getMaNCC());
 
         if (sp.getNgaySanXuat() != null) {
             spNgaySX.setValue(Date.from(
                     sp.getNgaySanXuat()
+                            .atStartOfDay(ZoneId.systemDefault())
+                            .toInstant()));
+        } else {
+            spNgaySX.setValue(Date.from(
+                    LocalDate.now().minusDays(1)
                             .atStartOfDay(ZoneId.systemDefault())
                             .toInstant()));
         }
@@ -758,6 +780,13 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         showMainImage();
 
         txtMa.setEnabled(false);
+        if (sp.getTrangThai() == 1) {
+            btnLock.setText("Khóa");
+            btnLock.setIcon(IconUtil.loadPng("/icons/lock.png", 24));
+        } else {
+            btnLock.setText("Mở khóa");
+            btnLock.setIcon(IconUtil.loadPng("/icons/unlock.png", 24));
+        }
     }
 
     private SanPhamDTO readForm() {
@@ -766,48 +795,69 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
 
             sp.setMaSP(txtMa.getText().trim());
             sp.setTenSP(txtTen.getText().trim());
+            NhaCungCapDTO nhaCungCap = (NhaCungCapDTO) cboNCC.getSelectedItem();
+            sp.setMaNCC(nhaCungCap == null ? null : nhaCungCap.getMaNCC());
             sp.setLoaiSP((String) cboLoai.getSelectedItem());
             sp.setDonViTinh(txtDonVi.getText().trim());
-            sp.setSoLuong(Integer.parseInt(txtSoLuong.getText().trim()));
 
-            BigDecimal giaNhap = txtGiaNhap.getText().trim().isEmpty() ? null
-                    : new BigDecimal(txtGiaNhap.getText().trim().replace(".", "").replace(",", ""));
-            BigDecimal tyLeLoiNhuan = txtLoiNhuan.getText().trim().isEmpty() ? null
-                    : new BigDecimal(txtLoiNhuan.getText().trim());
-            BigDecimal giaKhuyenMai = txtGiaKhuyenMai.getText().trim().isEmpty() ? null
-                    : new BigDecimal(txtGiaKhuyenMai.getText().trim().replace(".", "").replace(",", ""));
+            // --- XỬ LÝ SỐ LƯỢNG AN TOÀN ---
+            String soLuongStr = txtSoLuong.getText().trim();
+            int soLuong = 0;
+            if (!soLuongStr.isEmpty()) {
+                try {
+                    soLuong = Integer.parseInt(soLuongStr);
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, "Số lượng phải là số nguyên hợp lệ!", "Cảnh báo",
+                            JOptionPane.WARNING_MESSAGE);
+                    txtSoLuong.requestFocus();
+                    return null;
+                }
+            }
+            sp.setSoLuong(soLuong);
 
-            if (tyLeLoiNhuan != null && (tyLeLoiNhuan.compareTo(BigDecimal.ZERO) <= 0
-                    || tyLeLoiNhuan.compareTo(BigDecimal.valueOf(100)) > 0)) {
+            // --- XỬ LÝ GIÁ NHẬP AN TOÀN ---
+            BigDecimal giaNhap = null;
+            String giaNhapStr = txtGiaNhap.getText().trim().replace(".", "").replace(",", "");
+            if (!giaNhapStr.isEmpty()) {
+                try {
+                    giaNhap = new BigDecimal(giaNhapStr);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null, "Giá nhập không đúng định dạng số!", "Cảnh báo",
+                            JOptionPane.WARNING_MESSAGE);
+                    txtGiaNhap.requestFocus();
+                    return null;
+                }
+            }
+
+            // --- XỬ LÝ % LỢI NHUẬN AN TOÀN ---
+            String ptStr = String.valueOf(cboPhanTramLoiNhuan.getSelectedItem()).trim();
+            BigDecimal ptLoiNhuan = new BigDecimal("20");
+            if (!ptStr.isEmpty()) {
+                try {
+                    ptLoiNhuan = new BigDecimal(ptStr);
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null, "% Lợi nhuận phải là số hợp lệ!", "Cảnh báo",
+                            JOptionPane.WARNING_MESSAGE);
+                    cboPhanTramLoiNhuan.requestFocus();
+                    return null;
+                }
+            }
+
+            if (ptLoiNhuan.compareTo(BigDecimal.ZERO) <= 0 || ptLoiNhuan.compareTo(BigDecimal.valueOf(100)) > 0) {
                 JOptionPane.showMessageDialog(
                         null,
                         "% lợi nhuận phải lớn hơn 0% và không vượt quá 100%.",
                         "Cảnh báo",
                         JOptionPane.WARNING_MESSAGE);
-                txtLoiNhuan.requestFocus();
+                cboPhanTramLoiNhuan.requestFocus();
                 return null;
             }
 
-            BigDecimal giaBan = SanPhamDTO.tinhGiaBan(giaNhap, tyLeLoiNhuan);
-
-            if (giaKhuyenMai != null) {
-                if (giaBan == null || giaKhuyenMai.compareTo(BigDecimal.ZERO) < 0
-                        || giaKhuyenMai.compareTo(giaBan) >= 0) {
-                    JOptionPane.showMessageDialog(
-                            null,
-                            "Số tiền giảm phải lớn hơn 0 và nhỏ hơn giá bán.",
-                            "Cảnh báo",
-                            JOptionPane.WARNING_MESSAGE);
-                    txtGiaKhuyenMai.requestFocus();
-                    return null;
-                }
-                giaKhuyenMai = giaBan.subtract(giaKhuyenMai);
-            }
+            BigDecimal giaBan = SanPhamDTO.tinhGiaBan(giaNhap, ptLoiNhuan);
 
             sp.setGiaNhap(giaNhap);
-            sp.setPhanTramLoiNhuan(tyLeLoiNhuan);
+            sp.setPhanTramLoiNhuan(ptLoiNhuan);
             sp.setDonGia(giaBan);
-            sp.setGiaKhuyenMai(giaKhuyenMai);
             sp.setMauSac(txtMau.getText().trim());
             sp.setSize(txtSize.getText().trim());
             sp.setChatLieu(txtChatLieu.getText().trim());
@@ -815,6 +865,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
             sp.setNuocSanXuat(txtNuocSX.getText().trim());
             sp.setMoTa(txtMoTa.getText().trim());
 
+            spNgaySX.commitEdit();
             Date d = (Date) spNgaySX.getValue();
             sp.setNgaySanXuat(d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
 
@@ -828,7 +879,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
             }
             sp.setHinhAnh(String.join(",", savedNames));
 
-            sp.setTrangThai(cboTrangThai.getSelectedIndex() == 0 ? 1 : 0);
+            sp.setTrangThai(txtTrangThai.getText().equals("Hoạt động") ? 1 : 0);
 
             return sp;
         } catch (Exception e) {
@@ -881,14 +932,27 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
             txtSoLuong.requestFocus();
             return false;
         }
+        if (sp.getDonGia() == null) {
+            sp.setDonGia(BigDecimal.ZERO);
+        }
 
-        if (sp.getDonGia() == null || sp.getDonGia().compareTo(BigDecimal.ZERO) <= 0) {
+        if (sp.getDonGia().compareTo(BigDecimal.ZERO) < 0) {
             JOptionPane.showMessageDialog(
                     null,
                     "Đơn giá phải lớn hơn 0!",
                     "Cảnh báo",
                     JOptionPane.WARNING_MESSAGE);
             txtDonGia.requestFocus();
+            return false;
+        }
+
+        if (sp.getNgaySanXuat() == null || !sp.getNgaySanXuat().isBefore(LocalDate.now())) {
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Ngày sản xuất phải trước ngày hiện tại!",
+                    "Cảnh báo",
+                    JOptionPane.WARNING_MESSAGE);
+            spNgaySX.requestFocus();
             return false;
         }
 
@@ -912,6 +976,18 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                     "Lỗi",
                     JOptionPane.ERROR_MESSAGE);
             return;
+        }
+
+        {
+            int confirm = javax.swing.JOptionPane.showConfirmDialog(
+                    this,
+                    "Bạn có chắc chắn muốn thực hiện thao tác này?",
+                    "Xác nhận",
+                    javax.swing.JOptionPane.YES_NO_OPTION,
+                    javax.swing.JOptionPane.QUESTION_MESSAGE);
+            if (confirm != javax.swing.JOptionPane.YES_OPTION) {
+                return;
+            }
         }
 
         if (sanPhamBUS.addProduct(sp)) {
@@ -951,7 +1027,46 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
             return;
         }
 
+        SanPhamDTO oldSP = sanPhamBUS.findById(sp.getMaSP());
+        StringBuilder changes = new StringBuilder();
+        if (oldSP != null) {
+            if (!Objects.equals(oldSP.getDonGia(), sp.getDonGia())) {
+                changes.append("Đơn giá: ").append(oldSP.getDonGia()).append(" -> ").append(sp.getDonGia())
+                        .append("; ");
+            }
+            if (!Objects.equals(oldSP.getPhanTramLoiNhuan(), sp.getPhanTramLoiNhuan())) {
+                changes.append("% lợi nhuận: ").append(oldSP.getPhanTramLoiNhuan()).append(" -> ")
+                        .append(sp.getPhanTramLoiNhuan()).append("; ");
+            }
+            if (oldSP.getSoLuong() != sp.getSoLuong()) {
+                changes.append("Số lượng: ").append(oldSP.getSoLuong()).append(" -> ").append(sp.getSoLuong())
+                        .append("; ");
+            }
+            if (oldSP.getTrangThai() != sp.getTrangThai()) {
+                changes.append("Trạng thái: ").append(oldSP.getTrangThai()).append(" -> ").append(sp.getTrangThai())
+                        .append("; ");
+            }
+        }
+
+        {
+            int confirm = javax.swing.JOptionPane.showConfirmDialog(
+                    this,
+                    "Bạn có chắc chắn muốn thực hiện thao tác này?",
+                    "Xác nhận",
+                    javax.swing.JOptionPane.YES_NO_OPTION,
+                    javax.swing.JOptionPane.QUESTION_MESSAGE);
+            if (confirm != javax.swing.JOptionPane.YES_OPTION) {
+                return;
+            }
+        }
+
         if (sanPhamBUS.updateProduct(sp)) {
+            lichSuBUS.ghiNhatKy(
+                    getCurrentEmployeeId(),
+                    "DANH_MUC",
+                    "Cập nhật Sản phẩm",
+                    "Sản phẩm " + sp.getMaSP(),
+                    changes.length() == 0 ? "Cập nhật thông tin cơ bản" : changes.toString());
             JOptionPane.showMessageDialog(
                     null,
                     "Cập nhật sản phẩm thành công!",
@@ -968,12 +1083,19 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         }
     }
 
-    private void delete() {
+    private String getCurrentEmployeeId() {
+        if (session == null || session.getNhanVien() == null || session.getNhanVien().getMaNV() == null) {
+            return "";
+        }
+        return session.getNhanVien().getMaNV().trim();
+    }
+
+    private void toggleLock() {
         int viewRow = table.getSelectedRow();
         if (viewRow < 0) {
             JOptionPane.showMessageDialog(
                     null,
-                    "Vui lòng chọn sản phẩm cần xóa!",
+                    "Vui lòng chọn sản phẩm cần thao tác!",
                     "Cảnh báo",
                     JOptionPane.WARNING_MESSAGE);
             return;
@@ -982,30 +1104,36 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         int modelRow = table.convertRowIndexToModel(viewRow);
         String ma = String.valueOf(tableModel.getValueAt(modelRow, 0));
         String ten = String.valueOf(tableModel.getValueAt(modelRow, 1));
+        boolean isLocking = txtTrangThai.getText().equals("Hoạt động");
+        String actionName = isLocking ? "khóa" : "mở khóa";
 
         int confirm = JOptionPane.showConfirmDialog(
                 null,
-                "Bạn có chắc chắn muốn xóa sản phẩm [" + ten + "] không?",
-                "Xác nhận xóa",
+                "Bạn có chắc chắn muốn " + actionName + " sản phẩm [" + ten + "] không?",
+                "Xác nhận " + actionName,
                 JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE);
+                JOptionPane.QUESTION_MESSAGE);
 
-        if (confirm == JOptionPane.YES_OPTION) {
-            if (sanPhamBUS.deleteProduct(ma)) {
-                JOptionPane.showMessageDialog(
-                        null,
-                        "Đã xóa sản phẩm thành công!",
-                        "Thông báo",
-                        JOptionPane.INFORMATION_MESSAGE);
-                loadTable();
-                clear();
-            } else {
-                JOptionPane.showMessageDialog(
-                        null,
-                        "Xóa sản phẩm thất bại!",
-                        "Lỗi",
-                        JOptionPane.ERROR_MESSAGE);
-            }
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        boolean success = isLocking ? sanPhamBUS.deleteProduct(ma) : sanPhamBUS.restoreProduct(ma);
+
+        if (success) {
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Đã " + actionName + " sản phẩm thành công!",
+                    "Thông báo",
+                    JOptionPane.INFORMATION_MESSAGE);
+            loadTable();
+            clear();
+        } else {
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Thao tác thất bại!",
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -1155,7 +1283,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                     sp.setTrangThai(ttStr.equalsIgnoreCase("Ngừng bán") ? 0 : 1);
 
                     sp.setDonViTinh("Đôi");
-                    sp.setNgaySanXuat(LocalDate.now());
+                    sp.setNgaySanXuat(LocalDate.now().minusDays(1));
                     sp.setChatLieu("");
                     sp.setNuocSanXuat("");
                     sp.setMoTa("");
@@ -1170,7 +1298,9 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
                         sp.setGiaNhap(old.getGiaNhap());
                         sp.setPhanTramLoiNhuan(old.getPhanTramLoiNhuan());
                         sp.setDonViTinh(old.getDonViTinh());
-                        sp.setNgaySanXuat(old.getNgaySanXuat());
+                        sp.setNgaySanXuat(old.getNgaySanXuat() == null
+                                ? LocalDate.now().minusDays(1)
+                                : old.getNgaySanXuat());
                         sp.setChatLieu(old.getChatLieu());
                         sp.setNuocSanXuat(old.getNuocSanXuat());
                         sp.setMoTa(old.getMoTa());
@@ -1260,23 +1390,27 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
 
         txtMa.setText("");
         txtTen.setText("");
-        txtDonVi.setText("");
+        txtDonVi.setText("Đôi");
         txtSoLuong.setText("");
         txtGiaNhap.setText("");
-        txtLoiNhuan.setText("20");
-        cboLoiNhuan.setSelectedItem("20");
+        cboPhanTramLoiNhuan.setSelectedItem("20");
         txtDonGia.setText("");
-        txtGiaKhuyenMai.setText("");
         txtMau.setText("");
         txtSize.setText("");
         txtChatLieu.setText("");
         txtThuongHieu.setText("");
         txtNuocSX.setText("");
+        cboNCC.setSelectedIndex(-1);
         txtMoTa.setText("");
 
         cboLoai.setSelectedIndex(0);
-        cboTrangThai.setSelectedIndex(0);
-        spNgaySX.setValue(new Date());
+        txtTrangThai.setText("Hoạt động");
+        btnLock.setText("Khóa");
+        btnLock.setIcon(IconUtil.loadPng("/icons/lock.png", 24));
+        spNgaySX.setValue(Date.from(
+                LocalDate.now().minusDays(1)
+                        .atStartOfDay(ZoneId.systemDefault())
+                        .toInstant()));
 
         imageList.clear();
         currentImageIndex = -1;
@@ -1313,7 +1447,7 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
     private void recalcBasePrice() {
         try {
             String giaNhapText = txtGiaNhap.getText() == null ? "" : txtGiaNhap.getText().trim();
-            String loiNhuanText = txtLoiNhuan.getText() == null ? "" : txtLoiNhuan.getText().trim();
+            String loiNhuanText = String.valueOf(cboPhanTramLoiNhuan.getSelectedItem()).trim();
 
             if (giaNhapText.isEmpty() || loiNhuanText.isEmpty()) {
                 return;
@@ -1550,8 +1684,40 @@ public class SanPhamPanel extends JPanel implements IRefreshable {
         return new DecimalFormat("#,###").format(value) + "đ";
     }
 
+    private void loadSupplierOptions() {
+        cboNCC.removeAllItems();
+        for (NhaCungCapDTO supplier : nhaCungCapBUS.getAllActive()) {
+            cboNCC.addItem(supplier);
+        }
+        cboNCC.setSelectedIndex(-1);
+    }
+
+    private void selectSupplier(String supplierId) {
+        if (supplierId == null || supplierId.isBlank()) {
+            cboNCC.setSelectedIndex(-1);
+            return;
+        }
+
+        for (int i = 0; i < cboNCC.getItemCount(); i++) {
+            NhaCungCapDTO supplier = cboNCC.getItemAt(i);
+            if (supplierId.equals(supplier.getMaNCC())) {
+                cboNCC.setSelectedIndex(i);
+                return;
+            }
+        }
+
+        NhaCungCapDTO supplier = nhaCungCapBUS.findById(supplierId);
+        if (supplier != null) {
+            cboNCC.addItem(supplier);
+            cboNCC.setSelectedItem(supplier);
+        } else {
+            cboNCC.setSelectedIndex(-1);
+        }
+    }
+
     @Override
     public void refreshData() {
+        loadSupplierOptions();
         loadTable();
         clear();
     }

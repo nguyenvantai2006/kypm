@@ -24,21 +24,20 @@ BEGIN TRY
     DELETE FROM dbo.KHACH_HANG;
     DELETE FROM dbo.NHA_CUNG_CAP;
     
-    -- Xóa các danh mục nội bộ (Chỉ dọn dẹp để insert lại, không thay đổi data gốc của bạn)
+    -- Xóa các danh mục nội bộ để nạp lại dữ liệu tham chiếu chuẩn
     DELETE FROM dbo.NHAN_VIEN;
     DELETE FROM dbo.QUYEN;
+    --Xóa lịch sử hoạt động để tránh trùng lặp dữ liệu
+    DELETE FROM dbo.LICH_SU_HOAT_DONG;
 
     -- ==============================================================================
-    -- 2. DỮ LIỆU NỘI BỘ (Giữ nguyên tuyệt đối theo yêu cầu)
+    -- 2. DỮ LIỆU NỘI BỘ
     -- ==============================================================================
-    INSERT INTO dbo.QUYEN (MaQuyen, TenQuyen, QL_BanHang, QL_KhachHang, QL_SanPham, QL_NhapHang, QL_NhanVien, QL_ThongKe)
+    INSERT INTO dbo.QUYEN (MaQuyen, TenQuyen, QL_BanHang, QL_KhachHang, QL_SanPham, QL_NhapHang, QL_NhanVien, QL_ThongKe, QL_Voucher, QL_DoiTra, QL_PhanQuyen)
     VALUES
-        (N'Q01', N'Quản trị viên', 0, 0, 0, 0, 1, 0),
-        (N'Q02', N'Quản lý', 1, 1, 1, 1, 0, 1),
-        (N'Q03', N'Nhân viên', 1, 1, 1, 0, 0, 0),
-        (N'TQ001', N'Quản trị mẫu', 1, 1, 1, 1, 1, 1),
-        (N'TQ002', N'Quản lý mẫu', 1, 1, 1, 1, 0, 1),
-        (N'TQ003', N'Nhân viên mẫu', 1, 1, 1, 0, 0, 0);
+        (N'Q01', N'Quản trị viên', 0, 0, 0, 0, 1, 0, 0, 0, 1),
+        (N'Q02', N'Quản lý', 0, 1, 1, 1, 0, 1, 1, 1, 0),
+        (N'Q03', N'Nhân viên', 1, 1, 0, 0, 0, 0, 0, 1, 0);
 
     INSERT INTO dbo.NHAN_VIEN (MaNV, Ho, Ten, MaQuyen, TaiKhoan, MatKhau, Luong, TrangThai)
     VALUES
@@ -52,10 +51,7 @@ BEGIN TRY
         (N'NV008', N'Bùi', N'Long', N'Q03', N'long.bui', N'123456', 7800000, 1),
         (N'NV009', N'Vũ', N'Minh', N'Q02', N'minh.vu', N'123456', 9900000, 1),
         (N'NV010', N'Phan', N'Nam', N'Q03', N'nam.phan', N'123456', 8200000, 1),
-        (N'NV011', N'Ngô', N'Quang', N'Q02', N'quang.ngo', N'123456', 11000000, 1),
-        (N'TNV001', N'Nguyễn', N'Quản Trị', N'TQ001', N'test.admin', N'123456', 18000000, 1),
-        (N'TNV002', N'Trần', N'Bán Hàng', N'TQ002', N'test.manager', N'123456', 12000000, 1),
-        (N'TNV003', N'Lê', N'Kho Hàng', N'TQ003', N'test.staff', N'123456', 9000000, 1);
+        (N'NV011', N'Ngô', N'Quang', N'Q02', N'quang.ngo', N'123456', 11000000, 1);
 
 
     -- ==============================================================================
@@ -102,26 +98,26 @@ BEGIN TRY
     -- ==============================================================================
     INSERT INTO dbo.SAN_PHAM (MaSP, TenSP, LoaiSP, DonViTinh, SoLuong, DonGia, PhanTramLoiNhuan, MauSac, Size, ChatLieu, ThuongHieu, NuocSanXuat, NgaySanXuat, MoTa, HinhAnh, TrangThai,maNCC)
     VALUES
-        (N'SP001-42-DEN', N'Nike Air Force 1', N'Giày Thể Thao', N'Đôi', 25, 0, 20, N'Đen', N'42', N'Da Bò', N'Nike', N'Mỹ', '2025-05-10', N'Mẫu giày quốc dân không bao giờ lỗi mốt.', N'nike.jpg', 1,NCC001),
-        (N'SP002-41-TRANG', N'Adidas Ultraboost 22', N'Giày Chạy Bộ', N'Đôi', 30, 0, 20, N'Trắng', N'41', N'Vải Primeknit', N'Adidas', N'Đức', '2025-08-15', N'Đế boost êm ái, hỗ trợ chạy bộ chuyên nghiệp.', N'chelseaboot.jpg', 1,NCC002),
-        (N'SP003-40-DEN', N'Vans Old Skool', N'Giày Sneaker', N'Đôi', 50, 0, 20, N'Đen', N'40', N'Vải Canvas', N'Vans', N'Mỹ', '2025-01-20', N'Giày trượt ván cổ điển, phối đồ cực dễ.', N'vansold.jpg', 1,NCC004),
-        (N'SP004-43-TRANG', N'Converse Chuck 70', N'Giày Sneaker', N'Đôi', 40, 0, 20, N'Trắng', N'43', N'Vải Canvas', N'Converse', N'Mỹ', '2025-02-14', N'Chất vải dày dặn, form chuẩn vintage.', N'converse.jpg', 1,NCC003),
-        (N'SP005-39-TRANG', N'Puma RS-X', N'Giày Thể Thao', N'Đôi', 20, 0, 20, N'Trắng', N'39', N'Vải Mesh', N'Puma', N'Đức', '2025-07-22', N'Thiết kế chunky khỏe khoắn, năng động.', N'puma.jpg', 1,NCC004),
-        (N'SP006-42-DEN', N'Bitis Hunter X', N'Giày Chạy Bộ', N'Đôi', 60, 0, 20, N'Đen', N'42', N'Vải LiteKnit', N'Biti''s', N'Việt Nam', '2026-01-05', N'Tự hào thương hiệu Việt, đế siêu nhẹ.', N'bitis.jpg', 1,NCC001),
-        (N'SP007-41-XANH', N'Nike Air Max 97', N'Giày Thể Thao', N'Đôi', 15, 0, 20, N'Xanh', N'41', N'Vải tổng hợp', N'Nike', N'Mỹ', '2025-11-11', N'Dải phản quang cực chất, êm ái đàn hồi.', N'nike.jpg', 1,NCC003),
-        (N'SP008-40-TRANG', N'Adidas Stan Smith', N'Giày Sneaker', N'Đôi', 45, 0, 20, N'Trắng', N'40', N'Da PU', N'Adidas', N'Đức', '2025-04-12', N'Basic, lịch sự và phù hợp mọi lứa tuổi.', N'adias1.jpg', 1,NCC001),
-        (N'SP009-42-DEN', N'Giày Oxford Classic', N'Giày Tây', N'Đôi', 10, 0, 30, N'Đen', N'42', N'Da Bò Thật', N'No Brand', N'Việt Nam', '2025-09-09', N'Lịch lãm, phong cách công sở sang trọng.', N'oxford.jpg', 1,NCC001),
-        (N'SP010-41-NAU', N'Giày Lười Loafer', N'Giày Lười', N'Đôi', 18, 0, 30, N'Nâu', N'41', N'Da Sáp', N'No Brand', N'Việt Nam', '2025-10-25', N'Dễ mang, thoải mái cho mùa hè.', N'Giay_Luoi_Loafer.png', 1,NCC002),
-        (N'SP011-38-HONG', N'MLB Boston Chunky', N'Giày Sneaker', N'Đôi', 22, 0, 20, N'Hồng', N'38', N'Da Tổng Hợp', N'MLB', N'Hàn Quốc', '2025-12-01', N'Hack dáng 5cm, phong cách Hàn Quốc.', N'boston.jpg', 1,NCC003),
-        (N'SP012-42-XAM', N'New Balance 574', N'Giày Chạy Bộ', N'Đôi', 30, 0, 20, N'Xám', N'42', N'Da Lộn', N'New Balance', N'Mỹ', '2025-06-15', N'Phong cách retro, cực kỳ êm chân.', N'balnce.jpg', 1,NCC002),
-        (N'SP013-40-TRANG', N'Fila Disruptor 2', N'Giày Sneaker', N'Đôi', 15, 0, 20, N'Trắng', N'40', N'Da PU', N'Fila', N'Hàn Quốc', '2025-03-08', N'Chunky sneaker cá tính cho phái nữ.', N'fila.jpg', 1,NCC003),
-        (N'SP014-41-DEN', N'Asics Gel Kayano', N'Giày Chạy Bộ', N'Đôi', 25, 0, 20, N'Đen', N'41', N'Vải Mesh', N'Asics', N'Nhật Bản', '2026-02-14', N'Bảo vệ cổ chân cực tốt khi chạy đường dài.', N'asic.jpg', 1,NCC004),
-        (N'SP015-43-DO', N'Nike Air Jordan 1', N'Giày Bóng Rổ', N'Đôi', 10, 0, 20, N'Đỏ', N'43', N'Da Tổng Hợp', N'Nike', N'Mỹ', '2025-09-30', N'Biểu tượng của văn hóa sát mặt đất.', N'jordan.jpg', 1,NCC003),
-        (N'SP016-39-TRANG', N'Reebok Club C 85', N'Giày Thể Thao', N'Đôi', 20, 0, 20, N'Trắng', N'39', N'Da Bò', N'Reebok', N'Anh Quốc', '2025-11-20', N'Tinh giản, thanh lịch, độ bền cao.', N'Rebbok.jpg', 1,NCC003),
-        (N'SP017-42-DEN', N'Giày Derby Nam', N'Giày Tây', N'Đôi', 12, 0, 30, N'Đen', N'42', N'Da Bò Thật', N'No Brand', N'Việt Nam', '2026-01-15', N'Mẫu Derby basic phù hợp mọi dịp tiệc tùng.', N'derby.jpg', 1,NCC003),
-        (N'SP018-40-NAU', N'Chelsea Boot', N'Giày Boot', N'Đôi', 15, 0, 30, N'Nâu', N'40', N'Da Lộn', N'No Brand', N'Việt Nam', '2025-12-10', N'Cổ cao, nam tính, cực chất khi mặc jeans.', N'chelseaboot.jpg', 1,NCC004),
-        (N'SP019-41-XANH', N'Mizuno Wave Rider', N'Giày Chạy Bộ', N'Đôi', 20, 0, 20, N'Xanh', N'41', N'Vải Mesh', N'Mizuno', N'Nhật Bản', '2026-01-22', N'Đế Wave đàn hồi, thích hợp chạy track.', N'mizuno.jpg', 1,NCC004),
-        (N'SP020-42-DEN', N'Under Armour Curry', N'Giày Bóng Rổ', N'Đôi', 15, 0, 20, N'Đen', N'42', N'Vải Knit', N'Under Armour', N'Mỹ', '2025-10-10', N'Bám sàn cực tốt, chuyên dụng cho bóng rổ.', N'under.jpg', 1,NCC001);
+        (N'SP001-42-DEN', N'Nike Air Force 1', N'Giày Thể Thao', N'Đôi', 25, 0, 20, N'Đen', N'42', N'Da Bò', N'Nike', N'Mỹ', '2025-05-10', N'Mẫu giày quốc dân không bao giờ lỗi mốt.', N'nike.jpg', 1,N'NCC001'),
+        (N'SP002-41-TRANG', N'Adidas Ultraboost 22', N'Giày Chạy Bộ', N'Đôi', 30, 0, 20, N'Trắng', N'41', N'Vải Primeknit', N'Adidas', N'Đức', '2025-08-15', N'Đế boost êm ái, hỗ trợ chạy bộ chuyên nghiệp.', N'chelseaboot.jpg', 1,N'NCC002'),
+        (N'SP003-40-DEN', N'Vans Old Skool', N'Giày Sneaker', N'Đôi', 50, 0, 20, N'Đen', N'40', N'Vải Canvas', N'Vans', N'Mỹ', '2025-01-20', N'Giày trượt ván cổ điển, phối đồ cực dễ.', N'vansold.jpg', 1,N'NCC004'),
+        (N'SP004-43-TRANG', N'Converse Chuck 70', N'Giày Sneaker', N'Đôi', 40, 0, 20, N'Trắng', N'43', N'Vải Canvas', N'Converse', N'Mỹ', '2025-02-14', N'Chất vải dày dặn, form chuẩn vintage.', N'converse.jpg', 1,N'NCC003'),
+        (N'SP005-39-TRANG', N'Puma RS-X', N'Giày Thể Thao', N'Đôi', 20, 0, 20, N'Trắng', N'39', N'Vải Mesh', N'Puma', N'Đức', '2025-07-22', N'Thiết kế chunky khỏe khoắn, năng động.', N'puma.jpg', 1,N'NCC004'),
+        (N'SP006-42-DEN', N'Bitis Hunter X', N'Giày Chạy Bộ', N'Đôi', 60, 0, 20, N'Đen', N'42', N'Vải LiteKnit', N'Biti''s', N'Việt Nam', '2026-01-05', N'Tự hào thương hiệu Việt, đế siêu nhẹ.', N'bitis.jpg', 1,N'NCC001'),
+        (N'SP007-41-XANH', N'Nike Air Max 97', N'Giày Thể Thao', N'Đôi', 15, 0, 20, N'Xanh', N'41', N'Vải tổng hợp', N'Nike', N'Mỹ', '2025-11-11', N'Dải phản quang cực chất, êm ái đàn hồi.', N'nike.jpg', 1,N'NCC003'),
+        (N'SP008-40-TRANG', N'Adidas Stan Smith', N'Giày Sneaker', N'Đôi', 45, 0, 20, N'Trắng', N'40', N'Da PU', N'Adidas', N'Đức', '2025-04-12', N'Basic, lịch sự và phù hợp mọi lứa tuổi.', N'adias1.jpg', 1,N'NCC001'),
+        (N'SP009-42-DEN', N'Giày Oxford Classic', N'Giày Tây', N'Đôi', 10, 0, 30, N'Đen', N'42', N'Da Bò Thật', N'No Brand', N'Việt Nam', '2025-09-09', N'Lịch lãm, phong cách công sở sang trọng.', N'oxford.jpg', 1,N'NCC001'),
+        (N'SP010-41-NAU', N'Giày Lười Loafer', N'Giày Lười', N'Đôi', 18, 0, 30, N'Nâu', N'41', N'Da Sáp', N'No Brand', N'Việt Nam', '2025-10-25', N'Dễ mang, thoải mái cho mùa hè.', N'Giay_Luoi_Loafer.png', 1,N'NCC002'),
+        (N'SP011-38-HONG', N'MLB Boston Chunky', N'Giày Sneaker', N'Đôi', 22, 0, 20, N'Hồng', N'38', N'Da Tổng Hợp', N'MLB', N'Hàn Quốc', '2025-12-01', N'Hack dáng 5cm, phong cách Hàn Quốc.', N'boston.jpg', 1,N'NCC003'),
+        (N'SP012-42-XAM', N'New Balance 574', N'Giày Chạy Bộ', N'Đôi', 30, 0, 20, N'Xám', N'42', N'Da Lộn', N'New Balance', N'Mỹ', '2025-06-15', N'Phong cách retro, cực kỳ êm chân.', N'balnce.jpg', 1,N'NCC002'),
+        (N'SP013-40-TRANG', N'Fila Disruptor 2', N'Giày Sneaker', N'Đôi', 15, 0, 20, N'Trắng', N'40', N'Da PU', N'Fila', N'Hàn Quốc', '2025-03-08', N'Chunky sneaker cá tính cho phái nữ.', N'fila.jpg', 1,N'NCC003'),
+        (N'SP014-41-DEN', N'Asics Gel Kayano', N'Giày Chạy Bộ', N'Đôi', 25, 0, 20, N'Đen', N'41', N'Vải Mesh', N'Asics', N'Nhật Bản', '2026-02-14', N'Bảo vệ cổ chân cực tốt khi chạy đường dài.', N'asic.jpg', 1,N'NCC004'),
+        (N'SP015-43-DO', N'Nike Air Jordan 1', N'Giày Bóng Rổ', N'Đôi', 10, 0, 20, N'Đỏ', N'43', N'Da Tổng Hợp', N'Nike', N'Mỹ', '2025-09-30', N'Biểu tượng của văn hóa sát mặt đất.', N'jordan.jpg', 1,N'NCC003'),
+        (N'SP016-39-TRANG', N'Reebok Club C 85', N'Giày Thể Thao', N'Đôi', 20, 0, 20, N'Trắng', N'39', N'Da Bò', N'Reebok', N'Anh Quốc', '2025-11-20', N'Tinh giản, thanh lịch, độ bền cao.', N'Rebbok.jpg', 1,N'NCC003'),
+        (N'SP017-42-DEN', N'Giày Derby Nam', N'Giày Tây', N'Đôi', 12, 0, 30, N'Đen', N'42', N'Da Bò Thật', N'No Brand', N'Việt Nam', '2026-01-15', N'Mẫu Derby basic phù hợp mọi dịp tiệc tùng.', N'derby.jpg', 1,N'NCC003'),
+        (N'SP018-40-NAU', N'Chelsea Boot', N'Giày Boot', N'Đôi', 15, 0, 30, N'Nâu', N'40', N'Da Lộn', N'No Brand', N'Việt Nam', '2025-12-10', N'Cổ cao, nam tính, cực chất khi mặc jeans.', N'chelseaboot.jpg', 1,N'NCC004'),
+        (N'SP019-41-XANH', N'Mizuno Wave Rider', N'Giày Chạy Bộ', N'Đôi', 20, 0, 20, N'Xanh', N'41', N'Vải Mesh', N'Mizuno', N'Nhật Bản', '2026-01-22', N'Đế Wave đàn hồi, thích hợp chạy track.', N'mizuno.jpg', 1,N'NCC004'),
+        (N'SP020-42-DEN', N'Under Armour Curry', N'Giày Bóng Rổ', N'Đôi', 15, 0, 20, N'Đen', N'42', N'Vải Knit', N'Under Armour', N'Mỹ', '2025-10-10', N'Bám sàn cực tốt, chuyên dụng cho bóng rổ.', N'under.jpg', 1,N'NCC001');
 
     -- ==============================================================================
     -- 6. VOUCHER KHUYẾN MÃI
@@ -137,11 +133,11 @@ BEGIN TRY
     -- ==============================================================================
     INSERT INTO dbo.PHIEU_NHAP (MaPN, MaNV, MaNCC, NgayNhap, TongSoMatHang, TongTien)
     VALUES
-        (N'PN001', N'TNV003', N'NCC001', '2026-01-05', 4, 114000000), -- Nike
-        (N'PN002', N'TNV003', N'NCC002', '2026-01-10', 4, 185000000), -- Adidas & Khác
-        (N'PN003', N'TNV002', N'NCC003', '2026-01-15', 4, 102000000), -- Puma
-        (N'PN004', N'TNV002', N'NCC004', '2026-01-20', 4, 88000000),  -- Vans & Converse
-        (N'PN005', N'TNV003', N'NCC005', '2026-01-25', 4, 76000000);  -- Nội địa / Tây
+        (N'PN001', N'NV005', N'NCC001', '2026-01-05', 4, 114000000), -- Nike
+        (N'PN002', N'NV005', N'NCC002', '2026-01-10', 4, 185000000), -- Adidas & Khác
+        (N'PN003', N'NV003', N'NCC003', '2026-01-15', 4, 102000000), -- Puma
+        (N'PN004', N'NV003', N'NCC004', '2026-01-20', 4, 88000000),  -- Vans & Converse
+        (N'PN005', N'NV005', N'NCC005', '2026-01-25', 4, 76000000);  -- Nội địa / Tây
 
     -- Cập nhật Giá Nhập chân thực cho 20 Sản phẩm
     INSERT INTO dbo.CHI_TIET_PHIEU_NHAP (MaPN, MaSP, SoLuong, GiaNhap)
@@ -176,26 +172,26 @@ BEGIN TRY
     -- ==============================================================================
     INSERT INTO dbo.HOA_DON (MaHD, MaNV, MaKH, MaVoucher, NgayLap, TongTien)
     VALUES
-        (N'HD001', N'TNV002', N'KH001', N'WELCOME20', '2026-03-01 09:15:00', 1920000), 
-        (N'HD002', N'TNV002', N'KH002', NULL, '2026-03-02 10:30:00', 3600000), 
-        (N'HD003', N'TNV001', N'KH003', N'GIAM50K', '2026-03-03 14:45:00', 910000), 
-        (N'HD004', N'TNV002', N'KH004', NULL, '2026-03-04 11:20:00', 1320000), 
-        (N'HD005', N'TNV002', N'KH005', N'WELCOME20', '2026-03-05 16:10:00', 1620000), 
-        (N'HD006', N'TNV001', N'KH006', NULL, '2026-03-06 08:30:00', 720000), 
-        (N'HD007', N'TNV002', N'KH007', NULL, '2026-03-07 19:45:00', 3000000), 
-        (N'HD008', N'TNV002', N'KH008', N'GIAM50K', '2026-03-08 20:00:00', 1390000), 
-        (N'HD009', N'TNV001', N'KH009', NULL, '2026-03-09 13:15:00', 1170000), 
-        (N'HD010', N'TNV002', N'KH010', N'WELCOME20', '2026-03-10 15:50:00', 728000), 
-        (N'HD011', N'TNV002', N'KH011', NULL, '2026-03-11 11:11:00', 2160000), 
-        (N'HD012', N'TNV001', N'KH012', NULL, '2026-03-12 14:22:00', 1800000), 
-        (N'HD013', N'TNV002', N'KH013', N'GIAM50K', '2026-03-13 18:30:00', 1630000), 
-        (N'HD014', N'TNV002', N'KH014', NULL, '2026-03-14 09:05:00', 2280000), 
-        (N'HD015', N'TNV001', N'KH015', N'WELCOME20', '2026-03-15 10:45:00', 2880000), 
-        (N'HD016', N'TNV002', N'KH016', NULL, '2026-03-16 12:15:00', 1440000), 
-        (N'HD017', N'TNV002', N'KH017', NULL, '2026-03-17 17:50:00', 1105000), 
-        (N'HD018', N'TNV001', N'KH018', N'GIAM50K', '2026-03-18 20:20:00', 1120000), 
-        (N'HD019', N'TNV002', N'KH019', NULL, '2026-03-19 14:10:00', 1560000), 
-        (N'HD020', N'TNV002', N'KH020', N'WELCOME20', '2026-03-20 16:30:00', 2688000);
+        (N'HD001', N'NV003', N'KH001', N'WELCOME20', '2026-03-01 09:15:00', 1920000), 
+        (N'HD002', N'NV003', N'KH002', NULL, '2026-03-02 10:30:00', 3600000), 
+        (N'HD003', N'NV001', N'KH003', N'GIAM50K', '2026-03-03 14:45:00', 910000), 
+        (N'HD004', N'NV003', N'KH004', NULL, '2026-03-04 11:20:00', 1320000), 
+        (N'HD005', N'NV003', N'KH005', N'WELCOME20', '2026-03-05 16:10:00', 1620000), 
+        (N'HD006', N'NV001', N'KH006', NULL, '2026-03-06 08:30:00', 720000), 
+        (N'HD007', N'NV003', N'KH007', NULL, '2026-03-07 19:45:00', 3000000), 
+        (N'HD008', N'NV003', N'KH008', N'GIAM50K', '2026-03-08 20:00:00', 1390000), 
+        (N'HD009', N'NV001', N'KH009', NULL, '2026-03-09 13:15:00', 1170000), 
+        (N'HD010', N'NV003', N'KH010', N'WELCOME20', '2026-03-10 15:50:00', 728000), 
+        (N'HD011', N'NV003', N'KH011', NULL, '2026-03-11 11:11:00', 2160000), 
+        (N'HD012', N'NV001', N'KH012', NULL, '2026-03-12 14:22:00', 1800000), 
+        (N'HD013', N'NV003', N'KH013', N'GIAM50K', '2026-03-13 18:30:00', 1630000), 
+        (N'HD014', N'NV003', N'KH014', NULL, '2026-03-14 09:05:00', 2280000), 
+        (N'HD015', N'NV001', N'KH015', N'WELCOME20', '2026-03-15 10:45:00', 2880000), 
+        (N'HD016', N'NV003', N'KH016', NULL, '2026-03-16 12:15:00', 1440000), 
+        (N'HD017', N'NV003', N'KH017', NULL, '2026-03-17 17:50:00', 1105000), 
+        (N'HD018', N'NV001', N'KH018', N'GIAM50K', '2026-03-18 20:20:00', 1120000), 
+        (N'HD019', N'NV003', N'KH019', NULL, '2026-03-19 14:10:00', 1560000), 
+        (N'HD020', N'NV003', N'KH020', N'WELCOME20', '2026-03-20 16:30:00', 2688000);
 
     INSERT INTO dbo.CHI_TIET_HOA_DON (MaHD, MaSP, SoLuong, DonGia)
     VALUES
@@ -225,8 +221,8 @@ BEGIN TRY
     -- ==============================================================================
     INSERT INTO dbo.DOI_TRA (MaDT, MaHD, MaNV, MaSP, NgayDoiTra, SoLuong, TongTienHoan, LyDo, TinhTrang)
     VALUES
-        (N'DT001', N'HD001', N'TNV002', N'SP001-42-DEN', '2026-03-05 10:00:00', 1, 2400000, N'Khách mang không vừa form', N'Đã hoàn tiền'),
-        (N'DT002', N'HD003', N'TNV001', N'SP003-40-DEN', '2026-03-08 11:30:00', 1, 960000, N'Sản phẩm bị lỗi keo viền', N'Đã đổi sản phẩm');
+        (N'DT001', N'HD001', N'NV003', N'SP001-42-DEN', '2026-03-05 10:00:00', 1, 2400000, N'Khách mang không vừa form', N'Đã hoàn tiền'),
+        (N'DT002', N'HD003', N'NV001', N'SP003-40-DEN', '2026-03-08 11:30:00', 1, 960000, N'Sản phẩm bị lỗi keo viền', N'Đã đổi sản phẩm');
 
     INSERT INTO dbo.PHIEU_BAO_HANH (MaPBH, MaHD, MaSP, MaKH, NgayNhan, NgayTraDuKien, LoiCanBaoHanh, ChiPhiPhatSinh, TrangThai)
     VALUES
@@ -238,14 +234,40 @@ BEGIN TRY
     -- ==============================================================================
     INSERT INTO dbo.PHIEU_TRA_NCC (MaPT, MaPN, MaNV, MaNCC, NgayTao, TongSoMatHang, TongTien, LyDo, TrangThai, NgayXuLy, NguoiXuLy)
     VALUES
-        (N'PT001', N'PN004', N'TNV003', N'NCC004', '2026-02-05', 1, 800000, N'Lô hàng Vans bị móp hộp diện rộng', N'Đã duyệt', '2026-02-06', N'TNV002');
+        (N'PT001', N'PN004', N'NV005', N'NCC004', '2026-02-05', 1, 800000, N'Lô hàng Vans bị móp hộp diện rộng', N'Đã duyệt', '2026-02-06', N'NV003');
 
     INSERT INTO dbo.CHI_TIET_TRA_NCC (MaPT, MaSP, SoLuong, GiaNhap)
     VALUES
         (N'PT001', N'SP003-40-DEN', 5, 800000);
 
+    -- ===============================================================================
+    -- 11. LỊCH SỬ HOẠT ĐỘNG
+    -- ===============================================================================
+    INSERT INTO dbo.LICH_SU_HOAT_DONG (MaNV, PhanLoai, HanhDong, DoiTuong, ThoiGian, ChiTiet)
+    VALUES
+    -- TAB: HỆ THỐNG (Quản trị viên thao tác)
+    (N'NV001', N'HE_THONG', N'Cấp quyền', N'Nhân viên NV007', '2026-01-02 08:30:00', N'Cấp quyền Q02 (Quản lý) cho Đặng Khoa'),
+    (N'NV001', N'HE_THONG', N'Tạo tài khoản', N'Nhân viên NV011', '2026-01-03 09:15:00', N'Tạo tài khoản mới quang.ngo'),
+    (N'NV001', N'HE_THONG', N'Reset mật khẩu', N'Nhân viên NV008', '2026-01-10 14:20:00', N'Đưa mật khẩu về mặc định 123456'),
+
+    -- TAB: DANH MUC (Quản lý thao tác)
+    (N'NV003', N'DANH_MUC', N'Thêm sản phẩm', N'Sản phẩm SP001-42-DEN', '2026-01-04 10:00:00', N'Thêm mới Nike Air Force 1 size 42'),
+    (N'NV004', N'DANH_MUC', N'Thêm sản phẩm', N'Sản phẩm SP002-41-TRANG', '2026-01-04 10:30:00', N'Thêm mới Adidas Ultraboost 22 size 41'),
+    (N'NV003', N'DANH_MUC', N'Khóa Voucher', N'Voucher BLACKFRIDAY', '2026-02-01 11:00:00', N'Tạm dừng voucher do hết ngân sách khuyến mãi'),
+    (N'NV007', N'DANH_MUC', N'Cập nhật giá', N'Sản phẩm SP015-43-DO', '2026-02-15 15:45:00', N'Cập nhật lợi nhuận từ 15% lên 20%'),
+    (N'NV004', N'DANH_MUC', N'Thêm khách hàng', N'Khách hàng KH001', '2026-02-20 09:30:00', N'Đăng ký thành viên mới Nguyễn Văn A'),
+
+    -- TAB: GIAO DICH (Thu ngân và Quản lý kho thao tác)
+    (N'NV005', N'GIAO_DICH', N'Lập phiếu nhập', N'Phiếu nhập PN001', '2026-01-05 08:15:00', N'Nhập hàng từ NCC001, tổng tiền 114,000,000đ'),
+    (N'NV003', N'GIAO_DICH', N'Lập phiếu nhập', N'Phiếu nhập PN003', '2026-01-15 13:20:00', N'Nhập hàng từ NCC003, tổng tiền 102,000,000đ'),
+    (N'NV005', N'GIAO_DICH', N'Trả hàng NCC', N'Phiếu trả PT001', '2026-02-05 10:10:00', N'Lập phiếu hoàn trả hàng móp hộp cho NCC004'),
+    (N'NV003', N'GIAO_DICH', N'Lập hóa đơn', N'Hóa đơn HD001', '2026-03-01 09:15:00', N'Thanh toán thành công 1,920,000đ, áp dụng WELCOME20'),
+    (N'NV003', N'GIAO_DICH', N'Lập hóa đơn', N'Hóa đơn HD002', '2026-03-02 10:30:00', N'Thanh toán thành công 3,600,000đ'),
+    (N'NV001', N'GIAO_DICH', N'Lập hóa đơn', N'Hóa đơn HD003', '2026-03-03 14:45:00', N'Thanh toán thành công 910,000đ, áp dụng GIAM50K'),
+    (N'NV003', N'GIAO_DICH', N'Hoàn tiền đổi trả', N'Phiếu đổi trả DT001', '2026-03-05 10:00:00', N'Hoàn trả 2,400,00０đ cho khách hàng (form không vừa)');
+
     -- ==============================================================================
-    -- 11. CẬP NHẬT TỰ ĐỘNG GIÁ BÁN THEO CÔNG THỨC: GIÁ NHẬP + (GIÁ NHẬP * % LỢI NHUẬN)
+    -- 12. CẬP NHẬT TỰ ĐỘNG GIÁ BÁN THEO CÔNG THỨC: GIÁ NHẬP + (GIÁ NHẬP * % LỢI NHUẬN)
     -- ==============================================================================
     UPDATE sp
     SET sp.DonGia = ROUND(ct.GiaNhap * (1 + sp.PhanTramLoiNhuan / 100.0), 2)

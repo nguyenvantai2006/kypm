@@ -1,0 +1,10 @@
+unit: ban-hang-page
+bindings:
+  - type: convention
+    name: "Swing JPanel implements IRefreshable"
+    source_loc: "src/main/java/com/qlgiay/gui/panel/BanHangPanel.java:49"
+    target: "BanHangPanel"
+    must_appear_in_target: true
+    notes: "checkout() là event handler của nút thanh toán trên Swing panel."
+runtime_config: []
+

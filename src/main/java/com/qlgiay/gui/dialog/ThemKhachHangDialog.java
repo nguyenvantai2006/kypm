@@ -82,8 +82,23 @@ public class ThemKhachHangDialog extends JDialog {
             return;
         }
 
+        if (!KhachHangBUS.isValidCustomerName(ten)) {
+            showWarning("Tên khách hàng chỉ được chứa chữ cái và dấu cách, không chứa số hoặc ký tự đặc biệt.");
+            return;
+        }
+
         if (!sdt.matches("^0\\d{9}$")) {
             showWarning("Số điện thoại phải gồm 10 chữ số và bắt đầu bằng 0.");
+            return;
+        }
+
+        int confirm = javax.swing.JOptionPane.showConfirmDialog(
+                this,
+                "Bạn có chắc chắn muốn thực hiện thao tác này?",
+                "Xác nhận",
+                javax.swing.JOptionPane.YES_NO_OPTION,
+                javax.swing.JOptionPane.QUESTION_MESSAGE);
+        if (confirm != javax.swing.JOptionPane.YES_OPTION) {
             return;
         }
 
@@ -97,6 +112,10 @@ public class ThemKhachHangDialog extends JDialog {
 
         if (onSaved != null)
             onSaved.accept(customer);
+        JOptionPane.showMessageDialog(this,
+                "Thêm khách hàng thành công!",
+                "Thông báo",
+                JOptionPane.INFORMATION_MESSAGE);
         dispose();
     }
 

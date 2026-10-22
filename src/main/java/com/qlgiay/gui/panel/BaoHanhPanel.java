@@ -186,6 +186,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
         });
 
         JScrollPane sp = new JScrollPane(table);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(sp);
         sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(225, 225, 225)),
@@ -232,41 +233,36 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
         alignTopPanel.add(contentPanel, BorderLayout.NORTH);
 
         JScrollPane scroll = new JScrollPane(alignTopPanel);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(scroll);
         scroll.setBorder(null);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
         scroll.getViewport().setOpaque(false);
         scroll.setOpaque(false);
 
-        JPanel pnlButtons = new JPanel(new GridLayout(1, 4, 5, 0));
+        JPanel pnlButtons = new JPanel(new GridLayout(1, 3, 5, 0));
         pnlButtons.setPreferredSize(new Dimension(0, 40));
         pnlButtons.setOpaque(false);
 
-        JButton btnAdd = new JButton("Thêm");
         JButton btnUpdate = new JButton("Sửa");
         JButton btnClear = new JButton("Làm mới");
         JButton btnPrint = new JButton("In phiếu");
 
-        btnAdd.setIcon(IconUtil.loadPng("/icons/add.png", 24));
         btnUpdate.setIcon(IconUtil.loadPng("/icons/edit.png", 24));
         btnClear.setIcon(IconUtil.loadPng("/icons/refresh.png", 24));
         btnPrint.setIcon(IconUtil.loadPng("/icons/print.png", 24));
 
-        btnAdd.setIconTextGap(4);
         btnUpdate.setIconTextGap(4);
         btnClear.setIconTextGap(4);
         btnPrint.setIconTextGap(4);
 
-        styleActionButton(btnAdd, "success");
         styleActionButton(btnUpdate, "default");
         styleActionButton(btnClear, "default");
         styleActionButton(btnPrint, "default");
 
-        btnAdd.addActionListener(e -> add());
         btnUpdate.addActionListener(e -> update());
         btnClear.addActionListener(e -> clear());
         btnPrint.addActionListener(e -> printWarranty());
 
-        pnlButtons.add(btnAdd);
         pnlButtons.add(btnUpdate);
         pnlButtons.add(btnClear);
         pnlButtons.add(btnPrint);
@@ -290,16 +286,19 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
         txtLoiCanBaoHanh.setLineWrap(true);
         txtLoiCanBaoHanh.setWrapStyleWord(true);
 
-        // KHÓA TOÀN BỘ READ ONLY
+        setFormEditable(false);
+    }
+
+    private void setFormEditable(boolean editable) {
         txtMaPBH.setEnabled(false);
-        txtNgayNhan.setEnabled(false);
-        txtMaHD.setEnabled(false);
-        txtNgayTraDuKien.setEnabled(false);
-        txtMaSP.setEnabled(false);
-        txtMaKH.setEnabled(false);
-        txtChiPhiPhatSinh.setEnabled(false);
-        cboTrangThai.setEnabled(false);
-        txtLoiCanBaoHanh.setEnabled(false);
+        txtNgayNhan.setEnabled(editable);
+        txtMaHD.setEnabled(editable);
+        txtNgayTraDuKien.setEnabled(editable);
+        txtMaSP.setEnabled(editable);
+        txtMaKH.setEnabled(editable);
+        txtChiPhiPhatSinh.setEnabled(editable);
+        cboTrangThai.setEnabled(editable);
+        txtLoiCanBaoHanh.setEnabled(editable);
     }
 
     private void initFormData() {
@@ -339,6 +338,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
         p.add(new JLabel("Lỗi cần bảo hành"), BorderLayout.NORTH);
 
         JScrollPane sp = new JScrollPane(txtLoiCanBaoHanh);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(sp);
         sp.setPreferredSize(new Dimension(0, 55));
         sp.putClientProperty(FlatClientProperties.STYLE, "arc: 8;");
 
@@ -408,6 +408,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
             return;
         }
 
+        setFormEditable(true);
         txtMaPBH.setText(pbh.getMaPBH());
         txtNgayNhan.setText(String.valueOf(pbh.getNgayNhan()));
         txtMaHD.setText(pbh.getMaHD());
@@ -589,8 +590,20 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
             return false;
         }
 
-        if (pbh.getNgayNhan() != null && pbh.getNgayTraDuKien() != null
-                && pbh.getNgayTraDuKien().isBefore(pbh.getNgayNhan())) {
+        if (pbh.getNgayTraDuKien() == null
+            || (pbh.getTrangThai() != 1 && !pbh.getNgayTraDuKien().isAfter(LocalDate.now()))) {
+            JOptionPane.showMessageDialog(
+                SwingUtilities.getWindowAncestor(this),
+            pbh.getNgayTraDuKien() == null
+                ? "Ngày trả dự kiến không được để trống!"
+                : "Ngày trả dự kiến phải sau ngày hiện tại nếu phiếu chưa hoàn thành!",
+                "Cảnh báo",
+                JOptionPane.WARNING_MESSAGE);
+            txtNgayTraDuKien.requestFocus();
+            return false;
+        }
+
+        if (pbh.getNgayNhan() != null && pbh.getNgayTraDuKien().isBefore(pbh.getNgayNhan())) {
             JOptionPane.showMessageDialog(
                     SwingUtilities.getWindowAncestor(this),
                     "Ngày trả dự kiến không được trước ngày nhận!",
@@ -741,6 +754,7 @@ public class BaoHanhPanel extends JPanel implements IRefreshable {
     }
 
     private void clear() {
+        setFormEditable(false);
         txtMaPBH.setText(generateWarrantyId());
         txtNgayNhan.setText(LocalDate.now().toString());
         txtMaHD.setText("");

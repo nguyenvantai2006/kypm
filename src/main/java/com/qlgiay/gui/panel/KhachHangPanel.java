@@ -2,6 +2,8 @@ package com.qlgiay.gui.panel;
 
 import com.formdev.flatlaf.FlatClientProperties;
 import com.qlgiay.bus.KhachHangBUS;
+import com.qlgiay.bus.LichSuBUS;
+import com.qlgiay.dto.AuthSession;
 import com.qlgiay.dto.KhachHangDTO;
 import com.qlgiay.util.IconUtil;
 import org.apache.commons.text.similarity.LevenshteinDistance;
@@ -27,11 +29,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.text.Normalizer;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class KhachHangPanel extends JPanel implements IRefreshable {
     private final KhachHangBUS khachHangBUS = new KhachHangBUS();
+    private final LichSuBUS lichSuBUS = new LichSuBUS();
+    private final AuthSession session;
 
     private JTable table;
     private DefaultTableModel tableModel;
@@ -44,13 +49,19 @@ public class KhachHangPanel extends JPanel implements IRefreshable {
     private JTextField txtSDT;
     private JTextField txtDiem;
     private JTextArea txtDiaChi;
-    private JComboBox<String> cboTrangThai;
+    private JTextField txtTrangThai;
+    private JButton btnLock;
 
     private int hoverRow = -1;
     private static final Pattern CUSTOMER_ID_PATTERN = Pattern.compile("^KH(\\d+)$", Pattern.CASE_INSENSITIVE);
     private final LevenshteinDistance fuzzyDistance = LevenshteinDistance.getDefaultInstance();
 
     public KhachHangPanel() {
+        this(null);
+    }
+
+    public KhachHangPanel(AuthSession session) {
+        this.session = session;
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(10, 10, 10, 10));
         setBackground(new Color(240, 243, 245));
@@ -162,6 +173,7 @@ public class KhachHangPanel extends JPanel implements IRefreshable {
         });
 
         JScrollPane sp = new JScrollPane(table);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(sp);
         sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         sp.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(225, 225, 225)),
@@ -193,7 +205,7 @@ public class KhachHangPanel extends JPanel implements IRefreshable {
 
         addGridRow(contentPanel, gbc, row++, field("Mã khách hàng", txtMaKH), field("Tên khách hàng", txtTenKH));
         addGridRow(contentPanel, gbc, row++, field("Số điện thoại", txtSDT), field("Điểm tích lũy", txtDiem));
-        addGridRow(contentPanel, gbc, row++, field("Trạng thái", cboTrangThai), new JLabel());
+        addGridRow(contentPanel, gbc, row++, field("Trạng thái", txtTrangThai), new JLabel());
 
         gbc.gridx = 0;
         gbc.gridy = row++;
@@ -206,6 +218,7 @@ public class KhachHangPanel extends JPanel implements IRefreshable {
         alignTopPanel.add(contentPanel, BorderLayout.NORTH);
 
         JScrollPane scroll = new JScrollPane(alignTopPanel);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(scroll);
         scroll.setBorder(null);
         scroll.getVerticalScrollBar().setUnitIncrement(16);
         scroll.getViewport().setOpaque(false);
@@ -217,33 +230,33 @@ public class KhachHangPanel extends JPanel implements IRefreshable {
 
         JButton btnAdd = new JButton("Thêm");
         JButton btnUpdate = new JButton("Sửa");
-        JButton btnDelete = new JButton("Xóa");
+        btnLock = new JButton("Khóa");
         JButton btnClear = new JButton("Làm mới");
 
         btnAdd.setIcon(IconUtil.loadPng("/icons/add.png", 24));
         btnUpdate.setIcon(IconUtil.loadPng("/icons/edit.png", 24));
-        btnDelete.setIcon(IconUtil.loadPng("/icons/delete.png", 24));
+        btnLock.setIcon(IconUtil.loadPng("/icons/lock.png", 24));
         btnClear.setIcon(IconUtil.loadPng("/icons/refresh.png", 24));
 
         int gap = 4;
         btnAdd.setIconTextGap(gap);
         btnUpdate.setIconTextGap(gap);
-        btnDelete.setIconTextGap(gap);
+        btnLock.setIconTextGap(gap);
         btnClear.setIconTextGap(gap);
 
         styleActionButton(btnAdd, "success");
         styleActionButton(btnUpdate, "default");
-        styleActionButton(btnDelete, "danger");
+        styleActionButton(btnLock, "danger");
         styleActionButton(btnClear, "default");
 
         btnAdd.addActionListener(e -> add());
         btnUpdate.addActionListener(e -> update());
-        btnDelete.addActionListener(e -> delete());
+        btnLock.addActionListener(e -> toggleLock());
         btnClear.addActionListener(e -> clear());
 
         pnlButtons.add(btnAdd);
         pnlButtons.add(btnUpdate);
-        pnlButtons.add(btnDelete);
+        pnlButtons.add(btnLock);
         pnlButtons.add(btnClear);
 
         formWrapper.add(scroll, BorderLayout.CENTER);
@@ -267,11 +280,8 @@ public class KhachHangPanel extends JPanel implements IRefreshable {
         txtDiaChi.setLineWrap(true);
         txtDiaChi.setWrapStyleWord(true);
 
-        cboTrangThai = new JComboBox<>(new String[] {
-                "Hoạt động", "Ngừng hoạt động"
-        });
-
-        styleComboBox(cboTrangThai);
+        txtTrangThai = new JTextField("Hoạt động");
+        txtTrangThai.setEditable(false);
     }
 
     private void addGridRow(JPanel parent, GridBagConstraints gbc, int row, JComponent left, JComponent right) {
@@ -303,6 +313,7 @@ public class KhachHangPanel extends JPanel implements IRefreshable {
         p.add(new JLabel("Địa chỉ"), BorderLayout.NORTH);
 
         JScrollPane sp = new JScrollPane(txtDiaChi);
+        com.qlgiay.util.ScrollUtil.applySmoothScroll(sp);
         sp.setPreferredSize(new Dimension(0, 55));
         sp.putClientProperty(FlatClientProperties.STYLE, "arc: 8;");
 
@@ -404,9 +415,16 @@ public class KhachHangPanel extends JPanel implements IRefreshable {
         txtSDT.setText(kh.getSdt());
         txtDiaChi.setText(kh.getDiaChi());
         txtDiem.setText(String.valueOf(kh.getDiemTichLuy()));
-        cboTrangThai.setSelectedIndex(kh.getTrangThai() == 1 ? 0 : 1);
+        txtTrangThai.setText(kh.getTrangThai() == 1 ? "Hoạt động" : "Ngừng hoạt động");
 
         txtMaKH.setEnabled(false);
+        if (kh.getTrangThai() == 1) {
+            btnLock.setText("Khóa");
+            btnLock.setIcon(IconUtil.loadPng("/icons/lock.png", 24));
+        } else {
+            btnLock.setText("Mở khóa");
+            btnLock.setIcon(IconUtil.loadPng("/icons/unlock.png", 24));
+        }
     }
 
     private KhachHangDTO readForm() {
@@ -417,6 +435,15 @@ public class KhachHangPanel extends JPanel implements IRefreshable {
             JOptionPane.showMessageDialog(
                     null,
                     "Vui lòng nhập tên khách hàng!",
+                    "Cảnh báo",
+                    JOptionPane.WARNING_MESSAGE);
+            return null;
+        }
+
+        if (!KhachHangBUS.isValidCustomerName(ten)) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Tên khách hàng chỉ được chứa chữ cái và dấu cách, không chứa số hoặc ký tự đặc biệt.",
                     "Cảnh báo",
                     JOptionPane.WARNING_MESSAGE);
             return null;
@@ -447,7 +474,7 @@ public class KhachHangPanel extends JPanel implements IRefreshable {
         }
         kh.setDiemTichLuy(diem);
 
-        kh.setTrangThai(cboTrangThai.getSelectedIndex() == 0 ? 1 : 0);
+        kh.setTrangThai(txtTrangThai.getText().equals("Hoạt động") ? 1 : 0);
 
         return kh;
     }
@@ -503,7 +530,46 @@ public class KhachHangPanel extends JPanel implements IRefreshable {
             return;
         }
 
+        KhachHangDTO oldKH = khachHangBUS.findById(kh.getMaKH());
+        StringBuilder changes = new StringBuilder();
+        if (oldKH != null) {
+            if (oldKH.getDiemTichLuy() != kh.getDiemTichLuy()) {
+                changes.append("Điểm tích lũy: ").append(oldKH.getDiemTichLuy()).append(" -> ")
+                        .append(kh.getDiemTichLuy()).append("; ");
+            }
+            if (!Objects.equals(oldKH.getSdt(), kh.getSdt())) {
+                changes.append("Số điện thoại: ").append(oldKH.getSdt()).append(" -> ").append(kh.getSdt())
+                        .append("; ");
+            }
+            if (!Objects.equals(oldKH.getDiaChi(), kh.getDiaChi())) {
+                changes.append("Địa chỉ: ").append(oldKH.getDiaChi()).append(" -> ").append(kh.getDiaChi())
+                        .append("; ");
+            }
+            if (oldKH.getTrangThai() != kh.getTrangThai()) {
+                changes.append("Trạng thái: ").append(oldKH.getTrangThai()).append(" -> ").append(kh.getTrangThai())
+                        .append("; ");
+            }
+        }
+
+        {
+            int confirm = javax.swing.JOptionPane.showConfirmDialog(
+                    this,
+                    "Bạn có chắc chắn muốn thực hiện thao tác này?",
+                    "Xác nhận",
+                    javax.swing.JOptionPane.YES_NO_OPTION,
+                    javax.swing.JOptionPane.QUESTION_MESSAGE);
+            if (confirm != javax.swing.JOptionPane.YES_OPTION) {
+                return;
+            }
+        }
+
         if (khachHangBUS.updateCustomer(kh)) {
+            lichSuBUS.ghiNhatKy(
+                    getCurrentEmployeeId(),
+                    "DANH_MUC",
+                    "Cập nhật Khách hàng",
+                    "Khách hàng " + kh.getMaKH(),
+                    changes.length() == 0 ? "Cập nhật thông tin cơ bản" : changes.toString());
             JOptionPane.showMessageDialog(
                     null,
                     "Cập nhật khách hàng thành công!",
@@ -520,12 +586,19 @@ public class KhachHangPanel extends JPanel implements IRefreshable {
         }
     }
 
-    private void delete() {
+    private String getCurrentEmployeeId() {
+        if (session == null || session.getNhanVien() == null || session.getNhanVien().getMaNV() == null) {
+            return "";
+        }
+        return session.getNhanVien().getMaNV().trim();
+    }
+
+    private void toggleLock() {
         int viewRow = table.getSelectedRow();
         if (viewRow < 0) {
             JOptionPane.showMessageDialog(
                     null,
-                    "Vui lòng chọn khách hàng cần xóa!",
+                    "Vui lòng chọn khách hàng cần thao tác!",
                     "Cảnh báo",
                     JOptionPane.WARNING_MESSAGE);
             return;
@@ -534,30 +607,38 @@ public class KhachHangPanel extends JPanel implements IRefreshable {
         int modelRow = table.convertRowIndexToModel(viewRow);
         String ma = String.valueOf(tableModel.getValueAt(modelRow, 0));
         String ten = String.valueOf(tableModel.getValueAt(modelRow, 1));
+        boolean isLocking = txtTrangThai.getText().equals("Hoạt động");
+        String actionName = isLocking ? "khóa" : "mở khóa";
 
         int confirm = JOptionPane.showConfirmDialog(
                 null,
-                "Bạn có chắc chắn muốn xóa khách hàng [" + ten + "] không?",
-                "Xác nhận xóa",
+                "Bạn có chắc chắn muốn " + actionName + " khách hàng [" + ten + "] không?",
+                "Xác nhận " + actionName,
                 JOptionPane.YES_NO_OPTION,
-                JOptionPane.WARNING_MESSAGE);
+                JOptionPane.QUESTION_MESSAGE);
 
-        if (confirm == JOptionPane.YES_OPTION) {
-            if (khachHangBUS.deleteCustomer(ma)) {
-                JOptionPane.showMessageDialog(
-                        null,
-                        "Đã xóa khách hàng thành công!",
-                        "Thông báo",
-                        JOptionPane.INFORMATION_MESSAGE);
-                loadTable();
-                clear();
-            } else {
-                JOptionPane.showMessageDialog(
-                        null,
-                        "Xóa khách hàng thất bại! Khách hàng có thể đang có hóa đơn.",
-                        "Lỗi",
-                        JOptionPane.ERROR_MESSAGE);
-            }
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        boolean success = isLocking
+                ? khachHangBUS.deleteCustomer(ma)
+                : khachHangBUS.restoreCustomer(ma);
+
+        if (success) {
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Đã " + actionName + " khách hàng thành công!",
+                    "Thông báo",
+                    JOptionPane.INFORMATION_MESSAGE);
+            loadTable();
+            clear();
+        } else {
+            JOptionPane.showMessageDialog(
+                    null,
+                    "Thao tác thất bại!",
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -645,7 +726,9 @@ public class KhachHangPanel extends JPanel implements IRefreshable {
         txtSDT.setText("");
         txtDiaChi.setText("");
         txtDiem.setText("0");
-        cboTrangThai.setSelectedIndex(0);
+        txtTrangThai.setText("Hoạt động");
+        btnLock.setText("Khóa");
+        btnLock.setIcon(IconUtil.loadPng("/icons/lock.png", 24));
 
         hoverRow = -1;
         table.clearSelection();

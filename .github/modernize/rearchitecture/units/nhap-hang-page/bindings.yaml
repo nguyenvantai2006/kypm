@@ -1,0 +1,10 @@
+unit: nhap-hang-page
+bindings:
+  - type: convention
+    name: "Swing JPanel implements IRefreshable"
+    source_loc: "src/main/java/com/qlgiay/gui/panel/NhapHangPanel.java:72"
+    target: "NhapHangPanel"
+    must_appear_in_target: true
+    notes: "Panel được MainFrame chọn theo module và có các tab tạo/lịch sử/hoàn trả."
+runtime_config: []
+

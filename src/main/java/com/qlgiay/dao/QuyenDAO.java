@@ -11,7 +11,8 @@ public class QuyenDAO {
     private static final String SELECT_ALL = """
             SELECT MaQuyen, TenQuyen,
                    QL_BanHang, QL_KhachHang, QL_SanPham,
-                   QL_NhapHang, QL_NhanVien, QL_ThongKe
+                   QL_NhapHang, QL_NhanVien, QL_ThongKe,
+                   QL_Voucher, QL_DoiTra, QL_PhanQuyen
             FROM QUYEN
             """;
 
@@ -20,10 +21,11 @@ public class QuyenDAO {
         List<QuyenDTO> list = new ArrayList<>();
 
         try (Connection c = DBConnect.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+                PreparedStatement ps = c.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
 
-            while (rs.next()) list.add(mapRow(rs));
+            while (rs.next())
+                list.add(mapRow(rs));
             return list;
 
         } catch (SQLException e) {
@@ -36,12 +38,13 @@ public class QuyenDAO {
         String sql = SELECT_ALL + " WHERE MaQuyen = ?";
 
         try (Connection c = DBConnect.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
+                PreparedStatement ps = c.prepareStatement(sql)) {
 
             ps.setString(1, maQuyen);
 
             try (ResultSet rs = ps.executeQuery()) {
-                if (!rs.next()) return null;
+                if (!rs.next())
+                    return null;
                 return mapRow(rs);
             }
 
@@ -61,13 +64,14 @@ public class QuyenDAO {
         String k = "%" + (keyword == null ? "" : keyword.trim()) + "%";
 
         try (Connection c = DBConnect.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
+                PreparedStatement ps = c.prepareStatement(sql)) {
 
             ps.setString(1, k);
             ps.setString(2, k);
 
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) list.add(mapRow(rs));
+                while (rs.next())
+                    list.add(mapRow(rs));
             }
 
             return list;
@@ -81,12 +85,12 @@ public class QuyenDAO {
     public boolean insert(QuyenDTO q) {
         String sql = """
                 INSERT INTO QUYEN
-                (MaQuyen, TenQuyen, QL_BanHang, QL_KhachHang, QL_SanPham, QL_NhapHang, QL_NhanVien, QL_ThongKe)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                (MaQuyen, TenQuyen, QL_BanHang, QL_KhachHang, QL_SanPham, QL_NhapHang, QL_NhanVien, QL_ThongKe, QL_Voucher, QL_DoiTra, QL_PhanQuyen)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """;
 
         try (Connection c = DBConnect.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
+                PreparedStatement ps = c.prepareStatement(sql)) {
 
             ps.setString(1, q.getMaQuyen());
             ps.setString(2, q.getTenQuyen());
@@ -96,6 +100,9 @@ public class QuyenDAO {
             ps.setInt(6, q.getQlNhapHang());
             ps.setInt(7, q.getQlNhanVien());
             ps.setInt(8, q.getQlThongKe());
+            ps.setInt(9, q.getQlVoucher());
+            ps.setInt(10, q.getQlDoiTra());
+            ps.setInt(11, q.getQlPhanQuyen());
 
             return ps.executeUpdate() > 0;
 
@@ -114,12 +121,15 @@ public class QuyenDAO {
                     QL_SanPham = ?,
                     QL_NhapHang = ?,
                     QL_NhanVien = ?,
-                    QL_ThongKe = ?
+                    QL_ThongKe = ?,
+                    QL_Voucher = ?,
+                    QL_DoiTra = ?,
+                    QL_PhanQuyen = ?
                 WHERE MaQuyen = ?
                 """;
 
         try (Connection c = DBConnect.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
+                PreparedStatement ps = c.prepareStatement(sql)) {
 
             ps.setString(1, q.getTenQuyen());
             ps.setInt(2, q.getQlBanHang());
@@ -128,7 +138,10 @@ public class QuyenDAO {
             ps.setInt(5, q.getQlNhapHang());
             ps.setInt(6, q.getQlNhanVien());
             ps.setInt(7, q.getQlThongKe());
-            ps.setString(8, q.getMaQuyen());
+            ps.setInt(8, q.getQlVoucher());
+            ps.setInt(9, q.getQlDoiTra());
+            ps.setInt(10, q.getQlPhanQuyen());
+            ps.setString(11, q.getMaQuyen());
 
             return ps.executeUpdate() > 0;
 
@@ -142,7 +155,7 @@ public class QuyenDAO {
         String sql = "DELETE FROM QUYEN WHERE MaQuyen = ?";
 
         try (Connection c = DBConnect.getConnection();
-             PreparedStatement ps = c.prepareStatement(sql)) {
+                PreparedStatement ps = c.prepareStatement(sql)) {
 
             ps.setString(1, maQuyen);
             return ps.executeUpdate() > 0;
@@ -162,7 +175,9 @@ public class QuyenDAO {
                 rs.getInt("QL_SanPham"),
                 rs.getInt("QL_NhapHang"),
                 rs.getInt("QL_NhanVien"),
-                rs.getInt("QL_ThongKe")
-        );
+                rs.getInt("QL_ThongKe"),
+                rs.getInt("QL_Voucher"),
+                rs.getInt("QL_DoiTra"),
+                rs.getInt("QL_PhanQuyen"));
     }
 }

@@ -1,0 +1,30 @@
+user_intent:
+  raw_request: "Rà soát luồng Nhập hàng/Bán hàng và chuẩn bị nâng cấp cho FIFO cùng voucher bù trừ chênh lệch giá."
+  inferred_acceptance:
+    - "Mô tả chính xác schema và call flow hiện tại."
+    - "Xác định điểm cần thay đổi để trừ tồn theo lô."
+    - "Không thay đổi hành vi hiện tại trong bước phân tích."
+  cleanup_required: false
+strategy: phased
+runtime_reachable:
+  - src/main/java/com/qlgiay/gui/panel/NhapHangPanel.java
+  - src/main/java/com/qlgiay/gui/panel/BanHangPanel.java
+  - src/main/java/com/qlgiay/bus/NhapHangBUS.java
+  - src/main/java/com/qlgiay/bus/BanHangBUS.java
+  - src/main/java/com/qlgiay/dao/SanPhamDAO.java
+must_rewrite: []
+copy_as_is:
+  - path: src/main/java/com/qlgiay/dao/PhieuNhapDAO.java
+    reason: "Hiện chỉ ghi header phiếu nhập; thay đổi chỉ cần khi thêm liên kết lot."
+  - path: src/main/java/com/qlgiay/dao/ChiTietPhieuNhapDAO.java
+    reason: "Hiện ghi số lượng/giá nhập tổng hợp; cần mở rộng khi lot được triển khai."
+  - path: src/main/java/com/qlgiay/dao/HoaDonDAO.java
+    reason: "Header hóa đơn không chứa thông tin lô ở trạng thái hiện tại."
+legacy_allowed_to_remain: []
+defer_cleanup:
+  - "Tách trách nhiệm lot inventory khỏi SanPhamDAO sau khi FIFO được kiểm chứng."
+full_rewrite_reason: null
+implementation_rule: >
+  Đây là artifact phân tích, chưa có file được đánh dấu phải sửa. Khi chuyển sang implementation,
+  phạm vi phải được chốt lại từ schema migration và các method FIFO cụ thể, không suy ra từ toàn bộ source_anchors.
+

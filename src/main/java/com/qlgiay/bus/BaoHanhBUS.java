@@ -41,7 +41,8 @@ public class BaoHanhBUS {
 
         LocalDate nhan = pbh.getNgayNhan();
         LocalDate tra = pbh.getNgayTraDuKien();
-        if (nhan != null && tra != null && tra.isBefore(nhan)) return false;
+        if (tra == null || (pbh.getTrangThai() != 1 && !tra.isAfter(LocalDate.now()))) return false;
+        if (nhan != null && tra.isBefore(nhan)) return false;
 
         return true;
     }
