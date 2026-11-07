@@ -54,15 +54,15 @@ public class KhachHangBUS {
     }
 
     public boolean addCustomer(KhachHangDTO kh) {
-        if (!isValid(kh))
+ /*D1 */       if (!isValid(kh))
             return false;
 
         kh.setMaKH(kh.getMaKH().trim());
 
-        if (khachHangDAO.findById(kh.getMaKH()) != null)
+/*D2 */       if (khachHangDAO.findById(kh.getMaKH()) != null)
             return false;
 
-        if (khachHangDAO.findByPhone(kh.getSdt()) != null)
+/*D3 */        if (khachHangDAO.findByPhone(kh.getSdt()) != null)
             return false;
 
         return khachHangDAO.insert(kh);

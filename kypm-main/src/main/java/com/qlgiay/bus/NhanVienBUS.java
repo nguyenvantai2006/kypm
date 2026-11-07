@@ -17,30 +17,37 @@ public class NhanVienBUS {
     }
 
     private boolean isValidCommon(NhanVienDTO nv) {
-        if (nv == null) return false;
+    /*1 */    if (nv == null) 
+    /*2 */      return false;
 
-        String maNV = trimOrEmpty(nv.getMaNV());
-        String ho = trimOrEmpty(nv.getHo());
-        String ten = trimOrEmpty(nv.getTen());
-        String maQuyen = trimOrEmpty(nv.getMaQuyen());
-        String taiKhoan = trimOrEmpty(nv.getTaiKhoan());
+    /*3 */    String maNV = trimOrEmpty(nv.getMaNV());
+    /*3 */    String ho = trimOrEmpty(nv.getHo());
+    /*3 */    String ten = trimOrEmpty(nv.getTen());
+    /*3 */    String maQuyen = trimOrEmpty(nv.getMaQuyen());
+    /*3 */    String taiKhoan = trimOrEmpty(nv.getTaiKhoan());
 
-        if (maNV.isEmpty()) return false;
-        if (ho.isEmpty()) return false;
-        if (ten.isEmpty()) return false;
-        if (maQuyen.isEmpty()) return false;
+    /*4 */    if (maNV.isEmpty()) 
+    /*2 */    return false;
+    /*5 */    if (ho.isEmpty()) 
+    /*2 */    return false;
+    /*6 */    if (ten.isEmpty()) 
+    /*2 */    return false;
+    /*7 */    if (maQuyen.isEmpty()) 
+    /*2 */    return false;
 
-        if (taiKhoan.isEmpty() || taiKhoan.contains(" ")) return false;
+    /*8 */    if (taiKhoan.isEmpty() || taiKhoan.contains(" ")) 
+    /*2 */    return false;
 
-        if (nv.getLuong() != null && nv.getLuong().compareTo(BigDecimal.ZERO) < 0) return false;
+    /*9 */    if (nv.getLuong() != null && nv.getLuong().compareTo(BigDecimal.ZERO) < 0) 
+    /*2 */    return false;
 
-        nv.setMaNV(maNV);
-        nv.setHo(ho);
-        nv.setTen(ten);
-        nv.setMaQuyen(maQuyen);
-        nv.setTaiKhoan(taiKhoan);
+    /*10 */    nv.setMaNV(maNV);
+    /*10 */    nv.setHo(ho);
+    /*10 */    nv.setTen(ten);
+    /*10 */    nv.setMaQuyen(maQuyen);
+    /*10 */    nv.setTaiKhoan(taiKhoan);
 
-        return true;
+    /*11 */    return true;
     }
 
     private boolean isValidForAdd(NhanVienDTO nv) {

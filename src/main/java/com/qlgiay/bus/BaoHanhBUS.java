@@ -78,24 +78,24 @@ public class BaoHanhBUS {
     }
 
     public boolean create(PhieuBaoHanhDTO pbh) {
-        if (!isValidCommon(pbh)) return false;
+ /*D1 */       if (!isValidCommon(pbh)) return false;
 
-        if (pbh.getChiPhiPhatSinh() == null) pbh.setChiPhiPhatSinh(BigDecimal.ZERO);
+/*D2 */      if (pbh.getChiPhiPhatSinh() == null) pbh.setChiPhiPhatSinh(BigDecimal.ZERO);
 
-        if (pbh.getTrangThai() != 0 && pbh.getTrangThai() != 1 && pbh.getTrangThai() != 2) {
+ /*D3 */       if (pbh.getTrangThai() != 0 && pbh.getTrangThai() != 1 && pbh.getTrangThai() != 2) {
             pbh.setTrangThai(1);
         }
 
         try (Connection c = DBConnect.getConnection()) {
             c.setAutoCommit(false);
 
-            if (phieuBaoHanhDAO.findById(c, pbh.getMaPBH()) != null) {
+/*D4 */          if (phieuBaoHanhDAO.findById(c, pbh.getMaPBH()) != null) {
                 c.rollback();
                 return false;
             }
 
             boolean ok = phieuBaoHanhDAO.insert(c, pbh);
-            if (!ok) {
+/*D5 */          if (!ok) {
                 c.rollback();
                 return false;
             }
