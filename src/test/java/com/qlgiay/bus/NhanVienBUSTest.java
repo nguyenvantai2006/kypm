@@ -7,17 +7,14 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-// Phân loại test case để quản lý dễ hơn
 @Tag("BusinessLogicTest")
-// Đặt tên hiển thị dễ đọc trên Test Explorer
+
 @DisplayName("Kiểm thử nghiệp vụ lớp NhanVienBUS (Có Output Console)")
 class NhanVienBUSTest {
 
     private NhanVienBUS nhanVienBUS;
 
-    // ==========================================
-    // CÁC HÀM HỖ TRỢ IN OUTPUT RA CONSOLE
-    // ==========================================
+    
     private void assertBooleanResult(String testCase, String input, boolean expected, boolean actual) {
         System.out.printf("[NhanVienBUSTest] %s | input=%s | expected=%s | actual=%s%n",
                 testCase, input, expected, actual);
@@ -30,35 +27,30 @@ class NhanVienBUSTest {
         assertNull(actual);
     }
 
-    // ==========================================
-    // QUẢN LÝ VÒNG ĐỜI BÀI TEST (LIFECYCLE)
-    // ==========================================
     
     @BeforeAll
     static void initAll() {
-        // Chạy 1 lần duy nhất lúc bắt đầu
+      
     }
 
     @AfterAll
     static void tearDownAll() {
-        // Chạy 1 lần duy nhất lúc kết thúc
+       
     }
 
     @BeforeEach
     void setUp() {
-        // Chạy trước MỖI bài test để dọn dẹp bộ nhớ/chuẩn bị môi trường
+       
         nhanVienBUS = new NhanVienBUS();
         System.out.print(" -> Dang chay test case: ");
     }
 
     @AfterEach
     void tearDown() {
-        // Chạy sau MỖI bài test
+     
     }
 
-    // ==========================================
-    // NHÓM 1. TEST HÀM addNhanVien()
-    // ==========================================
+   
     @Nested
     @DisplayName("1. Chức năng Thêm Nhân Viên")
     class AddNhanVienTests {
@@ -134,9 +126,6 @@ class NhanVienBUSTest {
         }
     }
 
-    // ==========================================
-    // NHÓM 2. TEST HÀM updateNhanVien()
-    // ==========================================
     @Nested
     @DisplayName("2. Chức năng Cập nhật Nhân Viên")
     class UpdateNhanVienTests {
@@ -165,9 +154,7 @@ class NhanVienBUSTest {
         }
     }
 
-    // ==========================================
-    // NHÓM 3. TEST CÁC HÀM TÌM KIẾM & KHOÁ/MỞ KHÓA
-    // ==========================================
+    
     @Nested
     @DisplayName("3. Chức năng Tìm kiếm và Khóa/Mở Khóa")
     class SearchAndLockTests {

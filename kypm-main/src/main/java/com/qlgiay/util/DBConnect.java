@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 public class DBConnect {
 
-    private static final boolean DEMO_MODE = false;
+    private static final boolean DEMO_MODE = Boolean.parseBoolean(System.getProperty("qlgiay.demoMode", "true"));
 
     private static final String URL =
             "jdbc:sqlserver://localhost:1433;" +
