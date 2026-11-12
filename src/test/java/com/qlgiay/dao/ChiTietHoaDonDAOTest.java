@@ -24,7 +24,7 @@ class ChiTietHoaDonDAOTest {
     @BeforeAll
     static void initAll() {
         try {
-            DBConnect.enableTestConnection();
+            DBConnect.getConnection().close();
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -32,7 +32,6 @@ class ChiTietHoaDonDAOTest {
 
     @AfterAll
     static void tearDownAll() {
-        DBConnect.closeTestConnection();
     }
 
     @BeforeEach

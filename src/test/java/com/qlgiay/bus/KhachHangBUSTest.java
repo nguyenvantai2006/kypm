@@ -46,7 +46,7 @@ class KhachHangBUSTest {
     @BeforeAll
     static void initAll() {
         try {
-            DBConnect.enableTestConnection();
+            DBConnect.getConnection().close();
         } catch (Exception ignored) {
         }
         hardDeleteTestRecordStatic(); // Dọn DB trước khi chạy nguyên file
@@ -55,7 +55,6 @@ class KhachHangBUSTest {
     @AfterAll
     static void tearDownAll() {
         hardDeleteTestRecordStatic(); // Test xong nguyên file thì dọn rác trả lại DB sạch
-        DBConnect.closeTestConnection();
     }
 
     private static void hardDeleteTestRecordStatic() {

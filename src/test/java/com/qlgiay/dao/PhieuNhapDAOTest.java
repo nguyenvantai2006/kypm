@@ -25,7 +25,7 @@ class PhieuNhapDAOTest {
     @BeforeAll
     static void initAll() {
         try {
-            DBConnect.enableTestConnection(); // Tái sử dụng kết nối
+            DBConnect.getConnection().close();
         } catch (Exception e) {
             fail("Không thể khởi tạo Test Connection: " + e.getMessage());
         }
@@ -33,7 +33,6 @@ class PhieuNhapDAOTest {
 
     @AfterAll
     static void tearDownAll() {
-        DBConnect.closeTestConnection();
     }
 
     @BeforeEach

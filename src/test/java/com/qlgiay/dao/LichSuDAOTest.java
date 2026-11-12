@@ -23,7 +23,7 @@ class LichSuDAOTest {
     @BeforeAll
     static void initAll() {
         try {
-            DBConnect.enableTestConnection();
+            DBConnect.getConnection().close();
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -31,7 +31,6 @@ class LichSuDAOTest {
 
     @AfterAll
     static void tearDownAll() {
-        DBConnect.closeTestConnection();
     }
 
     @BeforeEach

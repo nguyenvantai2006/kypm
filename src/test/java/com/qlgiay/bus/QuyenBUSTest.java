@@ -27,14 +27,13 @@ class QuyenBUSTest {
     @BeforeAll
     static void initAll() {
         try {
-            DBConnect.enableTestConnection();
+            DBConnect.getConnection().close();
         } catch (Exception ignored) {
         }
     }
 
     @AfterAll
     static void tearDownAll() {
-        DBConnect.closeTestConnection();
     }
 
     @BeforeEach

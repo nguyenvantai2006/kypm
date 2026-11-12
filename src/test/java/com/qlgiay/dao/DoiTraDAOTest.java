@@ -27,7 +27,7 @@ class DoiTraDAOTest {
     @BeforeAll
     static void initAll() {
         try {
-            DBConnect.enableTestConnection();
+            DBConnect.getConnection().close();
         } catch (Exception e) {
             fail(e.getMessage());
         }
@@ -35,7 +35,6 @@ class DoiTraDAOTest {
 
     @AfterAll
     static void tearDownAll() {
-        DBConnect.closeTestConnection();
     }
 
     @BeforeEach

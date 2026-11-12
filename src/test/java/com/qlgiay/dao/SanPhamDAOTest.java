@@ -23,7 +23,7 @@ class SanPhamDAOTest {
     @BeforeAll
     static void initAll() {
         try {
-            DBConnect.enableTestConnection(); // Mở 1 kết nối duy nhất dùng cho toàn bộ file Test
+            DBConnect.getConnection().close();
         } catch (Exception e) {
             fail("Không thể khởi tạo Test Connection: " + e.getMessage());
         }
@@ -31,7 +31,6 @@ class SanPhamDAOTest {
 
     @AfterAll
     static void tearDownAll() {
-        DBConnect.closeTestConnection(); // Đóng kết nối khi test xong
     }
 
     @BeforeEach
